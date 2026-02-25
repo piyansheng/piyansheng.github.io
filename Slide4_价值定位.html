@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Slide 4 - 价值定位（竖版）</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .card { 
+            width: 400px; height: 580px; 
+            background: white; 
+            display: flex; flex-direction: column; 
+            padding: 30px 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            border-top: 6px solid #165DFF;
+            position: relative;
+        }
+
+        /* 顶部：目标 */
+        .top-goal {
+            background: #F2F3F5; border-radius: 8px; padding: 15px; text-align: center;
+            margin-bottom: 20px; position: relative;
+        }
+        .top-goal::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+            border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid #F2F3F5;
+        }
+        .goal-title { font-size: 16px; font-weight: bold; color: #1d2129; }
+        .goal-sub { font-size: 12px; color: #86909C; margin-top: 4px; }
+
+        /* 中间：两大支柱 */
+        .pillars-container { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        
+        .pillar-card {
+            flex: 1; border-radius: 8px; padding: 15px; display: flex; align-items: center;
+            position: relative; overflow: hidden;
+            border: 1px solid #E5E6EB;
+        }
+        .pillar-blue { background: #E8F3FF; border-color: #165DFF; }
+        .pillar-orange { background: #FFF7E8; border-color: #FF7D00; }
+        
+        .p-icon-box {
+            width: 50px; height: 50px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-right: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .p-content { flex: 1; }
+        .p-title { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+        .p-desc { font-size: 12px; opacity: 0.8; line-height: 1.4; }
+        
+        .pillar-blue .p-title { color: #165DFF; }
+        .pillar-orange .p-title { color: #D25F00; }
+
+        /* 底部：基座 */
+        .foundation {
+            background: #272E3B; border-radius: 8px; padding: 15px;
+            color: white; margin-top: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .f-title { text-align: center; font-size: 14px; opacity: 0.6; margin-bottom: 5px; letter-spacing: 1px; }
+        .f-items { display: flex; justify-content: space-around; }
+        .f-item { display: flex; align-items: center; font-size: 13px; font-weight: bold; }
+        .f-icon { margin-right: 6px; color: #165DFF; }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- 顶部目标 -->
+        <div class="top-goal">
+            <div class="goal-title">端到端交付的第一责任人</div>
+            <div class="goal-sub">End-to-End Delivery Owner</div>
+        </div>
+        
+        <!-- 中间支柱 -->
+        <div class="pillars-container">
+            <div class="pillar-card pillar-blue">
+                <div class="p-icon-box">📊</div>
+                <div class="p-content">
+                    <div class="p-title">对 战 略</div>
+                    <div class="p-desc">数据资产守门人<br>数据准确 · 穿透力强</div>
+                </div>
+            </div>
+            
+            <div class="pillar-card pillar-orange">
+                <div class="p-icon-box">👥</div>
+                <div class="p-content">
+                    <div class="p-title">对 H R</div>
+                    <div class="p-desc">管理效能助推器<br>流程顺滑 · 体验友好</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部基座 -->
+        <div class="foundation">
+            <div class="f-title">核心底座</div>
+            <div class="f-items">
+                <div class="f-item">💎 AI能力杠杆</div>
+                <div class="f-item">🛠️ 全链路机制</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

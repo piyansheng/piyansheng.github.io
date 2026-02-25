@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>晋升申请 - 移动端</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========================================
+           CSS变量 - 金色晋升主题
+        ======================================== */
+        :root {
+            /* 主色调 - 金黄色系（晋升/成长象征） */
+            --primary-gold: #FFD700;
+            --light-gold: #FFF8DC;
+            --gold-bg: #fffbe6;
+            --gold-border: #ffe58f;
+            --gold-text: #d48806;
+            --deep-gold: #faad14;
+            
+            /* 操作色 - 蓝色系 */
+            --active-blue: #1890ff;
+            --light-blue: #e6f7ff;
+            --blue-border: #91d5ff;
+            
+            /* 状态色 */
+            --success-green: #52c41a;
+            --light-green: #f6ffed;
+            --warning-orange: #fa8c16;
+            --error-red: #ff4d4f;
+            
+            /* 中性色 */
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1f1f1f;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #e8e8e8;
+            --divider-color: #f0f0f0;
+            
+            /* 安全区域 */
+            --safe-area-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ========================================
+           基础重置
+        ======================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #fefaf0 0%, var(--bg-color) 120px);
+            color: var(--text-primary);
+            padding-bottom: calc(120px + var(--safe-area-bottom));
+            line-height: 1.6;
+            font-size: 14px;
+            min-height: 100%;
+        }
+
+        /* ========================================
+           动画
+        ======================================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes progressFill {
+            from { width: 0; }
+        }
+
+        @keyframes radarDraw {
+            from { stroke-dashoffset: 1000; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* ========================================
+           Header - 沉浸式顶栏
+        ======================================== */
+        .header {
+            background: transparent;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-blur {
+            position: absolute;
+            inset: 0;
+            background: rgba(254, 250, 240, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: -1;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+
+        .header-icon:active {
+            transform: scale(0.95);
+            background: #fff;
+        }
+
+        .header-title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        /* ========================================
+           用户信息卡片
+        ======================================== */
+        .applicant-summary {
+            background: #fff;
+            padding: 16px;
+            margin: 0 16px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .app-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .app-basic {
+            flex: 1;
+        }
+
+        .app-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .app-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .app-details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: #f9f9f9;
+            padding: 8px 10px;
+            border-radius: 6px;
+            align-items: center;
+        }
+        
+        .detail-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .promotion-path-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px 0 8px 0;
+        }
+
+        .level-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: #fff;
+            position: relative;
+        }
+
+        .level-box.current {
+            background: var(--success-green);
+            box-shadow: 0 4px 10px rgba(82, 196, 26, 0.3);
+        }
+
+        .level-box.target {
+            background: var(--active-blue);
+            box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+        }
+
+        .lvl-num {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0;
+            opacity: 0.9;
+            color: #fff;
+        }
+
+        .lvl-grade {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+            color: #fff;
+        }
+
+        .path-arrow {
+            font-size: 16px;
+            color: #b3ccff;
+            display: flex;
+            align-items: center;
+        }
+        
+        .target-star {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            color: #ffc53d;
+            font-size: 18px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+            z-index: 1;
+            transform: rotate(15deg);
+        }
+
+        /* ========================================
+           步骤进度条（简化版）
+        ======================================== */
+        .steps-simple {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #ccc;
+            transition: all 0.3s;
+        }
+
+        .step-item.done .step-circle {
+            background: #f6ffed;
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .step-item.active .step-circle {
+            background: #e6f7ff;
+            border-color: var(--active-blue);
+            color: var(--active-blue);
+        }
+
+        .step-name {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .step-item.done .step-name,
+        .step-item.active .step-name {
+            color: var(--text-primary);
+        }
+
+        .step-line-h {
+            flex: 1;
+            height: 1px;
+            background: #eee;
+            margin: 0 4px;
+            margin-bottom: 20px;
+        }
+
+        .step-line-h.done {
+            background: var(--success-green);
+        }
+
+        /* ========================================
+           主内容区域
+        ======================================== */
+        .main-content {
+            padding: 0 16px;
+        }
+
+        /* ========================================
+           分区标题
+        ======================================== */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0 12px;
+            padding: 0 4px;
+        }
+
+        .section-header-icon {
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(180deg, var(--primary-gold) 0%, var(--deep-gold) 100%);
+            border-radius: 2px;
+        }
+
+        .section-header-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-header-sub {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: auto;
+        }
+
+        /* ========================================
+           引导提示
+        ======================================== */
+        .guide-tip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            border: 1px solid var(--blue-border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .guide-tip-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--active-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .guide-tip-text {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .guide-tip-text a {
+            color: var(--active-blue);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .guide-tip-close {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .guide-tip-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .guide-tip.hidden {
+            display: none;
+        }
+
+        /* ========================================
+           概览卡片
+        ======================================== */
+        .overview-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .overview-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .overview-title i {
+            color: var(--primary-gold);
+        }
+
+        .overview-progress {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .overview-progress strong {
+            color: var(--success-green);
+            font-size: 16px;
+        }
+
+        /* 雷达图容器 */
+        .radar-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .radar-chart {
+            width: 200px;
+            height: 200px;
+        }
+
+        .radar-polygon {
+            fill: rgba(255, 215, 0, 0.15);
+            stroke: var(--primary-gold);
+            stroke-width: 2;
+            stroke-dasharray: 1000;
+            animation: radarDraw 1.5s ease-out forwards;
+        }
+
+        .radar-grid {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 1;
+        }
+
+        .radar-axis {
+            stroke: var(--divider-color);
+            stroke-width: 1;
+        }
+
+        .radar-label {
+            font-size: 10px;
+            fill: var(--text-secondary);
+            text-anchor: middle;
+        }
+
+        .radar-value {
+            font-size: 9px;
+            fill: var(--gold-text);
+            font-weight: 600;
+        }
+
+        /* 技术标签 */
+        .tech-tags {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .tech-tags-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tech-tags-title i {
+            color: var(--active-blue);
+        }
+
+        .tech-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(24, 144, 255, 0.1);
+        }
+
+        .tech-level {
+            display: flex;
+            gap: 2px;
+        }
+
+        .tech-diamond {
+            color: var(--primary-gold);
+            font-size: 12px;
+        }
+
+        .tech-diamond.empty {
+            color: #ddd;
+        }
+
+        .tech-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tech-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .tech-code {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        /* ========================================
+           要求达成模块
+        ======================================== */
+        .requirement-card {
+            background: #fff;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .requirement-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .requirement-header:active {
+            background: var(--bg-color);
+        }
+
+        .req-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .req-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .req-icon.green { background: var(--light-green); color: var(--success-green); }
+        .req-icon.blue { background: var(--light-blue); color: var(--active-blue); }
+        .req-icon.gold { background: var(--gold-bg); color: var(--gold-text); }
+        .req-icon.purple { background: #f9f0ff; color: #722ed1; }
+
+        .req-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .req-subtitle {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .req-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .req-percent {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--success-green);
+        }
+
+        .req-percent.warning {
+            color: var(--warning-orange);
+        }
+
+        .req-percent.danger {
+            color: var(--error-red);
+        }
+
+        .req-arrow {
+            color: var(--text-light);
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .requirement-card.expanded .req-arrow {
+            transform: rotate(180deg);
+        }
+
+        .requirement-body {
+            display: none;
+            padding: 0 16px 16px;
+        }
+
+        .requirement-card.expanded .requirement-body {
+            display: block;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 8px;
+            background: var(--divider-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-green) 0%, #73d13d 100%);
+            border-radius: 4px;
+            animation: progressFill 1s ease-out;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, var(--warning-orange) 0%, #ffc53d 100%);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, var(--error-red) 0%, #ff7875 100%);
+        }
+
+        /* 详情项 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .detail-item {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* 环形进度 */
+        .ring-progress {
+            width: 52px;
+            height: 52px;
+            position: relative;
+        }
+
+        .ring-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: var(--divider-color);
+            stroke-width: 5;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke: var(--success-green);
+            stroke-width: 5;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .ring-fill.warning {
+            stroke: var(--warning-orange);
+        }
+
+        .ring-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ========================================
+           提交申请表单
+        ======================================== */
+        .form-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-title i {
+            color: var(--primary-gold);
+        }
+
+        .form-title .required {
+            color: var(--error-red);
+            font-size: 12px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-label .required {
+            color: var(--error-red);
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            resize: vertical;
+            transition: all 0.2s;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-textarea::placeholder {
+            color: var(--text-light);
+        }
+
+        .star-textarea {
+            min-height: 200px;
+            white-space: pre-wrap;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .form-hint i {
+            margin-top: 2px;
+            color: var(--deep-gold);
+        }
+
+        /* 文件上传 */
+        .upload-area {
+            display: block;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .upload-area:hover,
+        .upload-area:focus {
+            border-color: var(--primary-gold);
+            background: var(--gold-bg);
+            outline: none;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .file-list {
+            margin-top: 12px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-icon {
+            font-size: 18px;
+            color: var(--active-blue);
+        }
+
+        .file-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-remove {
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* ========================================
+           底部操作栏
+        ======================================== */
+        .bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            padding: 12px 16px calc(12px + var(--safe-area-bottom));
+            display: flex;
+            gap: 12px;
+            z-index: 200;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 24px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--deep-gold) 100%);
+            color: #000;
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.35);
+        }
+
+        .btn-primary:active {
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.35);
+        }
+
+        /* ========================================
+           底部导航
+        ======================================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: calc(72px + var(--safe-area-bottom));
+            left: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 190;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            display: none; /* 晋升申请页面隐藏底部导航 */
+        }
+
+        /* ========================================
+           空状态
+        ======================================== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* ========================================
+           辅助类
+        ======================================== */
+        .text-success { color: var(--success-green) !important; }
+        .text-warning { color: var(--warning-orange) !important; }
+        .text-danger { color: var(--error-red) !important; }
+        .text-gold { color: var(--gold-text) !important; }
+
+        .bg-success { background: var(--light-green) !important; }
+        .bg-warning { background: #fff7e6 !important; }
+        .bg-danger { background: #fff1f0 !important; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header animate-in">
+        <div class="header-blur"></div>
+        <div class="header-icon" onclick="window.history.back()">
+            <i class="fa-solid fa-chevron-left"></i>
+        </div>
+        <div class="header-title">晋升申请</div>
+        <div class="header-icon">
+            <i class="fa-solid fa-ellipsis"></i>
+        </div>
+    </div>
+
+    <!-- 用户信息卡片 -->
+    <div class="applicant-summary animate-in delay-1">
+        <div class="app-top">
+            <div class="avatar">赵</div>
+            <div class="app-basic">
+                <div class="app-name">赵波</div>
+                <div class="app-title">IT产品经理 · 流程&项目部</div>
+            </div>
+        </div>
+
+        <div class="app-details-row">
+            <div class="detail-tag"><i class="fa-solid fa-id-badge" style="color:#b37feb"></i> 01401</div>
+            <div class="detail-tag"><i class="fa-solid fa-clock" style="color:#ff85c0"></i> 08年9月</div>
+            <div class="detail-tag"><i class="fa-solid fa-user-tie" style="color:#597ef7"></i> 上级: 徐银涛</div>
+        </div>
+
+        <div class="promotion-path-row">
+            <div class="level-box current">
+                <div class="lvl-num">2级</div>
+                <div class="lvl-grade">E</div>
+            </div>
+            <div class="path-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
+            <div class="level-box target">
+                <div class="lvl-num">3级</div>
+                <div class="lvl-grade">F</div>
+                <i class="fa-solid fa-star target-star"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 步骤进度条（简化版） -->
+    <div class="steps-simple animate-in delay-2">
+        <div class="step-item done">
+            <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+            <div class="step-name">申请</div>
+        </div>
+        <div class="step-line-h done"></div>
+        <div class="step-item done">
+            <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+            <div class="step-name">认证</div>
+        </div>
+        <div class="step-line-h done"></div>
+        <div class="step-item active">
+            <div class="step-circle"><i class="fa-solid fa-pen"></i></div>
+            <div class="step-name">签字</div>
+        </div>
+        <div class="step-line-h"></div>
+        <div class="step-item">
+            <div class="step-circle">4</div>
+            <div class="step-name">公示</div>
+        </div>
+        <div class="step-line-h"></div>
+        <div class="step-item">
+            <div class="step-circle">5</div>
+            <div class="step-name">生效</div>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        
+        <!-- ============ 申请表单区域（核心任务） ============ -->
+        <div class="section-header animate-in delay-3">
+            <div class="section-header-icon"></div>
+            <div class="section-header-text">填写申请</div>
+        </div>
+
+        <!-- 引导提示 -->
+        <div class="guide-tip animate-in delay-3" id="guideTip">
+            <div class="guide-tip-icon"><i class="fa-solid fa-lightbulb"></i></div>
+            <div class="guide-tip-text">填写前可先查看下方 <a href="javascript:;" onclick="scrollToRef()">参考信息</a>，了解您的达成情况</div>
+            <div class="guide-tip-close" onclick="closeGuideTip()"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <!-- 对新岗位的理解 -->
+        <div class="form-section animate-in delay-3">
+            <div class="form-title">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span class="required">*</span> 对新岗位的理解
+            </div>
+            <div class="form-field">
+                <textarea class="form-textarea star-textarea" placeholder="请使用STAR模板描述您对目标岗位职责的理解...
+
+Situation（情景）：描述目标岗位所处的工作环境和背景
+
+Task（任务）：详细说明岗位的核心职责和主要工作任务
+
+Action（行动）：阐述为完成任务需要采取的具体行动和方法
+
+Result（结果）：说明期望达成的工作成果和价值贡献"></textarea>
+            </div>
+        </div>
+
+        <!-- 未来三年规划 -->
+        <div class="form-section animate-in delay-4">
+            <div class="form-title">
+                <i class="fa-solid fa-road"></i>
+                <span class="required">*</span> 未来三年规划
+            </div>
+            <div class="form-field">
+                <textarea class="form-textarea star-textarea" placeholder="请使用STAR模板制定您的三年工作规划...
+
+Situation（情景）：分析当前职业发展阶段和市场环境
+
+Task（任务）：明确三年内需要达成的核心目标和里程碑
+
+Action（行动）：详细说明为实现目标的具体行动计划和时间安排
+
+Result（结果）：描述预期达成的职业成果和个人成长"></textarea>
+            </div>
+        </div>
+
+        <!-- 其他补充材料 -->
+        <div class="form-section animate-in delay-4">
+            <div class="form-title">
+                <i class="fa-solid fa-folder-open"></i>
+                其他补充材料
+            </div>
+            <div class="form-field" style="margin-bottom:0;">
+                <label class="upload-area">
+                    <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="upload-text">点击或拖拽文件到此处上传</div>
+                    <div class="upload-hint">支持所有格式，单个文件不超过 10MB</div>
+                    <input type="file" multiple style="display:none;">
+                </label>
+                <div class="file-list" id="fileList"></div>
+            </div>
+        </div>
+
+        <!-- ============ 辅助信息区域（按需查看） ============ -->
+        <div class="section-header" id="refSection" style="margin-top:28px;">
+            <div class="section-header-icon"></div>
+            <div class="section-header-text">参考信息</div>
+            <div class="section-header-sub">点击展开查看</div>
+        </div>
+
+        <!-- 概览信息卡片 -->
+        <div class="requirement-card collapsed" data-req="overview">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon blue"><i class="fa-solid fa-chart-pie"></i></div>
+                    <div>
+                        <div class="req-title">概览信息</div>
+                        <div class="req-subtitle">能力画像与技术标签</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">57%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <!-- 雷达图 -->
+                <div class="radar-container">
+                    <svg class="radar-chart" viewBox="0 0 200 200">
+                        <polygon class="radar-grid" points="100,20 166,50 166,130 100,170 34,130 34,50"/>
+                        <polygon class="radar-grid" points="100,40 150,60 150,120 100,150 50,120 50,60"/>
+                        <polygon class="radar-grid" points="100,60 133,73 133,107 100,130 67,107 67,73"/>
+                        <polygon class="radar-grid" points="100,80 117,87 117,93 100,110 83,93 83,87"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="100" y2="20"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="166" y2="50"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="166" y2="130"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="100" y2="170"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="34" y2="130"/>
+                        <line class="radar-axis" x1="100" y1="100" x2="34" y2="50"/>
+                        <polygon class="radar-polygon" points="100,25 160,55 155,140 100,155 45,110 50,55"/>
+                        <text class="radar-label" x="100" y="10">价值观</text>
+                        <text class="radar-label" x="175" y="50">必备条件</text>
+                        <text class="radar-label" x="175" y="140">必备知识</text>
+                        <text class="radar-label" x="100" y="190">必备技能</text>
+                        <text class="radar-label" x="25" y="140">任职行为</text>
+                        <text class="radar-label" x="25" y="50">专业技术</text>
+                    </svg>
+                </div>
+
+                <!-- 技术标签 -->
+                <div class="tech-tags" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--divider-color);">
+                    <div class="tech-tags-title">
+                        <i class="fa-solid fa-microchip"></i>
+                        技术标签
+                    </div>
+                    <div class="tech-list">
+                        <div class="tech-item">
+                            <div class="tech-level">
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                            </div>
+                            <div class="tech-info">
+                                <div class="tech-name">LTQ-3T模拟定位-V4</div>
+                                <div class="tech-code">专业技术·高级</div>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-level">
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                            </div>
+                            <div class="tech-info">
+                                <div class="tech-name">LTQ-327模块计费类</div>
+                                <div class="tech-code">精进集团技术点击支持A550</div>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-level">
+                                <i class="fa-solid fa-diamond tech-diamond"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                                <i class="fa-solid fa-diamond tech-diamond empty"></i>
+                            </div>
+                            <div class="tech-info">
+                                <div class="tech-name">P6.8/RLSⅡ技术1</div>
+                                <div class="tech-code">领域技术·入门</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 核心价值观 -->
+        <div class="requirement-card collapsed" data-req="values">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon green"><i class="fa-solid fa-heart"></i></div>
+                    <div>
+                        <div class="req-title">核心价值观</div>
+                        <div class="req-subtitle">思想认同评估</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">0%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div class="progress-bar">
+                    <div class="progress-fill danger" style="width: 0%;"></div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-value">0</div>
+                        <div class="detail-label">已完成项</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">5</div>
+                        <div class="detail-label">总要求项</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 必备条件 -->
+        <div class="requirement-card collapsed" data-req="conditions">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon blue"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div>
+                        <div class="req-title">必备条件</div>
+                        <div class="req-subtitle">基础资质审核</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">100%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-value text-success">18</div>
+                        <div class="detail-label">任前体系</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value text-success">A</div>
+                        <div class="detail-label">年度评次</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 必备知识 -->
+        <div class="requirement-card collapsed" data-req="knowledge">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon gold"><i class="fa-solid fa-book"></i></div>
+                    <div>
+                        <div class="req-title">必备知识</div>
+                        <div class="req-subtitle">专业知识储备</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">0%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div class="progress-bar">
+                    <div class="progress-fill danger" style="width: 0%;"></div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-value">0</div>
+                        <div class="detail-label">已掌握</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">8</div>
+                        <div class="detail-label">要求项</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 必备技能 -->
+        <div class="requirement-card collapsed" data-req="skills">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div>
+                        <div class="req-title">必备技能</div>
+                        <div class="req-subtitle">实操能力认证</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">100%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-value text-success">6</div>
+                        <div class="detail-label">已认证</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">6</div>
+                        <div class="detail-label">要求项</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任职行为 -->
+        <div class="requirement-card collapsed" data-req="behavior">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon green"><i class="fa-solid fa-person-walking"></i></div>
+                    <div>
+                        <div class="req-title">任职行为</div>
+                        <div class="req-subtitle">工作表现评估</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">100%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 57%;"></div>
+                </div>
+                <div style="margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+                    任职行为达成进度 <strong style="color:var(--active-blue);">57% (8/14)</strong>
+                </div>
+                <div class="detail-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="detail-item" style="padding:10px;">
+                        <div class="ring-progress">
+                            <svg width="52" height="52" viewBox="0 0 52 52">
+                                <circle class="ring-bg" cx="26" cy="26" r="20"/>
+                                <circle class="ring-fill" cx="26" cy="26" r="20" 
+                                    stroke-dasharray="126" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="ring-text">100%</div>
+                        </div>
+                        <div class="detail-label" style="margin-top:6px;">活动·主导</div>
+                        <div style="font-size:11px;color:var(--text-light);">2/2</div>
+                    </div>
+                    <div class="detail-item" style="padding:10px;">
+                        <div class="ring-progress">
+                            <svg width="52" height="52" viewBox="0 0 52 52">
+                                <circle class="ring-bg" cx="26" cy="26" r="20"/>
+                                <circle class="ring-fill warning" cx="26" cy="26" r="20" 
+                                    stroke-dasharray="126" stroke-dashoffset="126"/>
+                            </svg>
+                            <div class="ring-text">0%</div>
+                        </div>
+                        <div class="detail-label" style="margin-top:6px;">活动·协助</div>
+                        <div style="font-size:11px;color:var(--text-light);">0/0</div>
+                    </div>
+                    <div class="detail-item" style="padding:10px;">
+                        <div class="ring-progress">
+                            <svg width="52" height="52" viewBox="0 0 52 52">
+                                <circle class="ring-bg" cx="26" cy="26" r="20"/>
+                                <circle class="ring-fill" cx="26" cy="26" r="20" 
+                                    stroke-dasharray="126" stroke-dashoffset="50"/>
+                            </svg>
+                            <div class="ring-text">60%</div>
+                        </div>
+                        <div class="detail-label" style="margin-top:6px;">任务·主导</div>
+                        <div style="font-size:11px;color:var(--text-light);">6/10</div>
+                    </div>
+                    <div class="detail-item" style="padding:10px;">
+                        <div class="ring-progress">
+                            <svg width="52" height="52" viewBox="0 0 52 52">
+                                <circle class="ring-bg" cx="26" cy="26" r="20"/>
+                                <circle class="ring-fill warning" cx="26" cy="26" r="20" 
+                                    stroke-dasharray="126" stroke-dashoffset="126"/>
+                            </svg>
+                            <div class="ring-text">0%</div>
+                        </div>
+                        <div class="detail-label" style="margin-top:6px;">任务·协助</div>
+                        <div style="font-size:11px;color:var(--text-light);">0/2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技术要求达成 -->
+        <div class="requirement-card collapsed" data-req="tech">
+            <div class="requirement-header">
+                <div class="req-left">
+                    <div class="req-icon blue"><i class="fa-solid fa-microchip"></i></div>
+                    <div>
+                        <div class="req-title">技术要求达成</div>
+                        <div class="req-subtitle">专业/领域技术</div>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <div class="req-percent">100%</div>
+                    <i class="fa-solid fa-chevron-down req-arrow"></i>
+                </div>
+            </div>
+            <div class="requirement-body">
+                <div style="margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+                    技术要求达成进度 <strong style="color:var(--success-green);">100% (13/13)</strong>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-value text-success">8</div>
+                        <div class="detail-label">专业技术</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value text-success">5</div>
+                        <div class="detail-label">领域技术</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部占位，防止被按钮遮挡 -->
+        <div style="height: 80px;"></div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+        <button class="btn btn-outline">
+            <i class="fa-regular fa-floppy-disk"></i>
+            保存
+        </button>
+        <button class="btn btn-primary" id="submitBtn">
+            <i class="fa-solid fa-paper-plane"></i>
+            提交
+        </button>
+    </div>
+
+    <script>
+        // 引导提示 - 关闭
+        function closeGuideTip() {
+            document.getElementById('guideTip').classList.add('hidden');
+        }
+
+        // 引导提示 - 跳转到参考信息
+        function scrollToRef() {
+            const refSection = document.getElementById('refSection');
+            if (refSection) {
+                refSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // 关闭提示
+                closeGuideTip();
+            }
+        }
+
+        // 可折叠卡片展开/收起
+        document.querySelectorAll('.requirement-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const card = this.closest('.requirement-card');
+                card.classList.toggle('expanded');
+                card.classList.toggle('collapsed');
+            });
+        });
+
+        // 提交按钮
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            // 验证必填项
+            const textareas = document.querySelectorAll('.main-content .star-textarea');
+            let hasEmpty = false;
+            let firstEmpty = null;
+            
+            textareas.forEach(textarea => {
+                if (!textarea.value.trim()) {
+                    hasEmpty = true;
+                    if (!firstEmpty) firstEmpty = textarea;
+                }
+            });
+            
+            if (hasEmpty) {
+                alert('⚠️ 请填写所有必填项');
+                if (firstEmpty) {
+                    firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstEmpty.focus();
+                }
+                return;
+            }
+            
+            if (confirm('确认提交晋升申请？\n\n提交后将进入审批流程，请确保所有信息填写完整。')) {
+                alert('✅ 提交成功！\n\n您的晋升申请已提交，请等待审批。');
+            }
+        });
+
+        // 文件上传
+        document.querySelector('.upload-area input[type="file"]').addEventListener('change', function(e) {
+            const files = e.target.files;
+            const fileList = document.getElementById('fileList');
+            
+            Array.from(files).forEach(file => {
+                const icon = file.type.includes('pdf') ? 'fa-file-pdf' : 
+                             file.type.includes('image') ? 'fa-file-image' : 
+                             file.type.includes('word') ? 'fa-file-word' : 'fa-file';
+                
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                    <i class="fa-solid ${icon} file-icon"></i>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-remove"><i class="fa-solid fa-xmark"></i></span>
+                `;
+                fileList.appendChild(item);
+                
+                item.querySelector('.file-remove').addEventListener('click', function() {
+                    item.remove();
+                });
+            });
+            
+            // 清空input以便重复选择同一文件
+            this.value = '';
+        });
+
+    </script>
+</body>
+</html>

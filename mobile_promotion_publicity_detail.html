@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>晋升公示详情 - 移动端</title>
+    <style>
+        :root {
+            --primary-blue: #1890ff;
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        /* Applicant Summary Card */
+        .applicant-summary {
+            background: #fff;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .app-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        .app-basic {
+            flex: 1;
+        }
+
+        .app-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .app-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .app-details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: #f9f9f9;
+            padding: 8px 10px;
+            border-radius: 6px;
+            align-items: center;
+        }
+        
+        .detail-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .promotion-path-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 12px 0 8px 0;
+        }
+
+        .level-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .level-box:active {
+            transform: scale(0.96);
+        }
+
+        .level-box.current {
+            background: linear-gradient(135deg, #95de64 0%, #52c41a 100%);
+            box-shadow: 0 4px 12px rgba(82, 196, 26, 0.25);
+        }
+
+        .level-box.target {
+            background: linear-gradient(135deg, #69c0ff 0%, #1890ff 100%);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
+        }
+
+        .lvl-num {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.2;
+            opacity: 0.95;
+            margin-bottom: 2px;
+        }
+
+        .lvl-grade {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .path-arrow {
+            font-size: 20px;
+            color: #1890ff;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+        }
+        
+        .target-star {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            color: #faad14;
+            font-size: 18px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+            z-index: 1;
+            transform: rotate(15deg);
+        }
+
+        /* Process Steps */
+        .process-steps {
+            background: #fff;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #ccc;
+            border: 1px solid #ddd;
+        }
+
+        .step-item.active .step-icon {
+            background: #e6f7ff;
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+        
+        .step-item.completed .step-icon {
+            background: #f6ffed;
+            color: var(--success-green);
+            border-color: var(--success-green);
+        }
+
+        .step-line {
+            flex: 1;
+            height: 1px;
+            background: #eee;
+            margin: 0 4px;
+            margin-bottom: 14px; /* Align with icon center */
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 50px; /* Below header */
+            z-index: 99;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: var(--primary-blue);
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 16px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Info Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Progress Bar */
+        .progress-row {
+            margin-bottom: 12px;
+        }
+        
+        .progress-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-track {
+            height: 6px;
+            background: #f5f5f5;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success-green);
+            border-radius: 3px;
+        }
+        
+        .progress-fill.warning {
+            background: var(--warning-orange);
+        }
+
+        /* Behavior Stats */
+        .behavior-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .behavior-item {
+            background: #f9f9f9;
+            padding: 8px 4px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .behavior-val {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .behavior-label {
+            font-size: 10px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* Tech List */
+        .tech-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .tech-item:last-child {
+            border-bottom: none;
+        }
+
+        .tech-icon {
+            color: var(--primary-blue);
+            margin-right: 8px;
+            margin-top: 2px;
+        }
+        
+        .tech-info {
+            flex: 1;
+        }
+        
+        .tech-name {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+        
+        .tech-level {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: #fff;
+        }
+        
+        .btn-danger {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        /* Detail Item Row */
+        .detail-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .detail-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item-left {
+            color: var(--text-primary);
+        }
+
+        .detail-item-right {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .status-done { color: var(--success-green); }
+        .status-fail { color: var(--error-red); }
+
+        /* User Input Content */
+        .user-content-block {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-top: 8px;
+            border: 1px solid #eee;
+        }
+
+        .section-header {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            margin: 20px 0 10px 0;
+            padding-left: 8px;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        /* Review Result Styles */
+        .result-summary {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .ai-badge {
+            background: #722ed1;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-fail {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffa39e;
+        }
+
+        .review-date {
+            font-size: 11px;
+            color: #ccc;
+        }
+
+        .review-comment-box {
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+        }
+
+        .comment-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .comment-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .review-detail-grid {
+            display: grid;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .review-detail-card {
+            background: #fff;
+            border-left: 3px solid #eee;
+            padding-left: 12px;
+        }
+
+        .review-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .review-detail-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .review-detail-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .review-detail-item {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .detail-head {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .stars {
+            color: #faad14;
+            font-size: 10px;
+        }
+
+        .detail-text {
+            color: var(--text-light);
+            padding-left: 8px;
+            border-left: 2px solid #eee;
+        }
+
+        .avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .reviewer-name {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reviewer-dept {
+            font-size: 10px;
+            color: #ccc;
+        }
+
+        /* Collapsible Section */
+        .card-header-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-body {
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+        
+        .card.collapsed .card-body {
+            display: none;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+        
+        .card.collapsed .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Circular Progress */
+        .circular-chart-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success-green) 0% 100%, #eee 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px auto 0;
+            position: relative;
+        }
+        
+        .circular-chart-small::before {
+            content: "";
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .circular-chart-small.half-progress {
+            background: conic-gradient(var(--primary-blue) 0% 50%, #eee 50% 100%);
+        }
+        .circular-chart-small.zero-progress {
+            background: conic-gradient(#eee 0% 100%);
+        }
+
+        .circular-text {
+            position: relative;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        /* Tech Progress Grid */
+        .tech-progress-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .tech-progress-card {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .tech-prog-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .diamond-row {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+
+        .diamond {
+            font-size: 10px;
+            color: var(--primary-blue);
+        }
+        
+        .diamond.empty {
+            color: #d9d9d9;
+        }
+
+        .tp-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-light);
+        }
+
+        /* Confirmation Page Specifics */
+        .confirm-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+
+        .confirm-table th {
+            text-align: left;
+            padding: 8px;
+            background: #f9f9f9;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid #eee;
+        }
+
+        .confirm-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            color: var(--text-primary);
+        }
+
+        .confirm-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .col-label { width: 30%; color: var(--text-secondary); }
+        .col-before { width: 35%; }
+        .col-after { width: 35%; color: var(--primary-blue); font-weight: 500; }
+
+        .status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .tag-success {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .tag-pending {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: flex-end; /* Bottom sheet style */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .close-icon {
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .form-label.required::before {
+            content: "*";
+            color: var(--error-red);
+            margin-right: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-top: 3px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-blue);
+        }
+
+        .cb-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .upload-area {
+            border: 1px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .anonymous-check {
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <i class="fa-solid fa-chevron-left header-icon" onclick="window.location.href='mobile_publicity.html'"></i>
+        <span>晋升公示详情</span>
+        <i class="fa-solid fa-ellipsis header-icon"></i>
+    </div>
+
+    <!-- Applicant Summary -->
+    <div class="applicant-summary">
+        <div class="app-top">
+            <img src="https://ui-avatars.com/api/?name=Ma&background=random" class="avatar" alt="Avatar">
+            <div class="app-basic">
+                <div class="app-name">马鑫</div>
+                <div class="app-title">数字集成电路研发总监 · 数字芯片研究中心</div>
+            </div>
+        </div>
+
+        <div class="app-details-row">
+            <div class="detail-tag"><i class="fa-solid fa-id-badge" style="color:#b37feb"></i> 04109</div>
+            <div class="detail-tag"><i class="fa-solid fa-clock" style="color:#ff85c0"></i> 3年7个月</div>
+            <div class="detail-tag"><i class="fa-solid fa-user-tie" style="color:#597ef7"></i> 直线上级: 王悦</div>
+        </div>
+
+        <div class="promotion-path-row">
+            <div class="level-box current">
+                <div class="lvl-num">**</div>
+                <div class="lvl-grade">*</div>
+            </div>
+            <div class="path-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
+            <div class="level-box target">
+                <div class="lvl-num">**</div>
+                <div class="lvl-grade">*</div>
+                <i class="fa-solid fa-star target-star"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Steps -->
+    <div class="process-steps">
+        <div class="step-item completed">
+            <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+            <span>申请</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item completed">
+            <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+            <span>认证</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item completed">
+            <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+            <span>签字</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item active">
+            <div class="step-icon">4</div>
+            <span>公示</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <div class="step-icon">5</div>
+            <span>生效</span>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab-item active" onclick="switchTab('detail')">申请资料</div>
+        <div class="tab-item" onclick="switchTab('results')">评审结果</div>
+        <div class="tab-item" onclick="switchTab('confirm')">三方确认</div>
+    </div>
+
+    <!-- Tab Content: Application Details -->
+    <div id="tab-detail" class="tab-content active">
+        
+        <!-- Core Values -->
+        <div class="card" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>核心价值观</span>
+                    <span style="font-size: 12px; color: var(--success-green);">100%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="progress-track" style="margin-bottom: 12px;">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                
+                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">礼物</div>
+                <div class="tech-progress-grid" style="margin-bottom: 16px;">
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>点赞礼物&自知礼物</span>
+                            <span style="color:var(--text-light)">4个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>完善礼物&自律礼物</span>
+                            <span style="color:var(--text-light)">1个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                </div>
+
+                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">核心价值观</div>
+                <div class="tech-progress-grid">
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>成就客户</span>
+                            <span style="color:var(--text-light)">2个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>不断创新</span>
+                            <span style="color:var(--text-light)">1个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>阳光奋斗</span>
+                            <span style="color:var(--text-light)">1个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                    <div class="tech-progress-card">
+                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                            <span>自知自律</span>
+                            <span style="color:var(--text-light)">1个</span>
+                        </div>
+                        <span class="tag-success" style="font-size:10px; padding:1px 4px;">已完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Essential Conditions -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>必备条件</span>
+                    <span style="font-size: 12px; color: var(--success-green);">100%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="progress-track" style="margin-bottom: 12px;">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <div class="detail-item-row">
+                    <div class="detail-item-left"><i class="fa-regular fa-circle-check status-done"></i> 诚信体系</div>
+                    <div class="detail-item-right">已签署</div>
+                </div>
+                 <div class="detail-item-row">
+                    <div class="detail-item-left"><i class="fa-regular fa-circle-check status-done"></i> 绩效结果</div>
+                    <div class="detail-item-right">A</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Essential Knowledge -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>必备知识</span>
+                    <span style="font-size: 12px; color: var(--text-light);">0%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+             <div class="card-body">
+                <div class="progress-track" style="margin-bottom: 12px;">
+                    <div class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div style="text-align: center; color: #999; font-size: 12px; padding: 10px;">暂无必备知识要求</div>
+            </div>
+        </div>
+
+        <!-- Essential Skills -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>必备技能</span>
+                    <span style="font-size: 12px; color: var(--success-green);">100%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+             <div class="card-body">
+                <div class="progress-track" style="margin-bottom: 12px;">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <div class="detail-item-row">
+                    <div class="detail-item-left"><i class="fa-regular fa-circle-check status-done"></i> 通用管理技能</div>
+                    <div class="detail-item-right">已完成</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Behavior -->
+        <div class="card" onclick="toggleCard(this)">
+             <div class="card-title">
+                <div class="card-header-action">
+                    <span>任职行为</span>
+                    <span style="font-size: 12px; color: var(--success-green);">100%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                 <div class="progress-track" style="margin-bottom: 12px;">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+                    <span>任职行为进度</span>
+                    <span style="color:var(--primary-blue)">93% (13/14)</span>
+                </div>
+                <div class="progress-track" style="height:4px; margin-bottom:16px;">
+                     <div class="progress-fill" style="width: 93%; background:var(--primary-blue)"></div>
+                </div>
+
+                <div class="behavior-grid">
+                     <div class="behavior-item">
+                        <div class="behavior-label" style="margin-bottom:4px;">活动_主导</div>
+                        <div style="font-size:10px; color:#999; margin-bottom:4px;">2/2</div>
+                         <div class="circular-chart-small">
+                            <div class="circular-text">100%</div>
+                        </div>
+                    </div>
+                     <div class="behavior-item">
+                        <div class="behavior-label" style="margin-bottom:4px;">活动_协助</div>
+                        <div style="font-size:10px; color:#999; margin-bottom:4px;">0/0</div>
+                         <div class="circular-chart-small zero-progress">
+                            <div class="circular-text">0%</div>
+                        </div>
+                    </div>
+                     <div class="behavior-item">
+                        <div class="behavior-label" style="margin-bottom:4px;">任务_主导</div>
+                        <div style="font-size:10px; color:#999; margin-bottom:4px;">10/10</div>
+                         <div class="circular-chart-small">
+                            <div class="circular-text">100%</div>
+                        </div>
+                    </div>
+                     <div class="behavior-item">
+                        <div class="behavior-label" style="margin-bottom:4px;">任务_协助</div>
+                        <div style="font-size:10px; color:#999; margin-bottom:4px;">1/2</div>
+                         <div class="circular-chart-small half-progress">
+                            <div class="circular-text">50%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Requirements -->
+         <div class="card" onclick="toggleCard(this)">
+             <div class="card-title">
+                <div class="card-header-action">
+                    <span>技术要求</span>
+                    <span style="font-size: 12px; color: var(--success-green);">100%</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+                    <span>技术要求进度</span>
+                    <span style="color:var(--primary-blue)">200% (12/6)</span>
+                </div>
+                <div class="progress-track" style="height:4px; margin-bottom:16px;">
+                     <div class="progress-fill" style="width: 100%; background:var(--primary-blue)"></div>
+                </div>
+
+                 <div class="tech-progress-grid">
+                    <div class="tech-progress-card" style="grid-column: span 2;">
+                        <div class="tech-prog-title">
+                            <span>专业技术</span>
+                            <span style="font-weight:normal; color:#999; font-size:11px;">100% (2/0)</span>
+                        </div>
+                        
+                        <div style="margin-bottom:8px;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                         <div style="margin-bottom:8px;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                         <div style="margin-bottom:0;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-progress-card" style="grid-column: span 2;">
+                         <div class="tech-prog-title">
+                            <span>领域技术</span>
+                            <span style="font-weight:normal; color:#999; font-size:11px;">100% (1/1)</span>
+                        </div>
+                         <div style="margin-bottom:8px;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                         <div style="margin-bottom:8px;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                         <div style="margin-bottom:0;">
+                             <div class="diamond-row">
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <i class="fa-solid fa-diamond diamond empty"></i>
+                                <span style="font-size:10px; color:#999; margin-left:auto;">100%</span>
+                            </div>
+                            <div class="progress-track" style="height:4px;">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+        <!-- User Content -->
+        <div class="section-header">申请材料</div>
+        
+        <!-- Understanding -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>对新岗位的理解</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="user-content-block">
+                    <div style="margin-bottom:8px; color:#999;">请使用STAR模板描述您对目标岗位职责的理解...</div>
+                    <strong>Situation (情境):</strong><br>
+                    描述目标岗位所处的工作环境和背景...<br><br>
+                    <strong>Task (任务):</strong><br>
+                    详细说明岗位的核心职责和主要工作内容...<br><br>
+                    <strong>Action (行动):</strong><br>
+                    阐述为完成任务需要采取的具体行动...<br><br>
+                    <strong>Result (结果):</strong><br>
+                    说明期望达成的工作成果和价值贡献...
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Plan -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>未来三年规划</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="user-content-block">
+                    <div style="margin-bottom:8px; color:#999;">请使用STAR模板制定您的三年工作规划...</div>
+                    <strong>Situation (情境):</strong><br>
+                    分析当前职业发展阶段和市场环境...<br><br>
+                    <strong>Task (任务):</strong><br>
+                    明确三年内需要达成的核心目标和里程碑...<br><br>
+                    <strong>Action (行动):</strong><br>
+                    详细说明为实现目标的具体行动计划...<br><br>
+                    <strong>Result (结果):</strong><br>
+                    描述预期达成的职业成果和个人成长...
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplementary -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="card-title">
+                <div class="card-header-action">
+                    <span>其他补充材料</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div style="padding: 12px; background: #fafafa; border-radius: 8px; border: 1px dashed #ddd; text-align: center; color: #999; font-size: 13px;">
+                    暂无补充材料
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Review Results -->
+    <div id="tab-results" class="tab-content">
+        <!-- Overall Result -->
+        <div class="card">
+            <div class="card-title">
+                评审结果
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="result-summary">
+                <span class="tag-success"><i class="fa-solid fa-check-circle"></i> 合格</span>
+                <span class="result-text">总分: 70.83分，评审结论: 通过。</span>
+            </div>
+        </div>
+
+        <div class="section-header">详细评价</div>
+
+        <!-- AI Review (Expanded) -->
+        <div class="card" onclick="toggleCard(this)">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <span class="ai-badge"><i class="fa-solid fa-robot"></i> AI评审</span>
+                    <span class="tag-fail">不通过</span>
+                    <span class="review-date">2025-11-10 11:31:46</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="review-comment-box">
+                    <div class="comment-label">评审评价</div>
+                    <div class="comment-text">任职行为覆盖不足（活动仅部分完成、任务未覆盖），量化指标与证据缺失，技术难度与影响力材料未体现高等级要求...</div>
+                </div>
+                
+                <div class="review-detail-grid">
+                    <div class="review-detail-card">
+                        <div class="review-detail-header">
+                            <span class="review-detail-title">任职行为评价</span>
+                            <div class="stars">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="review-detail-content">
+                            活动覆盖率仅50%，任务覆盖率为0%，缺少与目标职级匹配的关键职责体现...
+                        </div>
+                    </div>
+
+                    <div class="review-detail-card">
+                        <div class="review-detail-header">
+                            <span class="review-detail-title">衡量指标评价</span>
+                            <div class="stars">
+                                <i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="review-detail-content">
+                            缺少明确的KPI/量化达成数据；任务未覆盖导致无法验证目标产出与影响范围...
+                        </div>
+                    </div>
+
+                    <div class="review-detail-card">
+                        <div class="review-detail-header">
+                            <span class="review-detail-title">专业技术评价</span>
+                            <div class="stars">
+                                <i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="review-detail-content">
+                            缺乏DIFF_LEVEL_2及以上难度的清晰举证与说明，未见具有国内先进及以上水平的技术成果...
+                        </div>
+                    </div>
+
+                    <div class="review-detail-card">
+                        <div class="review-detail-header">
+                            <span class="review-detail-title">交付物评价</span>
+                            <div class="stars">
+                                <i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="review-detail-content">
+                            交付物数量与覆盖面不足，缺少高质量样例（设计方案、评审材料、验收与复盘）...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Human Reviewer 1 (Collapsed) -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <img src="https://ui-avatars.com/api/?name=Zhao&background=random" class="avatar-small">
+                    <div class="reviewer-name">
+                        <div>赵波</div>
+                        <div class="reviewer-dept">流程&项目部</div>
+                    </div>
+                    <span class="tag-success">通过</span>
+                    <span class="review-date">2025-11-10 15:26:38</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="review-comment-box">
+                    <div class="comment-text">同意通过。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Human Reviewer 2 (Collapsed) -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <img src="https://ui-avatars.com/api/?name=Pi&background=random" class="avatar-small">
+                    <div class="reviewer-name">
+                        <div>皮延升</div>
+                        <div class="reviewer-dept">流程&项目部</div>
+                    </div>
+                    <span class="tag-success">通过</span>
+                    <span class="review-date">2025-11-10 15:27:28</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="review-comment-box">
+                    <div class="comment-text">同意通过。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Human Reviewer 3 (Collapsed) -->
+        <div class="card collapsed" onclick="toggleCard(this)">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <img src="https://ui-avatars.com/api/?name=Wu&background=random" class="avatar-small">
+                    <div class="reviewer-name">
+                        <div>吴有</div>
+                        <div class="reviewer-dept">流程&项目部</div>
+                    </div>
+                    <span class="tag-success">通过</span>
+                    <span class="review-date">2025-11-10 15:28:12</span>
+                </div>
+                <i class="fa-solid fa-chevron-up toggle-icon"></i>
+            </div>
+            <div class="card-body">
+                <div class="review-comment-box">
+                    <div class="comment-text">同意通过。</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="height: 20px;"></div>
+    </div>
+
+    <!-- Tab Content: Three-Party Confirmation -->
+    <div id="tab-confirm" class="tab-content">
+        
+        <!-- Promotion Comparison Info -->
+        <div class="card">
+            <div class="card-title">三方确认结果</div>
+            <table class="confirm-table">
+                <thead>
+                    <tr>
+                        <th class="col-label"></th>
+                        <th class="col-before">申请前</th>
+                        <th class="col-after">申请后</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-label">部门</td>
+                        <td>数字芯片研究中心</td>
+                        <td>数字芯片研究中心</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">职务</td>
+                        <td>数字集成电路研发总监</td>
+                        <td>数字集成电路研发总监</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">职级</td>
+                        <td>**</td>
+                        <td>**</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">职等</td>
+                        <td>*</td>
+                        <td>*</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">月薪</td>
+                        <td>¥*****</td>
+                        <td>¥*****</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">年薪</td>
+                        <td>¥******</td>
+                        <td>¥******</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">薪酬包月数</td>
+                        <td>**</td>
+                        <td>**</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Signature Info -->
+        <div class="card">
+            <div class="card-title">签字信息</div>
+            <div class="status-list">
+                <div class="status-row">
+                    <div class="reviewer-info">
+                        <img src="https://ui-avatars.com/api/?name=Ma&background=random" class="avatar-small">
+                        <div class="reviewer-name">
+                            <div>马鑫 (本人)</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="tag-success"><i class="fa-solid fa-check"></i> 已完成</span>
+                        <div class="review-date" style="margin-top:2px;">2025-12-10 15:45:03</div>
+                    </div>
+                </div>
+                <div class="status-row">
+                    <div class="reviewer-info">
+                        <img src="https://ui-avatars.com/api/?name=Wang&background=random" class="avatar-small">
+                        <div class="reviewer-name">
+                            <div>王悦 (上级)</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="tag-success"><i class="fa-solid fa-check"></i> 已完成</span>
+                        <div class="review-date" style="margin-top:2px;">2025-12-10 15:44:22</div>
+                    </div>
+                </div>
+                <div class="status-row">
+                    <div class="reviewer-info">
+                        <img src="https://ui-avatars.com/api/?name=Zhang&background=random" class="avatar-small">
+                        <div class="reviewer-name">
+                            <div>张潇文 (HRBP)</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="tag-success"><i class="fa-solid fa-check"></i> 已完成</span>
+                        <div class="review-date" style="margin-top:2px;">2025-12-10 15:43:42</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: 20px;"></div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar">
+        <button class="btn btn-danger" onclick="openDissentModal()">提出异议</button>
+    </div>
+
+    <!-- Dissent Modal -->
+    <div id="dissent-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">提出异议</div>
+                <i class="fa-solid fa-xmark close-icon" onclick="closeDissentModal()"></i>
+            </div>
+            <div class="modal-body">
+                <!-- Reason -->
+                <div class="form-group">
+                    <div class="form-label required">复议原因</div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="unfair">
+                            <span class="cb-label">评价结果不公平</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="process_violation">
+                            <span class="cb-label">评价流程违规</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="missing_evidence">
+                            <span class="cb-label">证据材料缺失</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="behavior_violation">
+                            <span class="cb-label">存在违规行为</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="conflict">
+                            <span class="cb-label">利益冲突</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="reason" value="other">
+                            <span class="cb-label">其他原因</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <div class="form-label required">详情描述</div>
+                    <div class="textarea-wrapper">
+                        <textarea id="dissent-desc" placeholder="请详细描述复议的具体原因和相关情况，包括具体事实、证据材料等..." oninput="updateCharCount(this)"></textarea>
+                        <div class="char-count"><span id="current-count">0</span> / 2000</div>
+                    </div>
+                </div>
+
+                <!-- Upload -->
+                <div class="form-group">
+                    <div class="form-label">其他补充材料</div>
+                    <div class="upload-area">
+                        <i class="fa-solid fa-arrow-up-from-bracket upload-icon"></i>
+                        <div class="upload-text">点击或拖拽文件到此处上传</div>
+                        <div class="upload-hint">支持所有格式，单个文件不超过 10MB</div>
+                    </div>
+                </div>
+
+                <div style="height: 20px;"></div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div class="anonymous-check">
+                    <label class="checkbox-item" style="margin-bottom: 0;">
+                        <input type="checkbox" id="anonymous-submit">
+                        <span class="cb-label" style="font-size: 13px; color: var(--text-secondary);">匿名提交 (选择匿名后，您的身份信息将不会显示在复议记录中)</span>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeDissentModal()">取消</button>
+                    <button class="btn btn-primary" onclick="submitDissent()">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDissentModal() {
+            document.getElementById('dissent-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDissentModal() {
+            document.getElementById('dissent-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            document.getElementById('current-count').textContent = count;
+            if (count > 2000) {
+                document.getElementById('current-count').style.color = 'red';
+            } else {
+                document.getElementById('current-count').style.color = '#ccc';
+            }
+        }
+
+        function submitDissent() {
+            const reasons = document.querySelectorAll('input[name="reason"]:checked');
+            const desc = document.getElementById('dissent-desc').value.trim();
+
+            if (reasons.length === 0) {
+                alert('请至少选择一个复议原因');
+                return;
+            }
+            if (!desc) {
+                alert('请填写详情描述');
+                return;
+            }
+
+            const isAnonymous = document.getElementById('anonymous-submit').checked;
+            const message = isAnonymous ? '已匿名提交异议申请' : '已提交异议申请';
+            
+            alert(message);
+            closeDissentModal();
+            
+            // Disable button
+            const btn = document.querySelector('.bottom-bar .btn-danger');
+            if(btn) {
+                 btn.textContent = '异议处理中';
+                 btn.disabled = true;
+                 btn.style.opacity = '0.6';
+            }
+        }
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function toggleCard(card) {
+            card.classList.toggle('collapsed');
+            const icon = card.querySelector('.toggle-icon');
+            if (card.classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+    </script>
+</body>
+</html>
+

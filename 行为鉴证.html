@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格管理-UAT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: #fff;
+            height: 60px;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            margin-right: 40px;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 32px;
+            flex: 1;
+        }
+
+        .header-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-nav-item:hover {
+            color: #1890ff;
+        }
+
+        .header-nav-item.active {
+            color: #1890ff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .badge {
+            position: relative;
+        }
+
+        .badge::after {
+            content: '1';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f5222d;
+            color: #fff;
+            font-size: 12px;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            border-radius: 9px;
+            padding: 0 4px;
+        }
+
+        /* 步骤条 */
+        .steps-container {
+            background: #fafafa;
+            padding: 24px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .steps {
+            display: flex;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        .step-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            background: #d9d9d9;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        .step.completed .step-icon {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .step.active .step-icon {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .step-content {
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+
+        .step.active .step-title {
+            color: #1890ff;
+        }
+
+        .step-line {
+            width: 100px;
+            height: 2px;
+            background: #d9d9d9;
+            margin: 0 40px;
+        }
+
+        .step-wrapper:has(.step.completed) .step-line {
+            background: #52c41a;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .form-section {
+            background: #fff;
+            margin: 16px 0;
+        }
+
+        .form-item {
+            padding: 20px 48px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-item:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .form-label.required::before {
+            content: '* ';
+            color: #ff4d4f;
+            margin-right: 2px;
+        }
+
+        .form-content {
+            width: 100%;
+        }
+
+        /* 单选按钮 */
+        .radio-group {
+            display: flex;
+            gap: 0;
+        }
+
+        .radio-button {
+            padding: 4px 15px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .radio-button:first-child {
+            border-radius: 2px 0 0 2px;
+        }
+
+        .radio-button:last-child {
+            border-radius: 0 2px 2px 0;
+            border-left: none;
+        }
+
+        .radio-button.active {
+            background: #e6f7ff;
+            border-color: #40a9ff;
+            color: #1890ff;
+            z-index: 1;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 4px 11px;
+            background: #fafafa;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex: 1;
+            font-size: 14px;
+            padding: 0;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .search-icon {
+            color: #bfbfbf;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0 7px;
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+            margin-left: 8px;
+            line-height: 20px;
+        }
+
+        /* 任务统计 */
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .selected-indicator {
+            padding: 0 8px;
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            line-height: 24px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .stat-value {
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+        }
+
+        .stat-value.warning {
+            color: #ff4d4f;
+        }
+
+        .stat-value.success {
+            color: #52c41a;
+        }
+
+        .link-button {
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .link-button:hover {
+            color: #40a9ff;
+        }
+
+        /* 卡片 - 关键改动 */
+        .card-container {
+            position: relative;
+            display: flex;
+        }
+
+        .card-sidebar {
+            width: 48px;
+            background: linear-gradient(180deg, #1890ff 0%, #096dd9 100%);
+            border-radius: 2px 0 0 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .card-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+            background: transparent;
+        }
+
+        .checkbox.checked {
+            background: #fff;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: #1890ff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .card-sidebar-text {
+            writing-mode: vertical-rl;
+            color: #fff;
+            font-size: 14px;
+            letter-spacing: 2px;
+            user-select: none;
+        }
+
+        .card-content {
+            flex: 1;
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-left: none;
+            border-radius: 0 2px 2px 0;
+            padding: 16px 20px;
+            position: relative;
+        }
+
+        .card-delete {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            color: #bfbfbf;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .card-delete:hover {
+            color: #ff4d4f;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .card-tag {
+            padding: 0 7px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+            border-radius: 2px;
+            font-size: 12px;
+            line-height: 20px;
+        }
+
+        .card-row {
+            display: flex;
+            margin-bottom: 4px;
+            font-size: 14px;
+            line-height: 22px;
+        }
+
+        .card-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-row-label {
+            color: rgba(0, 0, 0, 0.65);
+            min-width: 90px;
+            flex-shrink: 0;
+        }
+
+        .card-row-value {
+            color: rgba(0, 0, 0, 0.85);
+            flex: 1;
+        }
+
+        .card-row-value.success {
+            color: #ff4d4f;
+        }
+
+        /* 警告信息 */
+        .alert {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 8px 15px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+            margin-top: 12px;
+            line-height: 20px;
+        }
+
+        /* 输入框 */
+        .input-box {
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 4px 11px;
+            font-size: 14px;
+            width: 100%;
+            line-height: 1.5;
+            transition: all 0.3s;
+        }
+
+        .input-box:hover {
+            border-color: #40a9ff;
+        }
+
+        .input-box:focus {
+            border-color: #40a9ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .input-box::placeholder {
+            color: #bfbfbf;
+        }
+
+        /* 底部操作栏 */
+        .footer-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #e8e8e8;
+            padding: 10px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .footer-left:hover {
+            color: #40a9ff;
+        }
+
+        .footer-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 5px 15px;
+            border-radius: 2px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            height: 32px;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .btn:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        /* 悬浮帮助按钮 */
+        .help-button {
+            position: fixed;
+            left: 32px;
+            bottom: 80px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 99;
+        }
+
+        .help-button:hover {
+            background: #40a9ff;
+        }
+
+        /* 底部间距 */
+        .content-spacer {
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="header">
+        <div class="header-logo">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="6" fill="#7c5ceb"/>
+                <path d="M10 12h12M10 16h12M10 20h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="header-title">任职资格管理-UAT</span>
+        </div>
+        <div class="header-nav">
+            <div class="header-nav-item">
+                <span>🏠</span>
+                <span>首页</span>
+            </div>
+            <div class="header-nav-item active">
+                <span>📄</span>
+                <span>任职驾证</span>
+            </div>
+            <div class="header-nav-item">
+                <span>💎</span>
+                <span>晋升发展</span>
+            </div>
+            <div class="header-nav-item">
+                <span>📢</span>
+                <span>公示中心</span>
+            </div>
+            <div class="header-nav-item">
+                <span>📋</span>
+                <span>任职标准</span>
+            </div>
+            <div class="header-nav-item">
+                <span>📚</span>
+                <span>资源库</span>
+            </div>
+            <div class="header-nav-item">
+                <span>⚙️</span>
+                <span>设置</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-icon">❓</div>
+            <div class="header-icon badge">🔔</div>
+            <div class="header-user">
+                <div class="header-avatar">欧</div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 500;">欧庭开</div>
+                    <div style="font-size: 12px; color: #999;">高级欢迎官</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 步骤条 -->
+    <div class="steps-container">
+        <div class="steps">
+            <div class="step-wrapper">
+                <div class="step completed">
+                    <div class="step-icon">✓</div>
+                    <div class="step-content">
+                        <div class="step-title">1 行为选择</div>
+                    </div>
+                </div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step-wrapper">
+                <div class="step active">
+                    <div class="step-icon">2</div>
+                    <div class="step-content">
+                        <div class="step-title">2 行为鉴证</div>
+                    </div>
+                </div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step-wrapper">
+                <div class="step">
+                    <div class="step-icon">3</div>
+                    <div class="step-content">
+                        <div class="step-title">3 技术鉴证</div>
+                    </div>
+                </div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step-wrapper">
+                <div class="step">
+                    <div class="step-icon">4</div>
+                    <div class="step-content">
+                        <div class="step-title">4 颁质 & 提交</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="form-section">
+            <!-- 鉴证方式 -->
+            <div class="form-item">
+                <div class="form-label required">鉴证方式:</div>
+                <div class="form-content">
+                    <div class="radio-group">
+                        <div class="radio-button active">内部鉴证</div>
+                        <div class="radio-button">外部鉴证</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目信息 -->
+            <div class="form-item">
+                <div class="form-label required">项目信息:</div>
+                <div class="form-content">
+                    <div class="search-box">
+                        <input type="text" value="SRM系统实施与前置" readonly>
+                        <span class="tag">需开打卡</span>
+                        <span class="search-icon">🔍</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目任务 -->
+            <div class="form-item">
+                <div class="form-label required">项目任务:</div>
+                <div class="form-content">
+                    <div class="task-header">
+                        <div class="selected-indicator">已选择 1 个任务</div>
+                        <span class="search-icon">🔍</span>
+                        <div class="stat-item">
+                            <span class="stat-label">任务数量:</span>
+                            <span class="stat-value">1</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">总工时:</span>
+                            <span class="stat-value">18小时</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">偏差:</span>
+                            <span class="stat-value warning">-8小时</span>
+                        </div>
+                        <button class="link-button">清空全部</button>
+                    </div>
+
+                    <div class="card-container">
+                        <div class="card-sidebar">
+                            <div class="card-checkbox-wrapper">
+                                <div class="checkbox checked"></div>
+                            </div>
+                            <div class="card-sidebar-text">编辑指标</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-delete">🗑️</div>
+                            <div class="card-title" style="margin-bottom: 12px;">测试方案</div>
+                            <div class="card-row">
+                                <div class="card-row-label">开始时间:</div>
+                                <div class="card-row-value">2024-04-26</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">结束时间:</div>
+                                <div class="card-row-value">2024-04-30</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">工时:</div>
+                                <div class="card-row-value">18小时</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">偏差:</div>
+                                <div class="card-row-value success">-8小时</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 指标要求 -->
+            <div class="form-item">
+                <div class="form-label required">指标要求:</div>
+                <div class="form-content">
+                    <div class="task-header">
+                        <div class="selected-indicator">已选择 1 项指标要求</div>
+                        <span class="search-icon">🔍</span>
+                        <button class="link-button">清空全部</button>
+                    </div>
+
+                    <div class="card-container">
+                        <div class="card-sidebar">
+                            <div class="card-checkbox-wrapper">
+                                <div class="checkbox checked"></div>
+                            </div>
+                            <div class="card-sidebar-text">编辑指标</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-delete">🗑️</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <div class="card-title">项目维度考察</div>
+                                <div class="card-tag">活动标签</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">时间标准:</div>
+                                <div class="card-row-value">--</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">给分方式:</div>
+                                <div class="card-row-value">监固内配如</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">计算公式:</div>
+                                <div class="card-row-value">--</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">判断标准:</div>
+                                <div class="card-row-value">>= 31分</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">完成进度:</div>
+                                <div class="card-row-value">0% (0/31)</div>
+                            </div>
+                            <div class="card-row">
+                                <div class="card-row-label">文件数量:</div>
+                                <div class="card-row-value">* 2 分</div>
+                            </div>
+                            <div class="alert">
+                                💡 本次流程：2分；累计完成 2分<br>
+                                📊 累计的需配如！要求 x =31分<br>
+                                ⚠️ 未达标，还需 29分
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐行为识证人 -->
+            <div class="form-item">
+                <div class="form-label required">推荐行为识证人（至少2位，比如项目负责人，部门负责人）:</div>
+                <div class="form-content">
+                    <input type="text" class="input-box" placeholder="请填选择行为识证人">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-spacer"></div>
+
+    <!-- 悬浮帮助按钮 -->
+    <div class="help-button">
+        帮助
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="footer-bar">
+        <div class="footer-left">
+            <span>ℹ️</span>
+            <span>使用指南</span>
+        </div>
+        <div class="footer-right">
+            <button class="btn">上一步</button>
+            <button class="btn btn-primary">下一步</button>
+        </div>
+    </div>
+
+    <script>
+        // 单选按钮切换
+        document.querySelectorAll('.radio-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.radio-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // 复选框切换
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // 删除卡片
+        document.querySelectorAll('.card-delete').forEach(deleteBtn => {
+            deleteBtn.addEventListener('click', function() {
+                if (confirm('确定要删除吗？')) {
+                    this.closest('.card-container').remove();
+                }
+            });
+        });
+
+        // 清空全部
+        document.querySelectorAll('.link-button').forEach(btn => {
+            if (btn.textContent.includes('清空全部')) {
+                btn.addEventListener('click', function() {
+                    if (confirm('确定要清空全部吗？')) {
+                        const section = this.closest('.form-content');
+                        section.querySelectorAll('.card-container').forEach(card => card.remove());
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

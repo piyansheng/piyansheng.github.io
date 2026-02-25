@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格管理看板 - 主管视角</title>
+    <style>
+        :root {
+            --primary-blue: #1890ff;
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            --purple: #722ed1;
+            --cyan: #13c2c2;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-light: #8c8c8c;
+            --border-color: #d9d9d9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-primary); line-height: 1.6; }
+
+        /* Header */
+        .header { background: #fff; padding: 16px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header-title { font-size: 20px; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+        .back-btn { display: none; font-size: 14px; font-weight: normal; color: var(--primary-blue); cursor: pointer; border: 1px solid var(--primary-blue); padding: 4px 12px; border-radius: 4px; }
+        .back-btn:hover { background: #e6f7ff; }
+
+        .user-info { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #e6f7ff; display:flex; align-items:center; justify-content:center; color: var(--primary-blue); font-weight:bold;}
+
+        /* Dashboard Container */
+        .dashboard-container { padding: 24px; max-width: 1400px; margin: 0 auto; }
+        
+        .section-header { font-size: 16px; font-weight: bold; margin-bottom: 16px; border-left: 4px solid var(--primary-blue); padding-left: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .refresh-time { font-size: 12px; color: var(--text-light); font-weight: normal; }
+
+        /* Global Filter Bar */
+        .global-filter { background: #fff; padding: 16px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 24px; display: flex; align-items: center; gap: 20px; }
+        .gf-label { font-weight: bold; font-size: 14px; color: var(--text-primary); }
+        .gf-select { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; min-width: 280px; font-size: 14px; outline: none; }
+        .gf-select:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
+
+        /* Chart Controls */
+        .time-btn { border: 1px solid #d9d9d9; background: #fff; color: #595959; font-size: 12px; padding: 2px 8px; border-radius: 2px; cursor: pointer; transition: all 0.3s; }
+        .time-btn.active { border-color: var(--primary-blue); color: var(--primary-blue); background: #e6f7ff; }
+        .time-btn:hover { color: var(--primary-blue); border-color: var(--primary-blue); }
+
+        /* Top Overview Cards */
+        .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+        .overview-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+        .overview-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .overview-card::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; }
+        
+        .card-blue::after { background: var(--primary-blue); }
+        .card-green::after { background: var(--success-green); }
+        .card-orange::after { background: var(--warning-orange); }
+        .card-red::after { background: var(--error-red); }
+        .card-purple::after { background: var(--purple); }
+
+        .ov-label { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .ov-value { font-size: 32px; font-weight: bold; color: var(--text-primary); margin-bottom: 4px; }
+        .ov-sub { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+        .ov-breakdown { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 8px; border-radius: 4px; margin-top: auto; }
+        .ov-bd-item { display: flex; align-items: center; gap: 4px; font-weight: 500; }
+        .bd-label { color: var(--text-light); font-weight: normal; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .ov-icon { font-size: 24px; position: absolute; right: 20px; top: 20px; opacity: 0.1; }
+
+        /* Focus Section (Manager Cares) */
+        .focus-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        
+        .focus-card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); height: 100%; }
+        .focus-title { font-size: 15px; font-weight: bold; margin-bottom: 16px; color: var(--text-primary); }
+
+        /* Pipeline Chart (Simplified CSS) */
+        .pipeline-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; overflow-x: auto; gap: 8px; }
+        .pipeline-step { min-width: 60px; flex: 1; text-align: center; position: relative; }
+        .pipeline-step:not(:last-child)::after { content: '→'; position: absolute; right: -6px; top: 50%; transform: translateY(-50%) translateY(-10px); color: #ddd; font-size: 14px; }
+        .p-bar { height: 6px; background: #f0f2f5; border-radius: 4px; margin: 8px auto; width: 90%; position: relative; overflow: hidden; }
+        .p-fill { height: 100%; background: var(--primary-blue); border-radius: 4px; }
+        .p-num { font-size: 16px; font-weight: bold; color: var(--text-primary); }
+        .p-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Budget Warning List */
+        .warning-list { display: flex; flex-direction: column; gap: 12px; }
+        .warning-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #fff1f0; border: 1px solid #ffccc7; border-radius: 4px; cursor: pointer; }
+        .warning-item:hover { background: #ffccc7; }
+        .w-info { display: flex; flex-direction: column; }
+        .w-name { font-weight: 500; font-size: 14px; color: var(--text-primary); }
+        .w-reason { font-size: 12px; color: var(--error-red); }
+        .w-action { font-size: 12px; color: var(--primary-blue); text-decoration: underline; }
+
+        /* Ready List */
+        .ready-list { display: flex; flex-direction: column; gap: 12px; }
+        .ready-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 4px; cursor: pointer; }
+        .ready-item:hover { background: #d9f7be; }
+        .r-info { display: flex; flex-direction: column; }
+        .r-name { font-weight: 500; font-size: 14px; }
+        .r-desc { font-size: 12px; color: var(--success-green); }
+
+        /* Charts Row */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .chart-box { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); min-height: 250px; }
+        
+        /* Simple Bar Chart CSS */
+        .bar-chart { display: flex; justify-content: space-around; height: 200px; margin-top: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .bar-group { display: flex; flex-direction: column; align-items: center; width: 60px; height: 100%; }
+        .bar-column { flex: 1; width: 40%; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 8px; position: relative; }
+        .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s, transform 0.2s; position: relative; min-height: 1px; }
+        .bar:hover { opacity: 0.8; }
+        .bar-val { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .bar-label { font-size: 12px; color: var(--text-secondary); text-align: center; height: 20px; line-height: 20px; }
+        
+        /* Clickable Bar Style */
+        .clickable-bar { cursor: pointer; transition: transform 0.2s; }
+        .clickable-bar:hover { transform: translateY(-3px); }
+        .clickable-bar:hover .bar { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .clickable-bar:hover .bar-label { color: var(--primary-blue); font-weight: bold; }
+
+        /* Detail List Container (Hidden by default) */
+        .detail-view { display: none; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; background: #f9f9f9; padding: 12px; border-radius: 6px; }
+        .filter-item select, .filter-item input { padding: 6px 12px; border: 1px solid #d9d9d9; border-radius: 4px; min-width: 120px; }
+        
+        .person-table { width: 100%; border-collapse: collapse; }
+        .person-table th { text-align: left; padding: 12px; background: #fafafa; border-bottom: 1px solid #eee; color: var(--text-secondary); font-weight: 500; }
+        .person-table td { padding: 12px; border-bottom: 1px solid #eee; color: var(--text-primary); vertical-align: middle; }
+        .person-table tr:hover { background: #f0f7ff; }
+
+        .tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-red { background: #fff1f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .tag-purple { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+
+        .progress-mini { width: 100px; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .progress-val { height: 100%; background: var(--primary-blue); }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">
+            <button class="back-btn" id="backBtn" onclick="showDashboard()">
+                <i class="fa-solid fa-arrow-left"></i> 返回看板
+            </button>
+            <span id="pageTitle">任职资格管理驾驶舱</span>
+        </div>
+        <div class="user-info">
+            <div class="avatar">管</div>
+            <span>管理员</span>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <!-- Global Filter - Role Based View -->
+        <div class="global-filter">
+            <span class="gf-label">当前角色:</span>
+            <select id="globalRoleSelector" class="gf-select" onchange="onRoleChange()">
+                <option value="admin">管理员</option>
+                <option value="dept_manager_multi">部门经理</option>
+                <option value="dept_manager_parent">业务域负责人</option>
+                <option value="hrbp">HRBP</option>
+                <option value="budget_owner">预算负责人</option>
+            </select>
+            <span class="gf-label" id="scopeSelectorLabel" style="display:none; margin-left:16px;">查看范围:</span>
+            <select id="globalScopeSelector" class="gf-select" style="display:none;" onchange="onScopeChange()">
+                <!-- Populated dynamically based on role -->
+            </select>
+            <div id="roleHint" style="font-size:12px; color:#999; margin-left:auto;">
+                <i class="fa-solid fa-circle-info"></i> 您拥有 <span style="font-weight:bold; color:var(--primary-blue);">全公司</span> 数据查看权限
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView">
+            <div class="section-header">
+                <span>全貌概览</span>
+                <span class="refresh-time">数据更新时间: 2025-12-17 10:00</span>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="overview-grid">
+                <div class="overview-card card-green" onclick="filterList('eligible')">
+                    <div class="ov-label"><i class="fa-solid fa-check-circle"></i> 晋升已就绪</div>
+                    <div class="ov-value">6</div>
+                    <div class="ov-sub">满足晋升条件，待发起</div>
+                    <div class="ov-breakdown">
+                        <div class="ov-bd-item"><div class="dot" style="background:var(--success-green)"></div><span class="bd-label">升级:</span> 2人</div>
+                        <div class="ov-bd-item"><div class="dot" style="background:var(--primary-blue)"></div><span class="bd-label">升等:</span> 4人</div>
+                    </div>
+                    <i class="fa-solid fa-user-check ov-icon" style="color: var(--success-green);"></i>
+                </div>
+                <div class="overview-card card-blue" onclick="filterList('promoting')">
+                    <div class="ov-label"><i class="fa-solid fa-chart-line"></i> 晋升进行中</div>
+                    <div class="ov-value">12</div>
+                    <div class="ov-sub">流程流转中</div>
+                    <div class="ov-breakdown">
+                        <div class="ov-bd-item"><span class="bd-label">升级:</span> 4人</div>
+                        <div class="ov-bd-item"><span class="bd-label">升等:</span> 8人</div>
+                    </div>
+                    <i class="fa-solid fa-spinner ov-icon" style="color: var(--primary-blue);"></i>
+                </div>
+                <div class="overview-card card-purple" onclick="filterList('budget_pending')">
+                    <div class="ov-label"><i class="fa-solid fa-file-invoice-dollar"></i> 预算审批</div>
+                    <div class="ov-value">7</div>
+                    <div class="ov-sub">当前节点总人数</div>
+                    <div class="ov-breakdown" style="background: #fff1f0; border: 1px solid #ffccc7;">
+                        <div class="ov-bd-item" style="color: var(--error-red); width: 100%; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> 4人 因余额不足排队</div>
+                    </div>
+                    <i class="fa-solid fa-sack-dollar ov-icon" style="color: var(--purple);"></i>
+                </div>
+                <div class="overview-card card-orange" onclick="filterList('near')">
+                    <div class="ov-label"><i class="fa-solid fa-person-running"></i> 即将达标</div>
+                    <div class="ov-value">8</div>
+                    <div class="ov-sub">岗位匹配度 > 90% 或 距升等缺口 < 5%</div>
+                    <div class="ov-breakdown">
+                        <div class="ov-bd-item"><span class="bd-label">升级:</span> 3人</div>
+                        <div class="ov-bd-item"><span class="bd-label">升等:</span> 5人</div>
+                    </div>
+                    <i class="fa-solid fa-chart-pie ov-icon" style="color: var(--warning-orange);"></i>
+                </div>
+            </div>
+
+            <div class="focus-grid">
+                <!-- Pipeline Chart -->
+                <div class="focus-card">
+                    <div class="focus-title">当前晋升批次漏斗 (第12批次)</div>
+                    <div class="pipeline-wrapper">
+                        <div class="pipeline-step">
+                            <div class="p-num">5</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 100%;"></div></div>
+                            <div class="p-label">认证/审批</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">3</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 60%;"></div></div>
+                            <div class="p-label">签字确认</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">0</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 0%;"></div></div>
+                            <div class="p-label">待公示</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">2</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 40%;"></div></div>
+                            <div class="p-label">公示</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">1</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 20%;"></div></div>
+                            <div class="p-label">预算核验</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">2</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 40%;"></div></div>
+                            <div class="p-label">待生效</div>
+                        </div>
+                        <div class="pipeline-step">
+                            <div class="p-num">2</div>
+                            <div class="p-bar"><div class="p-fill" style="width: 40%;"></div></div>
+                            <div class="p-label">生效</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 12px; color: #666; background: #e6f7ff; border: 1px solid #91d5ff; padding: 10px; border-radius: 4px;">
+                        <i class="fa-solid fa-chart-simple" style="color: var(--primary-blue);"></i> 
+                        <strong>流程分析：</strong>当前 <strong>53% (8人)</strong> 仍处于早期审批阶段，主要堆积在 <strong>认证/审批</strong> 节点。请关注审批时效，避免影响后续公示安排。
+                    </div>
+                </div>
+
+                <!-- Budget Warnings -->
+                <div class="focus-card">
+                    <div class="focus-title" style="color: var(--error-red);">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 预算排队预警 (4人)
+                    </div>
+                    <div class="warning-list">
+                        <div class="warning-item" onclick="filterList('budget_block')">
+                            <div class="w-info">
+                                <span class="w-name">马鑫 (P3A→P3B)</span>
+                                <span class="w-reason" style="color: var(--text-secondary); margin-top: 2px; font-size: 11px;">
+                                    <i class="fa-regular fa-clock"></i> 已等待 33 天 | <span style="color: var(--error-red);">优先级:</span> 高
+                                </span>
+                            </div>
+                            <span class="w-action">查看</span>
+                        </div>
+                        <div class="warning-item" onclick="filterList('budget_block')">
+                            <div class="w-info">
+                                <span class="w-name">钱十一 (M3A→M3B)</span>
+                                <span class="w-reason" style="color: var(--text-secondary); margin-top: 2px; font-size: 11px;">
+                                    <i class="fa-regular fa-clock"></i> 已等待 1 天 | <span style="color: var(--warning-orange);">优先级:</span> 中
+                                </span>
+                            </div>
+                            <span class="w-action">查看</span>
+                        </div>
+                        <div style="text-align: center; font-size: 12px; color: #999; cursor: pointer;" onclick="filterList('budget_block')">查看全部 4 人 ></div>
+                    </div>
+                </div>
+
+                <!-- Deferred List -->
+                <div class="focus-card">
+                    <div class="focus-title" style="color: var(--warning-orange);">
+                        <i class="fa-solid fa-pause"></i> 升等暂缓预警 (3人)
+                    </div>
+                    <div class="warning-list">
+                        <div class="warning-item" style="background: #fff7e6; border-color: #ffd591;" onclick="filterList('deferred')">
+                            <div class="w-info">
+                                <span class="w-name">
+                                    刘同庆 (P2B→P2C)
+                                    <span style="font-size:10px; background:#fff1f0; color:#ff4d4f; border:1px solid #ffccc7; padding:0 4px; border-radius:2px; margin-left:4px;">连续2次暂缓</span>
+                                </span>
+                                <span class="w-reason" style="color: #fa8c16; margin-top:2px; font-size:11px;">理由: 需进一步观察管理能力</span>
+                            </div>
+                            <span class="w-action">查看</span>
+                        </div>
+                        <div class="warning-item" style="background: #fff7e6; border-color: #ffd591;" onclick="filterList('deferred')">
+                            <div class="w-info">
+                                <span class="w-name">王五 (P3A→P3B)</span>
+                                <span class="w-reason" style="color: #fa8c16; margin-top:2px; font-size:11px;">理由: 近期绩效波动</span>
+                            </div>
+                            <span class="w-action">查看</span>
+                        </div>
+                        <div style="text-align: center; font-size: 12px; color: #999; cursor: pointer;" onclick="filterList('deferred')">查看全部 3 人 ></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <!-- Dept Distribution -->
+                <div class="chart-box">
+                    <div class="focus-title">本年度各部门晋升覆盖率 Top 5</div>
+                    <div style="font-size:12px; color:#999; margin-bottom:10px;">* 晋升覆盖率 = 年度累计晋升人数(升级+升等) / 部门总人数 <span style="color:#1890ff; margin-left:8px;">点击柱子查看详情</span></div>
+                    <div class="bar-chart">
+                        <div class="bar-group clickable-bar" onclick="goToPromotionList('效率部')" title="点击查看IT部晋升记录">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 45%; background: #1890ff;">
+                                    <span class="bar-val">45%</span>
+                                </div>
+                            </div>
+                            <span class="bar-label">IT部</span>
+                        </div>
+                        <div class="bar-group clickable-bar" onclick="goToPromotionList('销售部')" title="点击查看销售部晋升记录">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 38%; background: #13c2c2;">
+                                    <span class="bar-val">38%</span>
+                                </div>
+                            </div>
+                            <span class="bar-label">销售部</span>
+                        </div>
+                        <div class="bar-group clickable-bar" onclick="goToPromotionList('人力资源部')" title="点击查看人资部晋升记录">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 30%; background: #13c2c2;">
+                                    <span class="bar-val">30%</span>
+                                </div>
+                            </div>
+                            <span class="bar-label">人资部</span>
+                        </div>
+                        <div class="bar-group clickable-bar" onclick="goToPromotionList('财务部')" title="点击查看财务部晋升记录">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 25%; background: #722ed1;">
+                                    <span class="bar-val">25%</span>
+                                </div>
+                            </div>
+                            <span class="bar-label">财务部</span>
+                        </div>
+                        <div class="bar-group clickable-bar" onclick="goToPromotionList('行政部')" title="点击查看行政部晋升记录">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 15%; background: #faad14;">
+                                    <span class="bar-val">15%</span>
+                                </div>
+                            </div>
+                            <span class="bar-label">行政部</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evidence Trend (New) -->
+                <div class="chart-box">
+                    <div class="focus-title" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>举证活跃度与通过率</span>
+                        <div class="chart-controls" style="display:flex; gap:4px;">
+                            <button class="time-btn" onclick="updateEvidenceChart('1M', this)">近1月</button>
+                            <button class="time-btn" onclick="updateEvidenceChart('3M', this)">近3月</button>
+                            <button class="time-btn active" onclick="updateEvidenceChart('6M', this)">近半年</button>
+                            <button class="time-btn" onclick="updateEvidenceChart('1Y', this)">近1年</button>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:#999; margin-bottom:10px;">
+                        <span style="display:inline-block; width:10px; height:10px; background:#1890ff; margin-right:4px;"></span>提交量
+                        <span style="display:inline-block; width:10px; height:2px; background:#52c41a; margin-left:12px; margin-right:4px; vertical-align:middle;"></span>通过量
+                    </div>
+                    <div class="bar-chart" style="align-items:flex-end;">
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 40%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:35%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">7月</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 55%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:45%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">8月</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 45%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:40%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">9月</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 70%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:60%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">10月</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 85%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:75%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">11月</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-column">
+                                <div class="bar" style="height: 60%; background: #1890ff; opacity:0.8;"></div>
+                                <div style="position:absolute; bottom:50%; width:100%; height:2px; background:#52c41a;"></div>
+                            </div>
+                            <span class="bar-label">12月</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rank Distribution (New Row) -->
+            <div class="chart-box" style="margin-bottom: 24px;">
+                <div class="focus-title" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>职级分布 (正态分布检验)</span>
+                    <span id="rankDistScopeLabel" style="font-size:12px; font-weight:normal; color:var(--primary-blue); background:#e6f7ff; padding:2px 8px; border-radius:4px;">当前范围: 全公司</span>
+                </div>
+                <div style="font-size:12px; color:#999; margin-bottom:16px;">
+                    旨在评估组织结构健康度。理想模型：两头小(L1/L5)、中间大(L2/L3)的纺锤形结构。<span style="color:#1890ff; margin-left:8px;">点击柱子查看该职级人员</span>
+                </div>
+                <!-- Simplified Normal Distribution Chart -->
+                <div id="rankDistChartBody" style="display:flex; align-items:flex-end; justify-content:space-around; height:200px; padding:0 40px; position:relative;">
+                    <!-- Curve (Simulated with border-radius/CSS) -->
+                    <svg style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.2;" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M0,100 C20,100 30,20 50,10 C70,20 80,100 100,100" fill="none" stroke="#faad14" stroke-width="2" stroke-dasharray="5,5"></path>
+                    </svg>
+                    <div style="position:absolute; top:10px; right:20px; font-size:12px; color:#faad14;">--- 理想分布曲线</div>
+
+                    <!-- Bars (Initial State) -->
+                    <div class="bar-group" style="width:60px; z-index:1;">
+                        <div class="bar-column"><div class="bar" style="height: 30%; background: #d9d9d9;"><span class="bar-val">15%</span></div></div>
+                        <span class="bar-label">L1 (助理)</span>
+                    </div>
+                    <div class="bar-group" style="width:60px; z-index:1;">
+                        <div class="bar-column"><div class="bar" style="height: 60%; background: #1890ff;"><span class="bar-val">35%</span></div></div>
+                        <span class="bar-label">L2 (专员)</span>
+                    </div>
+                    <div class="bar-group" style="width:60px; z-index:1;">
+                        <div class="bar-column"><div class="bar" style="height: 70%; background: #1890ff;"><span class="bar-val">40%</span></div></div>
+                        <span class="bar-label">L3 (专家)</span>
+                    </div>
+                    <div class="bar-group" style="width:60px; z-index:1;">
+                        <div class="bar-column"><div class="bar" style="height: 20%; background: #13c2c2;"><span class="bar-val">8%</span></div></div>
+                        <span class="bar-label">L4 (资深)</span>
+                    </div>
+                    <div class="bar-group" style="width:60px; z-index:1;">
+                        <div class="bar-column"><div class="bar" style="height: 5%; background: #faad14;"><span class="bar-val">2%</span></div></div>
+                        <span class="bar-label">L5 (权威)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail List View (Initially Hidden) -->
+        <div id="detailView" class="detail-view">
+            <div class="section-header">
+                <span id="listTitle">人员明细列表</span>
+            </div>
+            
+            <div class="filter-bar">
+                <!-- 部门筛选器 - 用于非预算页面 -->
+                <div class="filter-item" id="deptFilterWrapper">
+                    <select id="detailDeptFilter" onchange="applyDetailFilters()">
+                        <option value="all">所有部门</option>
+                        <option value="数字芯片研究中心">数字芯片研究中心</option>
+                        <option value="效率部">效率部</option>
+                        <option value="销售部">销售部</option>
+                        <option value="人力资源部">人力资源部</option>
+                        <option value="行政部">行政部</option>
+                        <option value="全球供应链">全球供应链</option>
+                        <option value="技术创新中心">技术创新中心</option>
+                        <option value="业务解决方案部">业务解决方案部</option>
+                        <option value="财务部">财务部</option>
+                    </select>
+                </div>
+                <!-- 成本中心筛选器 - 仅用于预算页面 -->
+                <div class="filter-item" id="costCenterFilterWrapper" style="display:none;">
+                    <select id="detailCostCenterFilter" onchange="applyDetailFilters()">
+                        <option value="all">所有成本中心</option>
+                        <option value="数字芯片研究中心">数字芯片研究中心</option>
+                        <option value="效率部">效率部</option>
+                        <option value="销售部">销售部</option>
+                        <option value="人力资源部">人力资源部</option>
+                        <option value="行政部">行政部</option>
+                        <option value="全球供应链">全球供应链</option>
+                        <option value="技术创新中心">技术创新中心</option>
+                        <option value="业务解决方案部">业务解决方案部</option>
+                        <option value="财务部">财务部</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <select id="detailTypeFilter" onchange="applyDetailFilters()">
+                        <option value="all">所有晋升类型</option>
+                        <option value="level_up">升级 (Level Up)</option>
+                        <option value="grade_up">升等 (Grade Up)</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="display:none;">
+                    <select id="detailStatusFilter">
+                        <option value="all">所有状态</option>
+                        <option value="promoting">晋升中</option>
+                        <option value="eligible">晋升已就绪</option>
+                        <option value="budget_pending">预算审批中</option>
+                        <option value="budget_block">预算排队</option>
+                        <option value="deferred">暂缓</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <input type="text" id="detailSearchInput" placeholder="搜索姓名/工号" onkeyup="applyDetailFilters()">
+                </div>
+                <button style="padding: 6px 12px; background: var(--primary-blue); color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="applyDetailFilters()">查询</button>
+            </div>
+
+            <table class="person-table">
+                <thead id="tableHead">
+                    <tr>
+                        <th>姓名/工号</th>
+                        <th>部门</th>
+                        <th>当前职级</th>
+                        <th>岗位匹配度</th>
+                        <th>状态</th>
+                        <th>关键说明</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // Mock Data
+        const employees = [
+            // Budget Pending / Blocked
+            { 
+                id: '04109', name: '马鑫', dept: '数字芯片研究中心', level: 'P3A', 
+                status: 'budget_block', statusText: '排队中', type: 'budget', promoteType: 'grade_up', target: 'P3B',
+                priority: '高', waitTime: '33天', batch: '第11批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 3,000'
+            },
+            { 
+                id: '04326', name: '郑七', dept: '行政部', level: 'P1B', 
+                status: 'budget_processing', statusText: '审批中', type: 'normal', promoteType: 'grade_up', target: 'P1C',
+                priority: '-', waitTime: '-', batch: '第12批次', costCenter: '行政部', budgetOwner: '吴有', estimatedCost: '¥ 1,500'
+            },
+            { 
+                id: '04403', name: '李明', dept: '效率部', level: 'P2A', 
+                status: 'budget_processing', statusText: '审批中', type: 'normal', promoteType: 'level_up', target: 'P3E',
+                priority: '-', waitTime: '-', batch: '第12批次', costCenter: '效率部', budgetOwner: '陈总', estimatedCost: '¥ 6,000'
+            },
+            { 
+                id: '04404', name: '王芳', dept: '销售部', level: 'S2C', 
+                status: 'budget_processing', statusText: '审批中', type: 'normal', promoteType: 'grade_up', target: 'S2B',
+                priority: '-', waitTime: '-', batch: '第12批次', costCenter: '销售部', budgetOwner: '刘总', estimatedCost: '¥ 2,500'
+            },
+            { 
+                id: '04331', name: '钱十一', dept: '人力资源部', level: 'M3A', 
+                status: 'budget_block', statusText: '排队中', type: 'budget', promoteType: 'grade_up', target: 'M3B',
+                priority: '中', waitTime: '1天', batch: '第12批次', costCenter: '人力资源部', budgetOwner: '张潇文', estimatedCost: '¥ 5,000'
+            },
+            // Same Cost Center Mock for Budget Rule Demo
+            { 
+                id: '04401', name: '测试A', dept: '数字芯片研究中心', level: 'P2B', 
+                status: 'budget_block', statusText: '排队中', type: 'budget', promoteType: 'grade_up', target: 'P2C',
+                priority: '中', waitTime: '1天', batch: '第12批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 2,000'
+            },
+            { 
+                id: '04402', name: '测试B', dept: '数字芯片研究中心', level: 'P4A', 
+                status: 'budget_block', statusText: '排队中', type: 'budget', promoteType: 'grade_up', target: 'P4B',
+                priority: '低', waitTime: '1天', batch: '第12批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 4,500'
+            },
+
+            // Deferred
+            { id: '04251', name: '刘同庆', dept: '业务解决方案部', level: 'P2B', progress: 100, matchRate: 100, status: 'deferred', note: '需观察管理能力', type: 'deferred', promoteType: 'grade_up', target: 'P2C', deferCount: 2, deferredBy: '张经理', deferredDate: '2025-12-01' },
+            { id: '04324', name: '王五', dept: '财务部', level: 'P3A', progress: 100, matchRate: 100, status: 'deferred', note: '近期绩效波动', type: 'deferred', promoteType: 'grade_up', target: 'P3B', deferCount: 1, deferredBy: '李总监', deferredDate: '2025-12-10' },
+            { id: '04405', name: '赵明', dept: '销售部', level: 'S2A', progress: 100, matchRate: 100, status: 'deferred', note: '团队协作待提升', type: 'deferred', promoteType: 'grade_up', target: 'S1E', deferCount: 1, deferredBy: '王总', deferredDate: '2025-12-08' },
+
+            // Promoting
+            { 
+                id: '04321', name: '陈斐', dept: '效率部', level: 'P1A', 
+                status: 'promoting', statusText: '晋升中', type: 'normal', promoteType: 'grade_up', target: 'P1B',
+                currentNode: '认证/审批', currentAssignee: '李架构', nodeStayTime: '8天', startTime: '2025-12-10'
+            },
+            { 
+                id: '04332', name: '周十二', dept: '全球供应链', level: 'S2B', 
+                status: 'promoting', statusText: '晋升中', type: 'normal', promoteType: 'level_up', target: 'S3E',
+                currentNode: '签字确认', currentAssignee: '王总监', nodeStayTime: '1天', startTime: '2025-12-08'
+            },
+            
+            // Eligible (Ready) Employees - Refined Data
+            { 
+                id: '04322', name: '张三', dept: '效率部', level: 'P2A', progress: 100, matchRate: 100, 
+                status: 'eligible', statusText: '晋升已就绪', note: '已满足升级条件', type: 'success', promoteType: 'level_up', target: 'P3E',
+                companyTenure: '3.5年', levelTenure: '2.5年', lastPerf: 'A', 
+                techTags: [{name: '微服务架构', level: 3}, {name: '高并发处理', level: 4}]
+            },
+            { 
+                id: '04325', name: '赵六', dept: '人力资源部', level: 'M2B', progress: 82, matchRate: 82, 
+                status: 'eligible', statusText: '晋升已就绪', note: '满足升等条件 (>80%)', type: 'success', promoteType: 'grade_up', target: 'M2A',
+                companyTenure: '5.0年', levelTenure: '1.8年', lastPerf: 'A+', 
+                techTags: [{name: '组织诊断', level: 3}]
+            },
+            { 
+                id: '04328', name: '孙八', dept: '全球供应链', level: 'S3B', progress: 91, matchRate: 91, 
+                status: 'eligible', statusText: '晋升已就绪', note: '满足升等条件 (>90%)', type: 'success', promoteType: 'grade_up', target: 'S3A',
+                companyTenure: '4.2年', levelTenure: '3.0年', lastPerf: 'A', 
+                techTags: [{name: '供应链战略', level: 4}, {name: '成本控制', level: 3}]
+            },
+            { 
+                id: '04329', name: '周九', dept: '行政部', level: 'O1B', progress: 100, matchRate: 100, 
+                status: 'eligible', statusText: '晋升已就绪', note: '已满足升级条件', type: 'success', promoteType: 'level_up', target: 'O2E',
+                companyTenure: '2.5年', levelTenure: '2.1年', lastPerf: 'A++', 
+                techTags: []
+            },
+            { 
+                id: '04330', name: '吴十', dept: '技术创新中心', level: 'T4C', progress: 96, matchRate: 96, 
+                status: 'eligible', statusText: '晋升已就绪', note: '满足升等条件', type: 'success', promoteType: 'grade_up', target: 'T4B',
+                companyTenure: '8.0年', levelTenure: '4.5年', lastPerf: 'A+', 
+                techTags: [{name: '射频算法', level: 5}, {name: 'FPGA设计', level: 4}]
+            },
+
+            // Near Eligibility (Total 8: 3 Level Up, 5 Grade Up)
+            { 
+                id: '04323', name: '李四', dept: '销售部', level: 'P2C', progress: 96, matchRate: 96, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'level_up', target: 'P3A',
+                gapVal: '4%', lastPerf: 'A', lastActionDate: '2025-12-15'
+            },
+            { 
+                id: '04333', name: '郑十三', dept: '技术创新中心', level: 'T3B', progress: 77, matchRate: 77, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'grade_up', target: 'T3A',
+                gapVal: '3%', lastPerf: 'A+', lastActionDate: '2025-12-01'
+            },
+            { 
+                id: '04341', name: '王二', dept: '效率部', level: 'P1B', progress: 92, matchRate: 92, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'level_up', target: 'P2E',
+                gapVal: '8%', lastPerf: 'A', lastActionDate: '2025-12-14'
+            },
+            { 
+                id: '04342', name: '陈五', dept: '人力资源部', level: 'M1B', progress: 91, matchRate: 91, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'level_up', target: 'M2E',
+                gapVal: '9%', lastPerf: 'B+', lastActionDate: '2025-12-10'
+            },
+            { 
+                id: '04343', name: '赵六', dept: '全球供应链', level: 'S2C', progress: 58, matchRate: 58, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'grade_up', target: 'S2B',
+                gapVal: '2%', lastPerf: 'A', lastActionDate: '2025-12-12'
+            },
+            { 
+                id: '04344', name: '钱七', dept: '财务部', level: 'P3C', progress: 56, matchRate: 56, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'grade_up', target: 'P3B',
+                gapVal: '4%', lastPerf: 'A', lastActionDate: '2025-12-16'
+            },
+            { 
+                id: '04345', name: '孙八', dept: '行政部', level: 'O2B', progress: 79, matchRate: 79, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'grade_up', target: 'O2A',
+                gapVal: '1%', lastPerf: 'A+', lastActionDate: '2025-12-11'
+            },
+            { 
+                id: '04346', name: '周九', dept: '技术创新中心', level: 'T4C', progress: 55, matchRate: 55, 
+                status: 'near', statusText: '即将达标', type: 'warning', promoteType: 'grade_up', target: 'T4B',
+                gapVal: '5%', lastPerf: 'A', lastActionDate: '2025-12-09'
+            }
+        ];
+
+        // Organization Structure Mock
+        const orgStructure = [
+            { name: "RIGOL (公司)", id: "company", level: 0 },
+            { name: "SCOPE & VERIFICATION", id: "scope", level: 1 },
+            { name: "RF & MICROWAVE", id: "rf", level: 1 },
+            { name: "PRECISION & POWER", id: "precision", level: 1 },
+            { name: "NAISHU SOLUTION", id: "naishu", level: 1 },
+            { name: "技术创新中心", id: "tic", level: 1 },
+            { name: "Global Sales & Marketing", id: "sales", level: 1 },
+            { name: "集团职能平台", id: "platform", level: 1, children: [
+                { name: "董事会办公室", id: "board", level: 2 },
+                { name: "总裁办公室", id: "ceo", level: 2 },
+                { name: "效率部", id: "efficiency", level: 2 },
+                { name: "财务部", id: "finance", level: 2 },
+                { name: "普源书院", id: "academy", level: 2 },
+                { name: "人力资源部", id: "hr", level: 2 },
+                { name: "知识产权部", id: "ip", level: 2 },
+                { name: "行政部", id: "admin", level: 2 },
+                { name: "内审部", id: "audit", level: 2 },
+            ]},
+            { name: "全球供应链", id: "supply", level: 1 },
+            { name: "专家顾问", id: "expert", level: 1 }
+        ];
+
+        // Role definitions for permission simulation
+        const roleConfig = {
+            admin: { 
+                name: '管理员', 
+                scopeType: 'all',
+                scopes: [{ id: 'all', name: '全公司' }]
+            },
+            dept_manager_multi: { 
+                name: '部门经理 (多部门)', 
+                scopeType: 'dept',
+                scopes: [
+                    { id: 'all_managed', name: '全部管辖部门' },
+                    { id: 'it', name: '效率部' },
+                    { id: 'tic', name: '数字芯片研究中心' }
+                ]
+            },
+            dept_manager_parent: { 
+                name: '业务域负责人', 
+                scopeType: 'domain',
+                scopes: [
+                    { id: 'rd_all', name: '研发业务域 (全部)' },
+                    { id: 'scope', name: '└ 示波器产品线' },
+                    { id: 'rf', name: '└ 射频产品线' },
+                    { id: 'precision', name: '└ 精密仪器产品线' },
+                    { id: 'naishu', name: '└ 耐数产品线' },
+                    { id: 'tic', name: '└ 数字芯片研究中心' }
+                ]
+            },
+            hrbp: { 
+                name: 'HRBP', 
+                scopeType: 'domain',
+                scopes: [
+                    { id: 'hrbp_all', name: '全部负责范围' },
+                    { id: 'rd_domain', name: '研发业务域' },
+                    { id: 'func_domain', name: '职能业务域' }
+                ]
+            },
+            budget_owner: { 
+                name: '预算负责人', 
+                scopeType: 'cost_center',
+                scopes: [
+                    { id: 'budget_all', name: '全部负责成本中心' },
+                    { id: 'cc_tic', name: '数字芯片研究中心' },
+                    { id: 'cc_it', name: '效率部' },
+                    { id: 'cc_rd', name: '研发公共成本中心' }
+                ]
+            }
+        };
+
+        // Current role and scope state
+        let currentRole = 'admin';
+        let currentScope = 'all';
+
+        function onRoleChange() {
+            const roleSelect = document.getElementById('globalRoleSelector');
+            currentRole = roleSelect.value;
+            const role = roleConfig[currentRole];
+            
+            const scopeSelector = document.getElementById('globalScopeSelector');
+            const scopeLabel = document.getElementById('scopeSelectorLabel');
+            
+            // Show/hide scope selector based on role
+            if (role.scopes.length > 1) {
+                // Populate scope options
+                scopeSelector.innerHTML = '';
+                role.scopes.forEach(scope => {
+                    const option = document.createElement('option');
+                    option.value = scope.id;
+                    option.textContent = scope.name;
+                    scopeSelector.appendChild(option);
+                });
+                scopeSelector.style.display = 'inline-block';
+                scopeLabel.style.display = 'inline';
+                
+                // Update label based on role type
+                if (role.scopeType === 'cost_center') {
+                    scopeLabel.textContent = '成本中心:';
+                } else if (role.scopeType === 'domain') {
+                    scopeLabel.textContent = '查看范围:';
+                } else {
+                    scopeLabel.textContent = '部门:';
+                }
+            } else {
+                scopeSelector.style.display = 'none';
+                scopeLabel.style.display = 'none';
+            }
+            
+            // Set default scope
+            currentScope = role.scopes[0].id;
+            
+            // Update hint and charts
+            updateRoleHint();
+            updateChartsForScope();
+        }
+
+        function onScopeChange() {
+            const scopeSelector = document.getElementById('globalScopeSelector');
+            currentScope = scopeSelector.value;
+            
+            // Update hint and charts
+            updateRoleHint();
+            updateChartsForScope();
+        }
+
+        function updateRoleHint() {
+            const role = roleConfig[currentRole];
+            const scopeName = role.scopes.find(s => s.id === currentScope)?.name || role.scopes[0].name;
+            
+            const hint = document.getElementById('roleHint');
+            hint.innerHTML = `<i class="fa-solid fa-circle-info"></i> 当前查看: <span style="font-weight:bold; color:var(--primary-blue);">${scopeName}</span> 的数据`;
+        }
+
+        function updateChartsForScope() {
+            // Map scope to chart data
+            let chartScope = 'all';
+            
+            if (currentScope.includes('all') || currentScope === 'all') {
+                chartScope = 'all';
+            } else if (currentScope === 'it' || currentScope === 'cc_it') {
+                chartScope = 'it';
+            } else if (currentScope === 'tic' || currentScope === 'cc_tic') {
+                chartScope = 'tic';
+            } else if (currentScope === 'scope') {
+                chartScope = 'scope';
+            } else if (currentScope === 'rf') {
+                chartScope = 'rf';
+            } else if (currentScope === 'precision' || currentScope === 'naishu') {
+                chartScope = 'precision';
+            } else if (currentScope === 'rd_domain' || currentScope === 'rd_all') {
+                chartScope = 'scope'; // R&D domain
+            } else if (currentScope === 'func_domain') {
+                chartScope = 'admin'; // Functional domain
+            }
+            
+            // Update charts
+            updateRankDistChart(chartScope);
+            updateEvidenceChart('6M', document.querySelector('.time-btn.active'));
+        }
+
+        // Store current scope name for display
+        let currentScopeName = '全公司';
+
+        function updateRankDistChart(orgId) {
+            // Update scope label based on current role and scope
+            const role = roleConfig[currentRole];
+            const scopeData = role.scopes.find(s => s.id === currentScope);
+            currentScopeName = scopeData ? scopeData.name.replace(/└\s*/g, '') : '全公司';
+            
+            const scopeLabel = document.getElementById('rankDistScopeLabel');
+            if (scopeLabel) {
+                scopeLabel.textContent = `当前范围: ${currentScopeName}`;
+            }
+
+            // Mock data based on Org ID characteristics
+            let dist = [15, 35, 40, 8, 2]; // Default: L1, L2, L3, L4, L5
+            let peopleCount = [30, 70, 80, 16, 4]; // Mock people count
+            
+            if(orgId === 'sales' || orgId === 'marketing') {
+                dist = [30, 40, 20, 8, 2]; // Sales: More juniors
+                peopleCount = [15, 20, 10, 4, 1];
+            } else if (['scope', 'rf', 'precision', 'naishu', 'tic'].includes(orgId)) {
+                dist = [10, 30, 45, 12, 3]; // R&D: More seniors
+                peopleCount = [5, 15, 22, 6, 2];
+            } else if (['board', 'ceo'].includes(orgId)) {
+                dist = [5, 15, 40, 30, 10]; // Execs: Very senior
+                peopleCount = [1, 3, 8, 6, 2];
+            } else if (orgId === 'it') {
+                dist = [12, 35, 38, 12, 3];
+                peopleCount = [6, 18, 19, 6, 1];
+            } else {
+                 // Randomize slightly for others
+                 dist = dist.map(v => Math.max(0, v + Math.floor(Math.random() * 10 - 5)));
+                 peopleCount = dist.map(v => Math.floor(v * 0.5));
+            }
+            
+            // Normalize to 100% (roughly)
+            const sum = dist.reduce((a,b) => a+b, 0);
+            dist = dist.map(v => Math.round(v/sum * 100));
+
+            const container = document.getElementById('rankDistChartBody');
+            if(!container) return;
+
+            // Re-render only bars, keep SVG curve
+            const labels = ['L1 (初级/助理级)', 'L2 (中级)', 'L3 (高级)', 'L4 (资深级)', 'L5 (专家级)'];
+            const levelKeys = ['L1', 'L2', 'L3', 'L4', 'L5'];
+            const colors = ['#d9d9d9', '#1890ff', '#1890ff', '#13c2c2', '#faad14'];
+            
+            // Rebuild innerHTML, preserving the SVG
+            let svgHtml = `
+                    <svg style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.2;" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M0,100 C20,100 30,20 50,10 C70,20 80,100 100,100" fill="none" stroke="#faad14" stroke-width="2" stroke-dasharray="5,5"></path>
+                    </svg>
+                    <div style="position:absolute; top:10px; right:20px; font-size:12px; color:#faad14;">--- 理想分布曲线</div>
+            `;
+
+            let barsHtml = '';
+            dist.forEach((val, i) => {
+                // Height scaling: Max 80% height for 50% value to keep it looking good
+                const h = (val / 50) * 80; 
+                barsHtml += `
+                    <div class="bar-group clickable-bar" style="width:60px; z-index:1;" onclick="goToLevelList('${levelKeys[i]}', ${peopleCount[i]})" title="点击查看 ${labels[i]} 人员列表 (${peopleCount[i]}人)">
+                        <div class="bar-column"><div class="bar" style="height: ${h}%; background: ${colors[i]};"><span class="bar-val">${val}%</span></div></div>
+                        <span class="bar-label">${labels[i]}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = svgHtml + barsHtml;
+        }
+
+        // Mock Evidence Data generator
+        function getMockEvidenceData(range) {
+            let months = [];
+            let counts = [];
+            let approved = [];
+            
+            let count = 6;
+            if (range === '1M') count = 4; // 4 weeks
+            if (range === '3M') count = 3;
+            if (range === '6M') count = 6;
+            if (range === '1Y') count = 12;
+
+            for(let i=0; i<count; i++) {
+                if(range === '1M') months.push(`第${i+1}周`);
+                else months.push(`${i+1}月`);
+                
+                let total = Math.floor(Math.random() * 50) + 20; // Random 20-70
+                let pass = Math.floor(total * (0.6 + Math.random() * 0.35)); // 60-95% pass rate
+                
+                counts.push(total);
+                approved.push(pass);
+            }
+            return { months, counts, approved };
+        }
+
+        function updateEvidenceChart(range, btn) {
+            // Update buttons
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            const data = getMockEvidenceData(range);
+            const container = document.getElementById('evidenceChartBody');
+            
+            if(!container) return; // Guard
+
+            // Find Max for scaling
+            const maxVal = Math.max(...data.counts) * 1.1; // Add 10% headroom
+
+            // Store current range for click handler
+            currentEvidenceRange = range;
+            
+            let html = '';
+            data.months.forEach((m, i) => {
+                const totalH = (data.counts[i] / maxVal) * 100;
+                const passH = (data.approved[i] / maxVal) * 100;
+                
+                html += `
+                    <div class="bar-group clickable-bar" style="width:${range === '1Y' ? '30px' : '60px'}" onclick="goToEvidenceList('${m}', '${range}')" title="点击查看 ${m} 举证记录">
+                        <div class="bar-column">
+                            <div class="bar" style="height: ${totalH}%; background: #1890ff; opacity:0.8;" title="提交量: ${data.counts[i]}"></div>
+                            <div style="position:absolute; bottom:${passH}%; width:100%; height:2px; background:#52c41a;" title="通过量: ${data.approved[i]}"></div>
+                        </div>
+                        <span class="bar-label" style="font-size:10px;">${m}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        window.onload = function() {
+            // Add ID to evidence chart for easier update
+            const charts = document.querySelectorAll('.bar-chart');
+            if(charts.length >= 2) {
+                charts[1].id = 'evidenceChartBody';
+            }
+            // Initialize role hint
+            onRoleChange();
+        };
+
+        // Store current filter type globally for re-filtering
+        let currentFilterType = 'all';
+        let currentEvidenceRange = '6M';
+
+        // 跳转到晋升记录列表页（按部门筛选）
+        function goToPromotionList(dept) {
+            // Demo: 显示提示信息，实际项目中跳转到晋升记录列表页
+            const url = `mobile_promotion_list.html?dept=${encodeURIComponent(dept)}`;
+            alert(`即将跳转到晋升记录列表页\n\n目标页面: ${url}\n筛选条件: 部门 = ${dept}\n\n该页面将展示 ${dept} 本年度所有晋升记录（包括升级和升等）`);
+            // 实际跳转（Demo时可注释掉）
+            // window.location.href = url;
+        }
+
+        // 跳转到举证记录列表页（按时间筛选）
+        function goToEvidenceList(period, range) {
+            // 根据范围计算实际时间
+            let timeDesc = '';
+            if (range === '1M') {
+                timeDesc = `本月${period}`;
+            } else if (range === '3M') {
+                timeDesc = `近3个月内的${period}`;
+            } else if (range === '6M') {
+                timeDesc = `近半年内的${period}`;
+            } else if (range === '1Y') {
+                timeDesc = `本年度${period}`;
+            }
+            
+            // Demo: 显示提示信息，实际项目中跳转到举证记录列表页
+            const url = `mobile_evidence_list.html?period=${encodeURIComponent(period)}&range=${range}`;
+            alert(`即将跳转到举证记录列表页\n\n目标页面: ${url}\n筛选条件: 时间范围 = ${timeDesc}\n\n该页面将展示 ${timeDesc} 的所有举证记录`);
+            // 实际跳转（Demo时可注释掉）
+            // window.location.href = url;
+        }
+
+        // 跳转到人员列表页（按职级筛选）
+        function goToLevelList(level, count) {
+            const levelNames = {
+                'L1': 'L1 (初级/助理级)',
+                'L2': 'L2 (中级)',
+                'L3': 'L3 (高级)',
+                'L4': 'L4 (资深级)',
+                'L5': 'L5 (专家级)'
+            };
+            
+            // Demo: 显示提示信息，实际项目中跳转到人员列表页
+            const url = `员工花名册.html?level=${level}&scope=${encodeURIComponent(currentScopeName)}`;
+            alert(`即将跳转到人员列表页\n\n目标页面: ${url}\n\n筛选条件:\n• 职级 = ${levelNames[level]}\n• 范围 = ${currentScopeName}\n\n该页面将展示 ${currentScopeName} 范围内 ${count} 名 ${levelNames[level]} 人员的详细信息，包括:\n- 姓名、工号、部门\n- 当前职级职等\n- 岗位匹配度\n- 入职时间、现职级年限\n- 最近晋升/举证记录`);
+            // 实际跳转（Demo时可注释掉）
+            // window.location.href = url;
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('detailView').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            document.querySelector('.global-filter').style.display = 'flex';
+            document.getElementById('pageTitle').textContent = '任职资格管理驾驶舱';
+            // Reset filters
+            document.getElementById('detailDeptFilter').value = 'all';
+            document.getElementById('detailCostCenterFilter').value = 'all';
+            document.getElementById('detailTypeFilter').value = 'all';
+            document.getElementById('detailSearchInput').value = '';
+            // Reset filter visibility
+            document.getElementById('deptFilterWrapper').style.display = 'block';
+            document.getElementById('costCenterFilterWrapper').style.display = 'none';
+            window.scrollTo(0,0);
+        }
+
+        // Apply filters from dropdowns
+        function applyDetailFilters() {
+            renderDetailList(currentFilterType);
+        }
+
+        function filterList(filterType) {
+            currentFilterType = filterType; // Store for re-filtering
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('detailView').style.display = 'block';
+            document.getElementById('backBtn').style.display = 'inline-block';
+            document.querySelector('.global-filter').style.display = 'none';
+            document.getElementById('pageTitle').textContent = '人员明细';
+            
+            // Reset filters when entering detail view
+            document.getElementById('detailDeptFilter').value = 'all';
+            document.getElementById('detailCostCenterFilter').value = 'all';
+            document.getElementById('detailTypeFilter').value = 'all';
+            document.getElementById('detailSearchInput').value = '';
+
+            // Set dropdown value based on click
+            const statusSelect = document.getElementById('detailStatusFilter');
+            if (['budget_block', 'budget_pending', 'deferred', 'promoting', 'eligible'].includes(filterType)) {
+                statusSelect.value = filterType;
+            } else {
+                statusSelect.value = 'all';
+            }
+            
+            // Show/hide appropriate filter based on page type
+            const deptFilterWrapper = document.getElementById('deptFilterWrapper');
+            const costCenterFilterWrapper = document.getElementById('costCenterFilterWrapper');
+            
+            if (filterType === 'budget_pending' || filterType === 'budget_block') {
+                // For budget view, show "成本中心" filter
+                deptFilterWrapper.style.display = 'none';
+                costCenterFilterWrapper.style.display = 'block';
+            } else {
+                // For other views, show "部门" filter
+                deptFilterWrapper.style.display = 'block';
+                costCenterFilterWrapper.style.display = 'none';
+            }
+
+            // Render the list
+            renderDetailList(filterType);
+        }
+        
+        function renderDetailList(filterType) {
+            const tbody = document.getElementById('tableBody');
+            const thead = document.getElementById('tableHead');
+            tbody.innerHTML = '';
+
+            // Get filter values based on page type
+            let locationFilterVal = 'all';
+            if (filterType === 'budget_pending' || filterType === 'budget_block') {
+                locationFilterVal = document.getElementById('detailCostCenterFilter').value;
+            } else {
+                locationFilterVal = document.getElementById('detailDeptFilter').value;
+            }
+            const typeFilterVal = document.getElementById('detailTypeFilter').value;
+            const searchVal = document.getElementById('detailSearchInput').value.toLowerCase().trim();
+
+            // Base filter by status type
+            let filteredData = employees;
+            if (filterType === 'budget_block') {
+                filteredData = employees.filter(e => e.status === 'budget_block');
+            } else if (filterType === 'budget_pending') {
+                filteredData = employees.filter(e => e.status === 'budget_block' || e.status === 'budget_processing');
+            } else if (filterType === 'deferred') {
+                filteredData = employees.filter(e => e.status === 'deferred');
+            } else if (filterType === 'promoting') {
+                filteredData = employees.filter(e => e.status === 'promoting');
+            } else if (filterType === 'eligible') {
+                filteredData = employees.filter(e => e.status === 'eligible');
+            } else if (filterType === 'near') {
+                filteredData = employees.filter(e => e.status === 'near');
+            }
+
+            // Apply additional filters
+            // Dept/Cost Center filter
+            if (locationFilterVal !== 'all') {
+                if (filterType === 'budget_pending' || filterType === 'budget_block') {
+                    // Filter by cost center for budget view
+                    filteredData = filteredData.filter(e => e.costCenter === locationFilterVal);
+                } else {
+                    // Filter by department for other views
+                    filteredData = filteredData.filter(e => e.dept === locationFilterVal);
+                }
+            }
+
+            // Promote type filter (level_up / grade_up)
+            if (typeFilterVal !== 'all') {
+                filteredData = filteredData.filter(e => e.promoteType === typeFilterVal);
+            }
+
+            // Search filter (name or id)
+            if (searchVal) {
+                filteredData = filteredData.filter(e => 
+                    e.name.toLowerCase().includes(searchVal) || 
+                    e.id.toLowerCase().includes(searchVal)
+                );
+            }
+
+            // Dynamic Headers based on filter
+            if (filterType === 'eligible') {
+                thead.innerHTML = `
+                    <tr>
+                        <th style="width:20%">人员信息</th>
+                        <th style="width:15%">晋升目标</th>
+                        <th style="width:15%">任职年限</th>
+                        <th style="width:10%">必备条件</th>
+                        <th style="width:15%">岗位匹配度</th>
+                        <th style="width:15%">技术标签</th>
+                        <th style="width:10%">操作</th>
+                    </tr>
+                `;
+            } else if (filterType === 'promoting') {
+                thead.innerHTML = `
+                    <tr>
+                        <th style="width:20%">人员信息</th>
+                        <th style="width:15%">晋升目标</th>
+                        <th style="width:15%">当前节点</th>
+                        <th style="width:15%">当前处理人</th>
+                        <th style="width:10%">节点停留</th>
+                        <th style="width:15%">流程发起时间</th>
+                        <th style="width:10%">操作</th>
+                    </tr>
+                `;
+            } else if (filterType === 'budget_pending' || filterType === 'budget_block') {
+                
+                // Calculate Total Budget from filtered data
+                let totalBudget = 0;
+                let blockedBudget = 0;
+                filteredData.forEach(e => {
+                    const cost = parseInt(e.estimatedCost.replace('¥', '').replace(',', '').trim());
+                    totalBudget += cost;
+                    if(e.status === 'budget_block') blockedBudget += cost;
+                });
+
+                // Add Budget Summary Header
+                thead.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="background:#e6f7ff; border-bottom:1px solid #91d5ff; padding:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-weight:bold; color:#1890ff;">
+                                    <i class="fa-solid fa-sack-dollar"></i> 成本中心预算汇总 (当前列表)
+                                </div>
+                                <div style="font-size:14px;">
+                                    总计: <span style="font-weight:bold; font-size:16px;">¥ ${totalBudget.toLocaleString()}</span>
+                                    <span style="color:#999; margin:0 8px;">|</span>
+                                    <span style="color:var(--error-red);">排队中: ¥ ${blockedBudget.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="width:15%">人员信息</th>
+                        <th style="width:10%">晋升目标</th>
+                        <th style="width:15%">成本中心</th>
+                        <th style="width:10%">预算负责人</th>
+                        <th style="width:10%">预计金额 <i class="fa-solid fa-eye-slash" style="color:#ccc; font-size:10px;" title="仅预算负责人可见"></i></th>
+                        <th style="width:10%">审批状态</th>
+                        <th style="width:8%">优先级</th>
+                        <th style="width:8%">已等待</th>
+                        <th style="width:10%">所属批次</th>
+                        <th style="width:10%">操作</th>
+                    </tr>
+                `;
+                
+                // Add sorting hint
+                thead.innerHTML += `
+                    <tr>
+                        <td colspan="10" style="background:#fffbe6; color:#faad14; font-size:12px; padding:8px 12px; border-bottom:1px solid #ffe58f;">
+                            <i class="fa-solid fa-circle-info"></i> <strong>排队规则说明：</strong> 同一个成本中心下，系统优先保障 <span style="font-weight:bold;">历史批次</span> 遗留人员，同一批次内优先保障 <span style="font-weight:bold;">低职级</span> 晋升申请。（优先级的高中低仅针对同成本中心排序）
+                        </td>
+                    </tr>
+                `;
+            } else if (filterType === 'near') {
+                thead.innerHTML = `
+                    <tr>
+                        <th style="width:20%">人员信息</th>
+                        <th style="width:15%">岗位匹配度</th>
+                        <th style="width:15%">潜在目标</th>
+                        <th style="width:15%">还需匹配度</th>
+                        <th style="width:10%">最近绩效</th>
+                        <th style="width:15%">最近举证时间</th>
+                        <th style="width:10%">操作</th>
+                    </tr>
+                `;
+            } else if (filterType === 'deferred') {
+                thead.innerHTML = `
+                    <tr>
+                        <th style="width:18%">人员信息</th>
+                        <th style="width:12%">晋升目标</th>
+                        <th style="width:12%">岗位匹配度</th>
+                        <th style="width:12%">暂缓人</th>
+                        <th style="width:12%">暂缓时间</th>
+                        <th style="width:10%">暂缓次数</th>
+                        <th style="width:16%">暂缓理由</th>
+                        <th style="width:8%">操作</th>
+                    </tr>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <tr>
+                        <th>姓名/工号</th>
+                        <th>部门</th>
+                        <th>当前职级 -> 目标</th>
+                        <th>岗位匹配度</th>
+                        <th>状态</th>
+                        <th>关键说明</th>
+                        <th>操作</th>
+                    </tr>
+                `;
+            }
+
+            // Show empty state if no data
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding:40px; color:#999;">
+                            <i class="fa-solid fa-inbox" style="font-size:32px; margin-bottom:12px; display:block;"></i>
+                            暂无符合条件的数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Render Rows
+            filteredData.forEach(emp => {
+                let row = '';
+                
+                // Specific Render for "Eligible" (Promotion Ready)
+                if (filterType === 'eligible') {
+                    const promoteBadge = emp.promoteType === 'level_up' 
+                        ? `<span class="tag tag-green">升级</span>` 
+                        : `<span class="tag tag-blue">升等</span>`;
+
+                    const checkIcon = '<i class="fa-solid fa-circle-check" style="color:var(--success-green); margin-right:4px;"></i>';
+                    
+                    // Logic for Hard Threshold display (Perf + Values)
+                    let hardThresholdHtml = '';
+                    hardThresholdHtml = `
+                        <div style="font-size:12px; color:#666;">
+                            <div style="margin-bottom:2px;">绩效: <span style="font-weight:bold; color:var(--text-primary);">${emp.lastPerf}</span></div>
+                            <div>价值观: <span style="color:var(--success-green);"><i class="fa-solid fa-check"></i></span></div>
+                        </div>
+                    `;
+
+                    // Render Tech Tags
+                    let techTagsHtml = '';
+                    if(emp.techTags && emp.techTags.length > 0) {
+                        techTagsHtml = emp.techTags.map(tag => {
+                            let diamonds = '';
+                            for(let i=0; i<tag.level; i++) {
+                                diamonds += '<i class="fa-solid fa-diamond" style="color:var(--primary-blue); font-size:10px; margin-right:1px;"></i>';
+                            }
+                            return `
+                                <div style="margin-bottom:4px; display:flex; align-items:center; gap:4px;">
+                                    <div style="line-height:1;">${diamonds}</div>
+                                    <div style="font-size:12px; font-weight:500;">${tag.name}</div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        techTagsHtml = '<span style="color:#ccc; font-size:12px;">无特定标签</span>';
+                    }
+                    
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name} <span style="font-size:12px; font-weight:normal; color:#999;">(${emp.id})</span></div>
+                                <div style="font-size:12px; color:#666;">${emp.dept}</div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:bold;">${emp.level} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc;"></i> ${emp.target}</span>
+                                    ${promoteBadge}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-size:12px; color:#666;">
+                                    <div>司龄: <span style="color:var(--text-primary);">${emp.companyTenure}</span></div>
+                                    <div>现职级: <span style="color:var(--text-primary);">${emp.levelTenure}</span></div>
+                                </div>
+                            </td>
+                            <td>
+                                ${hardThresholdHtml}
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center;">
+                                    <div class="progress-mini" style="width:60px;"><div class="progress-val" style="width: ${emp.progress}%"></div></div>
+                                    <span style="font-weight:bold; color:var(--primary-blue);">${emp.progress}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                ${techTagsHtml}
+                            </td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('即将跳转至 ${emp.name} 的个人达标详情页')">查看详情</button>
+                            </td>
+                        </tr>
+                    `;
+
+                } else if (filterType === 'promoting') {
+                    // Render for Promoting
+                    const promoteBadge = emp.promoteType === 'level_up' 
+                        ? `<span class="tag tag-green">升级</span>` 
+                        : `<span class="tag tag-blue">升等</span>`;
+                    
+                    // Avatar logic
+                    const avatarChar = emp.currentAssignee ? emp.currentAssignee.charAt(0) : '';
+                    const assigneeHtml = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="width:24px; height:24px; background:#e6f7ff; color:var(--primary-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">${avatarChar}</div>
+                            <span>${emp.currentAssignee}</span>
+                        </div>
+                    `;
+
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name} <span style="font-size:12px; font-weight:normal; color:#999;">(${emp.id})</span></div>
+                                <div style="font-size:12px; color:#666;">${emp.dept}</div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:bold;">${emp.level} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc;"></i> ${emp.target}</span>
+                                    ${promoteBadge}
+                                </div>
+                            </td>
+                            <td><span style="font-weight:bold; color:var(--primary-blue);">${emp.currentNode}</span></td>
+                            <td>${assigneeHtml}</td>
+                            <td>
+                                <span style="color:${parseInt(emp.nodeStayTime) > 7 ? 'var(--error-red)' : 'var(--text-primary)'}; font-weight:${parseInt(emp.nodeStayTime) > 7 ? 'bold' : 'normal'}">${emp.nodeStayTime}</span>
+                            </td>
+                            <td>${emp.startTime}</td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('跳转至流程详情: ${emp.name}')">查看流程</button>
+                            </td>
+                        </tr>
+                    `;
+
+                } else if (filterType === 'budget_pending' || filterType === 'budget_block') {
+                    // Render for Budget
+                    const statusTag = emp.status === 'budget_block' 
+                        ? `<span class="tag tag-red">排队中</span>` 
+                        : `<span class="tag tag-blue">审批中</span>`;
+                    
+                    const priorityColor = emp.priority === '高' ? 'var(--error-red)' : (emp.priority === '中' ? 'var(--warning-orange)' : 'var(--text-secondary)');
+
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name} <span style="font-size:12px; font-weight:normal; color:#999;">(${emp.id})</span></div>
+                                <div style="font-size:12px; color:#666;">${emp.dept}</div>
+                            </td>
+                            <td>
+                                <span style="font-weight:bold;">${emp.level} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc;"></i> ${emp.target}</span>
+                            </td>
+                            <td>${emp.costCenter}</td>
+                            <td>${emp.budgetOwner}</td>
+                            <td style="font-weight:bold; color:var(--text-primary);">${emp.estimatedCost}</td>
+                            <td>${statusTag}</td>
+                            <td><span style="color:${priorityColor}; font-weight:bold;">${emp.priority}</span></td>
+                            <td>${emp.waitTime}</td>
+                            <td>${emp.batch}</td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('查看预算详情: ${emp.name}')">查看详情</button>
+                            </td>
+                        </tr>
+                    `;
+
+                } else if (filterType === 'near') {
+                    // Render for Near Eligibility
+                    const promoteBadge = emp.promoteType === 'level_up' 
+                        ? `<span class="tag tag-green">升级</span>` 
+                        : `<span class="tag tag-blue">升等</span>`;
+
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name} <span style="font-size:12px; font-weight:normal; color:#999;">(${emp.id})</span></div>
+                                <div style="font-size:12px; color:#666;">${emp.dept}</div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center;">
+                                    <div class="progress-mini" style="width:60px;"><div class="progress-val" style="width: ${emp.progress}%"></div></div>
+                                    <span style="font-weight:bold; color:var(--primary-blue);">${emp.progress}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:bold;">${emp.level} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc;"></i> ${emp.target}</span>
+                                    ${promoteBadge}
+                                </div>
+                            </td>
+                            <td><span style="color:var(--error-red); font-weight:bold;">${emp.gapVal}</span></td>
+                            <td>${emp.lastPerf}</td>
+                            <td>${emp.lastActionDate}</td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('查看达标详情: ${emp.name}')">查看详情</button>
+                            </td>
+                        </tr>
+                    `;
+
+                } else if (filterType === 'deferred') {
+                    // Render for Deferred (升等暂缓)
+                    const deferCountBadge = emp.deferCount > 1 
+                        ? `<span style="font-size:10px; background:#fff1f0; color:#ff4d4f; border:1px solid #ffccc7; padding:1px 6px; border-radius:2px;">连续${emp.deferCount}次</span>` 
+                        : `<span style="font-size:12px; color:#666;">1次</span>`;
+                    
+                    // Avatar for deferred by
+                    const deferredByChar = emp.deferredBy ? emp.deferredBy.charAt(0) : '';
+                    const deferredByHtml = `
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <div style="width:22px; height:22px; background:#fff7e6; color:#fa8c16; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">${deferredByChar}</div>
+                            <span>${emp.deferredBy}</span>
+                        </div>
+                    `;
+
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name} <span style="font-size:12px; font-weight:normal; color:#999;">(${emp.id})</span></div>
+                                <div style="font-size:12px; color:#666;">${emp.dept}</div>
+                            </td>
+                            <td>
+                                <span style="font-weight:bold;">${emp.level} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc;"></i> ${emp.target}</span>
+                                <span class="tag tag-blue" style="margin-left:4px;">升等</span>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center;">
+                                    <div class="progress-mini" style="width:50px;"><div class="progress-val" style="width: ${emp.progress}%"></div></div>
+                                    <span style="font-weight:bold; color:var(--primary-blue);">${emp.progress}%</span>
+                                </div>
+                            </td>
+                            <td>${deferredByHtml}</td>
+                            <td>${emp.deferredDate}</td>
+                            <td>${deferCountBadge}</td>
+                            <td style="font-size:13px; color:#666;">${emp.note}</td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('查看详情: ${emp.name}')">查看详情</button>
+                            </td>
+                        </tr>
+                    `;
+
+                } else {
+                    // Default Render for other views
+                    let statusClass = 'tag-blue';
+                    if (emp.status === 'budget_block') statusClass = 'tag-red'; // Highlight blocked
+                    if (emp.status === 'budget_processing') statusClass = 'tag-purple'; // Normal processing
+                    if (emp.status === 'deferred') statusClass = 'tag-orange';
+                    if (emp.status === 'eligible') statusClass = 'tag-green';
+                    if (emp.status === 'near') statusClass = 'tag-orange';
+
+                    let promoteBadge = '';
+                    if (emp.promoteType === 'level_up') {
+                        promoteBadge = `<span class="tag tag-green" style="margin-left:4px; font-size:10px;">升级</span>`;
+                    } else {
+                        promoteBadge = `<span class="tag tag-blue" style="margin-left:4px; font-size:10px;">升等</span>`;
+                    }
+
+                    // Calculate grade info for display
+                    let progressInfo = `${emp.progress}%`;
+                    if(emp.promoteType === 'grade_up') {
+                         progressInfo += ` (满足 ${emp.target})`;
+                    }
+
+                    // Add defer badge
+                    let statusHtml = `<span class="tag ${statusClass}">${emp.statusText}</span> ${promoteBadge}`;
+                    if (emp.deferCount && emp.deferCount > 1) {
+                        statusHtml += `<span style="font-size:10px; background:#fff1f0; color:#ff4d4f; border:1px solid #ffccc7; padding:0 4px; border-radius:2px; margin-left:4px;">连续${emp.deferCount}次</span>`;
+                    }
+
+                    row = `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${emp.name}</div>
+                                <div style="font-size:12px; color:#999;">${emp.id}</div>
+                            </td>
+                            <td>${emp.dept}</td>
+                            <td>
+                                <span class="tag tag-blue">${emp.level}</span> 
+                                <i class="fa-solid fa-arrow-right" style="font-size:10px; color:#ccc; margin:0 4px;"></i>
+                                <span class="tag" style="background:#f0f0f0; color:#666; border:1px solid #ddd;">${emp.target}</span>
+                            </td>
+                            <td>
+                                <div class="progress-mini"><div class="progress-val" style="width: ${emp.progress}%"></div></div>
+                                <span style="font-size:12px;">${progressInfo}</span>
+                            </td>
+                            <td>${statusHtml}</td>
+                            <td style="font-size:13px; color:#666;">${emp.note}</td>
+                            <td>
+                                <button style="color:#1890ff; border:none; background:none; cursor:pointer;" onclick="alert('查看详情: ${emp.name}')">详情</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                tbody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>

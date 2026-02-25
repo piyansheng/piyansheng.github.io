@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>技术评审详情 - 移动端</title>
+    <style>
+        :root {
+            --primary-blue: #1890ff;
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 80px; /* Space for bottom action bar */
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            margin-top: 8px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 8px;
+        }
+
+        /* Review Item Card */
+        .review-item-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f5f5f5;
+            padding-bottom: 12px;
+        }
+
+        .item-index {
+            background-color: #e6f7ff;
+            color: var(--primary-blue);
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .item-title-col {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .tech-type-tag {
+            display: inline-block;
+            font-size: 11px;
+            color: var(--primary-blue);
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            padding: 1px 6px;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        /* Fields Grid */
+        .fields-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .field-row {
+            display: flex;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .field-label {
+            color: var(--text-light);
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .field-value {
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .difficulty-stars {
+            color: var(--primary-blue);
+        }
+
+        .desc-block {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Indicators Section inside Card */
+        .indicators-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .sub-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sub-title::before {
+            content: '';
+            width: 3px;
+            height: 12px;
+            background-color: var(--warning-orange); /* Orange marker for indicators */
+            margin-right: 6px;
+            border-radius: 2px;
+        }
+
+        .indicator-box {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .ind-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .ind-val {
+            color: var(--primary-blue);
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .ind-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .ind-label {
+            color: var(--text-light);
+            margin-right: 4px;
+        }
+
+        .ind-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        /* Timeline Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 24px;
+            padding-bottom: 24px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        /* Timeline Line */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 24px;
+            bottom: -4px;
+            width: 2px;
+            background-color: #e8e8e8;
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        /* Timeline Dot */
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: #fff;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-dot.completed {
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .timeline-dot.processing {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .timeline-dot.pending {
+            border-color: #d9d9d9;
+            background-color: #f5f5f5;
+        }
+
+        .timeline-dot i {
+            font-size: 10px;
+        }
+
+        .timeline-content {
+            font-size: 14px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .step-name {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .step-status {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        
+        .status-success { background: #f6ffed; color: var(--success-green); border: 1px solid #b7eb8f; }
+        .status-process { background: #e6f7ff; color: var(--primary-blue); border: 1px solid #91d5ff; }
+        .status-wait { background: #f5f5f5; color: #999; border: 1px solid #d9d9d9; }
+
+        .approver-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+
+        .approver-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #eee;
+        }
+
+        .time-info {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Bottom Action Bar */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-reject {
+            background-color: #fff1f0;
+            color: var(--error-red);
+            border: 1px solid #ffccc7;
+        }
+
+        .btn-approve {
+            background-color: var(--primary-blue);
+            color: #fff;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: flex-end; /* Bottom sheet style */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            resize: none;
+            background: #f9f9f9;
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <i class="fa-solid fa-chevron-left header-icon" onclick="window.location.href='mobile_promotion_review.html'"></i>
+        <span>技术评审</span>
+        <i class="fa-solid fa-circle-info header-icon" style="font-size: 16px;"></i>
+    </div>
+
+    <div class="container">
+        
+        <div class="section-header">
+            <div class="section-title">批量技术详情 (3)</div>
+        </div>
+
+        <!-- Item 1 -->
+        <div class="review-item-card">
+            <div class="item-header">
+                <div class="item-index">1</div>
+                <div class="item-title-col">
+                    <span class="item-title">测试细分技术点名称A3</span>
+                    <span class="tech-type-tag">专业技术</span>
+                </div>
+            </div>
+            <div class="fields-grid">
+                <div class="field-row">
+                    <span class="field-label">技术点</span>
+                    <span class="field-value">大数据平台</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">难度等级</span>
+                    <span class="field-value"><i class="fa-regular fa-gem difficulty-stars"></i> <i class="fa-regular fa-gem difficulty-stars"></i> (中等)</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">关联子类</span>
+                    <span class="field-value">IT应用实施</span>
+                </div>
+            </div>
+            <div class="desc-block">
+                <strong>技术描述：</strong>
+                测试细分技术点描述A3。这里展示了更详细的描述内容，确保评审专家能够看清楚技术点的具体情况。
+            </div>
+
+            <!-- Indicators -->
+            <div class="indicators-section">
+                <div class="sub-title">量化指标</div>
+                <div class="indicator-box">
+                    <div class="ind-head">
+                        <span class="ind-name">测试指标名称A3</span>
+                        <span class="ind-val">2 dw</span>
+                    </div>
+                    <div class="ind-detail-grid">
+                        <div><span class="ind-label">对标名称:</span> 测试对标名称A3</div>
+                        <div><span class="ind-label">对标值:</span> 2</div>
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">描述:</span> 测试指标描述A3内容
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">公式:</span> 测试计算公式A3
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="review-item-card">
+            <div class="item-header">
+                <div class="item-index">2</div>
+                <div class="item-title-col">
+                    <span class="item-title">测试细分技术点名称A2</span>
+                    <span class="tech-type-tag">专业技术</span>
+                </div>
+            </div>
+            <div class="fields-grid">
+                <div class="field-row">
+                    <span class="field-label">技术点</span>
+                    <span class="field-value">大数据平台</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">难度等级</span>
+                    <span class="field-value"><i class="fa-regular fa-gem difficulty-stars"></i> <i class="fa-regular fa-gem difficulty-stars"></i> (中等)</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">关联子类</span>
+                    <span class="field-value">IT应用实施</span>
+                </div>
+            </div>
+            <div class="desc-block">
+                <strong>技术描述：</strong>
+                测试细分技术点描述A2。
+            </div>
+
+            <!-- Indicators -->
+            <div class="indicators-section">
+                <div class="sub-title">量化指标</div>
+                <div class="indicator-box">
+                    <div class="ind-head">
+                        <span class="ind-name">测试指标名称A2</span>
+                        <span class="ind-val">2 dw</span>
+                    </div>
+                    <div class="ind-detail-grid">
+                        <div><span class="ind-label">对标名称:</span> 测试对标名称A2</div>
+                        <div><span class="ind-label">对标值:</span> 2</div>
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">描述:</span> 测试指标描述A2
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">公式:</span> 测试计算公式A2
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="review-item-card">
+            <div class="item-header">
+                <div class="item-index">3</div>
+                <div class="item-title-col">
+                    <span class="item-title">测试细分技术点名称A16</span>
+                    <span class="tech-type-tag">专业技术</span>
+                </div>
+            </div>
+            <div class="fields-grid">
+                <div class="field-row">
+                    <span class="field-label">技术点</span>
+                    <span class="field-value">大数据平台</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">难度等级</span>
+                    <span class="field-value"><i class="fa-regular fa-gem difficulty-stars"></i> <i class="fa-regular fa-gem difficulty-stars"></i> (中等)</span>
+                </div>
+                <div class="field-row">
+                    <span class="field-label">关联子类</span>
+                    <span class="field-value">IT应用实施</span>
+                </div>
+            </div>
+            <div class="desc-block">
+                <strong>技术描述：</strong>
+                测试细分技术点描述A16。
+            </div>
+
+            <!-- Indicators -->
+            <div class="indicators-section">
+                <div class="sub-title">量化指标</div>
+                <div class="indicator-box">
+                    <div class="ind-head">
+                        <span class="ind-name">测试指标名称A16</span>
+                        <span class="ind-val">2 dw</span>
+                    </div>
+                    <div class="ind-detail-grid">
+                        <div><span class="ind-label">对标名称:</span> 测试对标名称A16</div>
+                        <div><span class="ind-label">对标值:</span> 2</div>
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">描述:</span> 测试指标描述A16
+                    </div>
+                    <div class="ind-text">
+                        <span class="ind-label">公式:</span> --
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval Process -->
+        <div class="section-header">
+            <div class="section-title">审批流程</div>
+        </div>
+        <div class="card">
+            <div class="timeline">
+                <!-- Step 1: Completed -->
+                <div class="timeline-item">
+                    <div class="timeline-dot completed">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="step-name">开始节点</span>
+                            <span class="step-status status-success">已完成</span>
+                        </div>
+                        <div class="approver-info">
+                            <img src="https://ui-avatars.com/api/?name=Pi&background=random" class="approver-avatar">
+                            <span>发起人：皮延升</span>
+                        </div>
+                        <div class="time-info">2025/12/10 10:07:50</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Completed -->
+                <div class="timeline-item">
+                    <div class="timeline-dot completed">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="step-name">技术库负责人</span>
+                            <span class="step-status status-success">已同意</span>
+                        </div>
+                        <div class="approver-info">
+                            <img src="https://ui-avatars.com/api/?name=Liu&background=random" class="approver-avatar">
+                            <span>审批人：刘同庆</span>
+                        </div>
+                        <div class="info-value" style="font-size: 12px; margin-top: 4px;">审批意见：审批通过</div>
+                        <div class="time-info">2025/12/10 10:11:57</div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Current -->
+                <div class="timeline-item">
+                    <div class="timeline-dot processing">
+                        <i class="fa-solid fa-pen"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="step-name">评审专家</span>
+                            <span class="step-status status-process">进行中</span>
+                        </div>
+                        <!-- Approver 1 -->
+                        <div class="approver-info">
+                            <img src="https://ui-avatars.com/api/?name=Pi&background=random" class="approver-avatar">
+                            <span>审批人：皮延升 (进行中)</span>
+                        </div>
+                        <!-- Approver 2 -->
+                        <div class="approver-info">
+                            <img src="https://ui-avatars.com/api/?name=Liu&background=random" class="approver-avatar">
+                            <span>审批人：刘同庆 (进行中)</span>
+                        </div>
+                        <div class="time-info">等待时长：3 minutes</div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Pending -->
+                <div class="timeline-item">
+                    <div class="timeline-dot pending">
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="step-name">结束节点</span>
+                            <span class="step-status status-wait">等待中</span>
+                        </div>
+                        <div class="approver-info">
+                            <span>审批人：System</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-action-bar">
+        <button class="btn btn-reject" onclick="openRejectModal()">拒绝</button>
+        <button class="btn btn-approve" onclick="handleApprove()">通过</button>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal-content">
+            <div class="modal-title">请填写拒绝原因</div>
+            <textarea class="modal-textarea" placeholder="请输入您的评审意见（必填）..."></textarea>
+            <div class="modal-actions">
+                <button class="btn" style="background: #f5f5f5; color: #666;" onclick="closeRejectModal()">取消</button>
+                <button class="btn btn-reject" onclick="submitReject()">确认拒绝</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openRejectModal() {
+            document.getElementById('rejectModal').classList.add('active');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('active');
+        }
+
+        function submitReject() {
+            const reason = document.querySelector('.modal-textarea').value;
+            if (!reason.trim()) {
+                alert('请输入拒绝原因');
+                return;
+            }
+            // Logic to submit rejection
+            alert('已拒绝：' + reason);
+            closeRejectModal();
+        }
+
+        function handleApprove() {
+            if(confirm('确认通过该技术评审吗？')) {
+                // Logic to approve
+                alert('已通过');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('rejectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRejectModal();
+            }
+        });
+    </script>
+</body>
+</html>

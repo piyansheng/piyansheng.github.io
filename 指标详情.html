@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 弹窗容器 */
+        .modal-container {
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* 弹窗头部 */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-close {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        /* 弹窗内容 */
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 16px;
+        }
+
+        /* 表格容器 */
+        .info-table {
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 32px;
+        }
+
+        /* 表格行 */
+        .info-row {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 50px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        /* 表格单元格 */
+        .info-cell {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+
+        .info-label {
+            background: #fafafa;
+            border-right: 1px solid #f0f0f0;
+            width: 200px;
+            flex-shrink: 0;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .info-value {
+            background: #ffffff;
+            flex: 1;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 半宽列 */
+        .info-row.half-width {
+            display: flex;
+        }
+
+        .info-row.half-width .info-cell {
+            flex: 1;
+            display: flex;
+        }
+
+        .info-row.half-width .info-label {
+            width: 100px;
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 2px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        /* 分类标签 */
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 14px;
+            border-radius: 2px;
+            background: #ffffff;
+            border: 1px solid #d9d9d9;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 用户信息 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .user-dept {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        /* 指标描述内容 */
+        .description-content {
+            line-height: 1.8;
+        }
+
+        .description-content p {
+            margin: 0 0 12px 0;
+        }
+
+        .description-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 示例区块 */
+        .example-section {
+            background: #fafafa;
+            border-left: 3px solid #1890ff;
+            padding: 12px 16px;
+            margin-top: 16px;
+        }
+
+        .example-title {
+            font-weight: 500;
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+
+        /* 项目列表 */
+        .project-list {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .project-list li {
+            margin: 6px 0;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 计算结果 */
+        .calculation-result {
+            font-weight: 500;
+            color: #52c41a;
+            background: #f6ffed;
+            padding: 8px 12px;
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        /* 计算公式 */
+        .formula-content {
+            font-family: 'Courier New', monospace;
+            background: #fafafa;
+            padding: 8px 12px;
+            border-radius: 2px;
+            border: 1px solid #f0f0f0;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        /* 可折叠配置表 */
+        .config-toggle-section {
+            margin-top: 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .config-toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .config-toggle-header:hover {
+            background: #f0f0f0;
+        }
+
+        .config-toggle-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .config-toggle-icon {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+            transition: transform 0.3s;
+        }
+
+        .config-toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .config-toggle-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .config-toggle-content.expanded {
+            max-height: 800px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .config-toggle-body {
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        /* 配置表格 */
+        .config-display-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .config-display-table th,
+        .config-display-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #f0f0f0;
+        }
+
+        .config-display-table th {
+            background: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+        }
+
+        .config-display-table td {
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .config-display-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .merged-cell-display {
+            background: #fafafa;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        /* 自定义滚动条 */
+        .modal-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+
+        .modal-container::-webkit-scrollbar-thumb {
+            background: #bfbfbf;
+            border-radius: 4px;
+        }
+
+        .modal-container::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+    <script>
+        // 切换配置表展开/收起
+        function toggleConfig(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.config-toggle-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="modal-container">
+        <!-- 弹窗头部 -->
+        <div class="modal-header">
+            <div class="modal-title">指标详情</div>
+            <button class="modal-close" onclick="window.close()">✕</button>
+        </div>
+
+        <!-- 弹窗内容 -->
+        <div class="modal-body">
+            <!-- 基本信息 -->
+            <div class="section-title">基本信息</div>
+            <div class="info-table">
+                <!-- 第一行：指标类型、类别 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">指标类型</div>
+                        <div class="info-value">预设指标</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">类别</div>
+                        <div class="info-value">
+                            <span class="category-tag">产品设计与研发</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第二行：指标名称 -->
+                <div class="info-row">
+                    <div class="info-label info-cell">指标名称</div>
+                    <div class="info-value info-cell">累计项目难度总和</div>
+                </div>
+
+                <!-- 第三行：指标描述 -->
+                <div class="info-row">
+                    <div class="info-label info-cell">指标描述</div>
+                    <div class="info-value info-cell">
+                        <div class="description-content">
+                            <p style="font-size: 14px; line-height: 1.8; margin-bottom: 12px;">
+                                <strong>📌 指标说明：</strong>根据您在项目中完成的活动/任务类型及角色，系统自动计算项目难度总和
+                            </p>
+                            
+                            <p style="font-size: 14px; line-height: 1.8; margin-bottom: 8px;">
+                                <strong>💡 计算规则（一看就懂）：</strong>
+                            </p>
+                            <p style="font-size: 14px; padding: 8px 12px; background: #f6ffed; border-left: 3px solid #52c41a; margin-bottom: 12px;">
+                                    <strong>项目难度 = 项目模板难度系数 × 参与深度系数</strong>
+                                </p>
+                            
+                            <ul style="font-size: 14px; line-height: 1.8; margin-left: 20px; margin-bottom: 12px;">
+                                    <li><strong>项目模板难度系数</strong>：不同项目模板对应不同难度（技术预研13、产品开发5、维护3等）</li>
+                                    <li><strong>参与深度系数</strong>：在活动/任务中担任主导角色×1.0，担任协助角色×0.8</li>
+                                </ul>
+                                
+                            <p style="font-size: 14px; line-height: 1.8; margin-bottom: 4px;">
+                                <strong>🎯 快速示例：</strong>
+                            </p>
+                            <p style="font-size: 14px; line-height: 1.8; padding: 8px 12px; background: #fafafa; margin-bottom: 8px;">
+                                        小张在举证项目中：<br>
+                                        ① 技术预研项目，活动中担任主导 → 13 × 1.0 = <strong>13</strong><br>
+                                        ② 产品开发项目，任务中担任协助 → 5 × 0.8 = <strong>4</strong>
+                                    </p>
+                            <p style="font-size: 14px; padding: 8px 12px; background: #f6ffed; color: #52c41a; font-weight: 500;">
+                                        ✅ 累计难度总和：13 + 4 = <strong>17</strong>
+                                    </p>
+                                </div>
+                            </div>
+                                </div>
+
+                <!-- 第四行：参与深度系数配置 -->
+                <div class="info-row">
+                    <div class="info-label info-cell">参与深度系数</div>
+                    <div class="info-value info-cell">
+                        <table class="config-display-table" style="width: 100%; max-width: 400px;">
+                                            <thead>
+                                                <tr>
+                                    <th style="padding: 8px; border: 1px solid #f0f0f0; background: #fafafa; text-align: left;">活动/任务角色</th>
+                                    <th style="padding: 8px; border: 1px solid #f0f0f0; background: #fafafa; text-align: left;">参与深度系数</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #f0f0f0;">主导</td>
+                                    <td style="padding: 8px; border: 1px solid #f0f0f0;">1.0</td>
+                                                </tr>
+                                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #f0f0f0;">协助</td>
+                                    <td style="padding: 8px; border: 1px solid #f0f0f0;">0.8</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div>
+
+                <!-- 第五行：项目难度系数配置（可折叠） -->
+                <div class="info-row">
+                    <div class="info-label info-cell">项目难度系数</div>
+                    <div class="info-value info-cell">
+                            <div class="config-toggle-section">
+                                <div class="config-toggle-header" onclick="toggleConfig(this)">
+                                <span class="config-toggle-title">📊 查看项目难度系数配置表（点击展开/收起）</span>
+                                    <span class="config-toggle-icon">▼</span>
+                                </div>
+                                <div class="config-toggle-content">
+                                    <div class="config-toggle-body">
+                                        <table class="config-display-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>项目模板类别(APQC业务域)</th>
+                                                    <th>项目模板子类</th>
+                                                    <th>项目模板名称</th>
+                                                    <th>难度系数</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td rowspan="2" class="merged-cell-display">通用管理</td>
+                                                    <td>--</td>
+                                                    <td>简洁项目</td>
+                                                    <td>1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>--</td>
+                                                    <td>普通项目</td>
+                                                    <td>2</td>
+                                                </tr>
+                                                <tr>
+                                                    <td rowspan="15" class="merged-cell-display">产品设计与研发</td>
+                                                    <td>技术预研</td>
+                                                    <td>技术预研</td>
+                                                    <td>13</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>技术开发</td>
+                                                    <td>技术开发</td>
+                                                    <td>10</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>产品预研</td>
+                                                    <td>产品预研</td>
+                                                    <td>7</td>
+                                                </tr>
+                                                <tr>
+                                                    <td rowspan="8">产品开发</td>
+                                                    <td>集成产品开发</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>集成数字电路开发</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>集成模拟电路开发</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>软件产品开发</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>IT软件产品开发</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>结构&ID设计流程</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>产品开发外包流程</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>产品ID&UI设计流程</td>
+                                                    <td>5</td>
+                                                </tr>
+                                                <tr>
+                                                    <td rowspan="3">产品维护</td>
+                                                    <td>维护项目_硬件</td>
+                                                    <td>3</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>维护项目_Firmware(含逻辑)</td>
+                                                    <td>3</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>维护项目_软件</td>
+                                                    <td>3</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第六行：计量单位、统计方式 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">计量单位</div>
+                        <div class="info-value">级</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">统计方式</div>
+                        <div class="info-value">职级内累加</div>
+                    </div>
+                </div>
+
+                <!-- 第七行：判断标准、计算公式 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">判断标准</div>
+                        <div class="info-value">>=指标值</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">计算公式</div>
+                        <div class="info-value">
+                            <div class="formula-content">
+                                累计项目难度总和 = Σ完成【项目模板】的项目数量×【项目模板】难度系数×参与深度系数
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第八行：排序、状态 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">排序</div>
+                        <div class="info-value">0</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">状态</div>
+                        <div class="info-value">
+                            <span class="status-tag">启用</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
+

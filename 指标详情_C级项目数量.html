@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标详情 - C级项目数量</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 弹窗容器 */
+        .modal-container {
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* 弹窗头部 */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-close {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        /* 弹窗内容 */
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* 区块标题 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 16px;
+        }
+
+        /* 表格容器 */
+        .info-table {
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 32px;
+        }
+
+        /* 表格行 */
+        .info-row {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 50px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        /* 表格单元格 */
+        .info-cell {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+
+        .info-label {
+            background: #fafafa;
+            border-right: 1px solid #f0f0f0;
+            width: 200px;
+            flex-shrink: 0;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .info-value {
+            background: #ffffff;
+            flex: 1;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 半宽列 */
+        .info-row.half-width {
+            display: flex;
+        }
+
+        .info-row.half-width .info-cell {
+            flex: 1;
+            display: flex;
+        }
+
+        .info-row.half-width .info-label {
+            width: 100px;
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 2px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        /* 分类标签 */
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 14px;
+            border-radius: 2px;
+            background: #ffffff;
+            border: 1px solid #d9d9d9;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 难度级别标签 */
+        .level-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 2px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .level-tag.level-c {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .level-tag.level-s {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .level-tag.level-m {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .level-tag.level-hc {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffa39e;
+        }
+
+        /* 指标描述内容 */
+        .description-content {
+            line-height: 1.8;
+        }
+
+        .description-content p {
+            margin: 0 0 12px 0;
+        }
+
+        .description-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 示例区块 */
+        .example-section {
+            background: #fafafa;
+            border-left: 3px solid #fa8c16;
+            padding: 12px 16px;
+            margin-top: 16px;
+        }
+
+        .example-title {
+            font-weight: 500;
+            color: #fa8c16;
+            margin-bottom: 8px;
+        }
+
+        /* 项目列表 */
+        .project-list {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .project-list li {
+            margin: 6px 0;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 计算结果 */
+        .calculation-result {
+            font-weight: 500;
+            color: #fa8c16;
+            background: #fff7e6;
+            padding: 8px 12px;
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        /* 计算公式 */
+        .formula-content {
+            font-family: 'Courier New', monospace;
+            background: #fafafa;
+            padding: 8px 12px;
+            border-radius: 2px;
+            border: 1px solid #f0f0f0;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        /* 可折叠配置表 */
+        .config-toggle-section {
+            margin-top: 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .config-toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .config-toggle-header:hover {
+            background: #f0f0f0;
+        }
+
+        .config-toggle-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .config-toggle-icon {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+            transition: transform 0.3s;
+        }
+
+        .config-toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .config-toggle-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .config-toggle-content.expanded {
+            max-height: 1200px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .config-toggle-body {
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        /* 配置表格 */
+        .config-display-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .config-display-table th,
+        .config-display-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #f0f0f0;
+        }
+
+        .config-display-table th {
+            background: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+        }
+
+        .config-display-table td {
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .config-display-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .merged-cell-display {
+            background: #fafafa;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        /* 高亮行（C级项目） */
+        .highlight-row {
+            background: #fff7e6 !important;
+        }
+
+        .highlight-row td {
+            font-weight: 500;
+            color: #fa8c16;
+        }
+
+        /* 警告提示框 */
+        .warning-box {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-left: 3px solid #fa8c16;
+            padding: 12px 16px;
+            border-radius: 2px;
+            margin-top: 12px;
+        }
+
+        .warning-box-title {
+            font-weight: 500;
+            color: #d46b08;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .warning-box-content {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* 自定义滚动条 */
+        .modal-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+
+        .modal-container::-webkit-scrollbar-thumb {
+            background: #bfbfbf;
+            border-radius: 4px;
+        }
+
+        .modal-container::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+    <script>
+        // 切换配置表展开/收起
+        function toggleConfig(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.config-toggle-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="modal-container">
+        <!-- 弹窗头部 -->
+        <div class="modal-header">
+            <div class="modal-title">指标详情</div>
+            <button class="modal-close" onclick="window.close()">✕</button>
+        </div>
+
+        <!-- 弹窗内容 -->
+        <div class="modal-body">
+            <!-- 基本信息 -->
+            <div class="section-title">基本信息</div>
+            <div class="info-table">
+                <!-- 第一行：指标类型、类别 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">指标类型</div>
+                        <div class="info-value">预设指标</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">类别</div>
+                        <div class="info-value">
+                            <span class="category-tag">产品设计与研发</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第二行：指标名称 -->
+                <div class="info-row">
+                    <div class="info-label info-cell">指标名称</div>
+                    <div class="info-value info-cell">
+                        <span class="level-tag level-c">C级</span>
+                        C级项目数量
+                    </div>
+                </div>
+
+                <!-- 第三行：指标描述 -->
+                <div class="info-row">
+                    <div class="info-label info-cell">指标描述</div>
+                    <div class="info-value info-cell">
+                        <div class="description-content">
+                            <p style="font-size: 15px; font-weight: 500; color: rgba(0, 0, 0, 0.85); margin-bottom: 16px;">
+                                📌 指标说明：统计您完成的C级（复杂级）项目数量
+                            </p>
+                            <div class="example-section">
+                                <div class="example-title">💡 判定规则（一看就懂）：</div>
+                                <p style="margin: 12px 0; padding-left: 12px; border-left: 3px solid #fa8c16;">
+                                    <strong>C级项目要求 = 难度系数 ≥ 8 的项目（允许高等级覆盖）</strong>
+                                </p>
+                                <ul class="project-list" style="margin-left: 12px;">
+                                    <li><strong>难度级别定义</strong>：根据项目模板的难度系数，系统自动划分为S/M/C/HC四个级别</li>
+                                    <li><strong>C级范围</strong>：难度系数为 8、9、10 的项目属于C级（复杂级）</li>
+                                    <li><strong>统计逻辑</strong>：<span style="color: #52c41a; font-weight: 500;">难度系数≥8的项目都可计入</span>（包括C级8-10和HC级11-13）</li>
+                                    <li><strong>覆盖规则</strong>：高等级项目可以覆盖低等级要求，但低等级项目不能满足高等级要求</li>
+                                </ul>
+                                
+                                <div style="margin-top: 16px; padding: 12px; background: #fff7e6; border-radius: 2px;">
+                                    <div style="font-weight: 500; color: #fa8c16; margin-bottom: 8px;">🎯 快速示例：</div>
+                                    <p style="margin: 6px 0; color: rgba(0, 0, 0, 0.75);">
+                                        小李在举证项目中：<br>
+                                        ① 技术开发项目（难度系数 10，C级）→ <strong style="color: #fa8c16;">✓ 计入</strong><br>
+                                        ② 产品预研项目（难度系数 7，M级）→ <strong style="color: #ff4d4f;">✗ 不计入</strong>（低于C级要求）<br>
+                                        ③ 技术预研项目（难度系数 13，HC级）→ <strong style="color: #52c41a;">✓ 计入</strong>（高等级覆盖）
+                                    </p>
+                                    <p class="calculation-result" style="margin-top: 12px;">
+                                        ✅ C级项目数量：<strong>2个</strong>（1个C级 + 1个HC级）
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 项目难度级别定义 -->
+                            <div class="config-toggle-section">
+                                <div class="config-toggle-header" onclick="toggleConfig(this)">
+                                    <span class="config-toggle-title">📊 查看项目难度级别定义</span>
+                                    <span class="config-toggle-icon">▼</span>
+                                </div>
+                                <div class="config-toggle-content">
+                                    <div class="config-toggle-body">
+                                        <table class="config-display-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 120px;">难度级别</th>
+                                                    <th style="width: 150px;">难度系数区间</th>
+                                                    <th>级别说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <span class="level-tag level-s">S级</span>
+                                                    </td>
+                                                    <td>1-4</td>
+                                                    <td>简单级项目（不可用于本指标）</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="level-tag level-m">M级</span>
+                                                    </td>
+                                                    <td>5-7</td>
+                                                    <td>中等级项目（不可用于本指标）</td>
+                                                </tr>
+                                                <tr class="highlight-row">
+                                                    <td>
+                                                        <span class="level-tag level-c">C级</span>
+                                                    </td>
+                                                    <td><strong>8-10</strong></td>
+                                                    <td><strong>复杂级项目（✓ 可用于本指标）</strong></td>
+                                                </tr>
+                                                <tr class="highlight-row" style="background: #fff1f0 !important;">
+                                                    <td>
+                                                        <span class="level-tag level-hc">HC级</span>
+                                                    </td>
+                                                    <td><strong>11-13</strong></td>
+                                                    <td><strong>高度复杂级项目（✓ 可用于本指标，覆盖C级）</strong></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div style="margin-top: 12px; padding: 8px 12px; background: #f6ffed; border-left: 3px solid #52c41a; font-size: 12px; color: rgba(0, 0, 0, 0.65);">
+                                            <strong style="color: #52c41a;">✓ 覆盖原则：</strong>高等级项目可以覆盖低等级要求，HC级项目可以用于满足C级项目数量指标。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 项目难度系数配置表 -->
+                            <div class="config-toggle-section">
+                                <div class="config-toggle-header" onclick="toggleConfig(this)">
+                                    <span class="config-toggle-title">📋 查看可用项目模板列表（难度系数≥8）</span>
+                                    <span class="config-toggle-icon">▼</span>
+                                </div>
+                                <div class="config-toggle-content">
+                                    <div class="config-toggle-body">
+                                        <table class="config-display-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>项目模板类别(APQC业务域)</th>
+                                                    <th>项目模板子类</th>
+                                                    <th>项目模板名称</th>
+                                                    <th style="width: 100px;">难度系数</th>
+                                                    <th style="width: 100px;">难度级别</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="highlight-row">
+                                                    <td>产品设计与研发</td>
+                                                    <td>技术开发</td>
+                                                    <td>技术开发</td>
+                                                    <td><strong>10</strong></td>
+                                                    <td><span class="level-tag level-c">C级</span></td>
+                                                </tr>
+                                                <tr class="highlight-row" style="background: #fff1f0 !important;">
+                                                    <td>产品设计与研发</td>
+                                                    <td>技术预研</td>
+                                                    <td>技术预研</td>
+                                                    <td><strong>13</strong></td>
+                                                    <td><span class="level-tag level-hc">HC级</span></td>
+                                                </tr>
+                                                <tr style="opacity: 0.5;">
+                                                    <td colspan="5" style="text-align: center; color: rgba(0, 0, 0, 0.45); padding: 16px;">
+                                                        其他低等级项目模板已隐藏...（查看完整配置请访问"项目难度系数配置"页面）
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div style="margin-top: 12px; padding: 8px 12px; background: #e6f7ff; border-left: 3px solid #1890ff; font-size: 12px; color: rgba(0, 0, 0, 0.65);">
+                                            <strong style="color: #1890ff;">💡 提示：</strong>难度系数≥8的所有项目都可以用于举证C级项目数量要求，包括C级（8-10）和HC级（11-13）。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 警告提示 -->
+                            <div class="warning-box">
+                                <div class="warning-box-title">⚠️ 重要提示</div>
+                                <div class="warning-box-content">
+                                    <p style="margin-bottom: 8px;">
+                                        <strong>举证规则说明：</strong>
+                                    </p>
+                                    <ul style="margin-left: 20px; line-height: 1.8;">
+                                        <li><strong style="color: #52c41a;">✓ 可用项目</strong>：难度系数≥8的项目（<span style="color: #fa8c16;">C级8-10</span> 或 <span style="color: #f5222d;">HC级11-13</span>）</li>
+                                        <li><strong style="color: #ff4d4f;">✗ 不可用项目</strong>：难度系数＜8的项目（S级1-4、M级5-7），系统将<strong>校验不通过</strong></li>
+                                        <li><strong style="color: #1890ff;">覆盖原则</strong>：高等级项目可以覆盖低等级要求（HC级可用于C级要求）</li>
+                                        <li>举证前请确认项目模板的难度系数，避免选错</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第四行：计量单位、统计方式 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">计量单位</div>
+                        <div class="info-value">个</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">统计方式</div>
+                        <div class="info-value">职级内累加</div>
+                    </div>
+                </div>
+
+                <!-- 第五行：判断标准、计算公式 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">判断标准</div>
+                        <div class="info-value">>=指标值</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">计算公式</div>
+                        <div class="info-value">
+                            <div class="formula-content">
+                                C级项目数量 = 统计难度系数≥8的项目数量（包含C级和HC级）
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第六行：排序、状态 -->
+                <div class="info-row half-width">
+                    <div class="info-cell">
+                        <div class="info-label">排序</div>
+                        <div class="info-value">1</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="info-label">状态</div>
+                        <div class="info-value">
+                            <span class="status-tag">启用</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
+

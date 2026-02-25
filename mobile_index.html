@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>任职资格管理系统 - 移动端</title>
+    <style>
+        :root {
+            --primary-yellow: #FFD700;
+            --light-yellow: #FFFACD;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+            --success-green: #52c41a;
+            --active-blue: #1890ff;
+            --error-red: #ff4d4f;
+            --badge-bg-green: #f6ffed;
+            --badge-border-green: #b7eb8f;
+            --badge-bg-orange: #fff7e6;
+            --badge-border-orange: #ffe58f;
+            --badge-text-orange: #fa8c16;
+            --badge-bg-red: #fff1f0;
+            --badge-border-red: #ffccc7;
+            --badge-text-red: #f5222d;
+            --badge-bg-blue: #e6f7ff;
+            --badge-border-blue: #91d5ff;
+            --badge-text-blue: #1890ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        /* Notification Styles */
+        .notification-btn {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--error-red);
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 200px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 200;
+            display: none;
+            overflow: hidden;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:active {
+            background-color: #f5f5f5;
+        }
+
+        .notif-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notif-count {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Card Common */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .card-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid var(--primary-yellow);
+            padding-left: 10px;
+        }
+
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn-small {
+            font-size: 12px;
+            background: #f0f7ff;
+            color: var(--active-blue);
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Profile Section */
+        .profile-container {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .info-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-name-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label {
+            color: var(--text-light);
+            margin-right: 6px;
+            min-width: 36px;
+        }
+
+        .promotion-btn {
+            background: var(--active-blue);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-top: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Growth Path (Horizontal) */
+        .growth-path {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .path-line {
+            position: absolute;
+            top: 24px; /* Center of node (which is roughly 48px high/2) */
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: #f0f0f0;
+            z-index: 0;
+        }
+
+        .path-line-fill {
+            height: 100%;
+            background: var(--primary-yellow);
+            width: 10%; /* Matches P1 10% */
+            border-radius: 2px;
+        }
+
+        .path-node {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .node-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .path-node.active .node-circle {
+            border-color: var(--primary-yellow);
+            background: #fffbe6;
+            color: #faad14;
+        }
+        
+        .path-node.future .node-circle {
+            border-color: #ddd;
+            color: #ccc;
+        }
+
+        .node-label {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+        
+        .path-node.active .node-label {
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        /* Process Section */
+        .process-tabs {
+            display: flex;
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .p-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .p-tab.active {
+            background: #fff;
+            color: var(--text-primary);
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .status-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        
+        .status-scroll::-webkit-scrollbar { display: none; }
+
+        .status-box {
+            min-width: 70px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-num {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .status-name {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Qualification Dashboard */
+        .qual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .qual-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .qual-item.full-width {
+            grid-column: span 2;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        /* Circular Progress Sizes */
+        .c-prog {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        
+        .c-prog::before {
+            content: "";
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .c-prog.green { background: conic-gradient(var(--success-green) 0% 100%, #eee 100% 100%); }
+        .c-prog.yellow { background: conic-gradient(var(--primary-yellow) 0% 10%, #eee 10% 100%); } /* 10% */
+        .c-prog.gray { background: conic-gradient(#eee 0% 100%); } /* 0% */
+
+        .c-text {
+            position: relative;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .green .c-text { color: var(--success-green); }
+        .yellow .c-text { color: #f5a623; }
+        .gray .c-text { color: var(--text-light); }
+
+        .q-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .q-sub {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+
+        /* Badges Row */
+        .badges-mini-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+        
+        .badge-mini {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .action-link {
+            font-size: 12px;
+            color: var(--active-blue);
+            background: #e6f7ff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-top: 8px;
+            text-decoration: none;
+        }
+
+        /* Hexagon for Skills */
+        .hex-box {
+            width: 50px;
+            height: 56px;
+            background: #eee;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: #999;
+            font-weight: bold;
+        }
+        
+        .hex-box.filled {
+            background: #5c5c5c; /* Dark gray for filled */
+            color: #e6a23c; /* Gold text */
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            font-size: 10px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        /* Match Progress Section */
+        .match-progress-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            flex-shrink: 0;
+            align-self: center; /* Vertically center */
+        }
+
+        .match-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-yellow) 0% 10%, #f0f0f0 10% 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .match-circle::before {
+            content: "";
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .match-percent {
+            position: relative;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-yellow);
+            line-height: 1;
+        }
+
+        /* Step Process Styles */
+        .step-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+            padding: 12px 4px;
+            scrollbar-width: none;
+            position: relative;
+        }
+        
+        .step-scroll::-webkit-scrollbar { display: none; }
+        
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon-wrapper {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            z-index: 2;
+        }
+
+        .step-hex {
+            width: 32px;
+            height: 36px;
+            background: #fff;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 12px;
+            font-weight: bold;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .step-item.active .step-hex {
+            border-color: var(--active-blue);
+            background: #e6f7ff;
+            color: var(--active-blue);
+        }
+
+        .step-item.completed .step-hex {
+            border-color: var(--active-blue);
+            background: var(--active-blue);
+            color: #fff;
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .step-item.active .step-label {
+            color: var(--active-blue);
+            font-weight: bold;
+        }
+
+        /* Connecting line */
+        .step-line {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #eee;
+            z-index: 0;
+        }
+        
+        .step-item:last-child .step-line {
+            display: none;
+        }
+
+        .step-item.completed .step-line {
+            background: var(--active-blue);
+        }
+
+        .promotion-info-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            border-left: 3px solid var(--active-blue);
+        }
+        
+        .p-info-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        
+        .p-info-status {
+            font-size: 12px;
+            color: var(--active-blue);
+            margin-top: 4px;
+        }
+        .stats-mini-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .stat-mini {
+            background: #f9f9f9;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="system-title">任职资格管理系统</div>
+        <div class="notification-btn" onclick="toggleNotifications()">
+            <i class="fa-regular fa-bell header-icon"></i>
+            <div class="badge-dot"></div>
+        </div>
+    </div>
+
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notificationDropdown">
+        <a href="mobile_promotion_signature.html" class="notification-item">
+            <div class="notif-label">
+                <i class="fa-solid fa-file-pen" style="color: var(--primary-blue);"></i>
+                <span>待签字</span>
+            </div>
+            <span class="notif-count">1</span>
+        </a>
+        <a href="mobile_promotion_review.html" class="notification-item">
+            <div class="notif-label">
+                <i class="fa-solid fa-list-check" style="color: var(--success-green);"></i>
+                <span>待评审</span>
+            </div>
+            <span class="notif-count">3</span>
+        </a>
+        <a href="mobile_review_detail.html" class="notification-item">
+            <div class="notif-label">
+                <i class="fa-solid fa-clipboard-check" style="color: var(--active-blue);"></i>
+                <span>技术评审</span>
+            </div>
+            <span class="notif-count">1</span>
+        </a>
+    </div>
+
+    <div class="container">
+        <!-- 1. Basic Info & Growth Path -->
+        <div class="card">
+            <div class="card-header" style="border-left-color: var(--active-blue);">
+                <span>基础信息</span>
+                <i class="fa-regular fa-eye" style="color: #999; margin-left: auto; cursor: pointer;"></i>
+            </div>
+            
+            <div class="profile-container" style="align-items: flex-start;">
+                <!-- Left: Avatar & Name -->
+                <div class="avatar-section">
+                    <img src="https://ui-avatars.com/api/?name=Yu&background=random" class="avatar" alt="Avatar">
+                    <div class="user-name-title" style="text-align: center; margin-bottom: 0;">余小鱼</div>
+                </div>
+                
+                <!-- Middle: Job Title & Info Grid -->
+                <div class="info-col" style="flex: 1; padding: 0 12px; display: flex; flex-direction: column;">
+                    <div style="font-size: 16px; font-weight: bold; color: var(--text-primary); margin-bottom: 8px;">IT开发工程师</div>
+                    <div class="info-grid">
+                        <div class="info-item"><span class="info-label">入职:</span> 2016-07-25</div>
+                        <div class="info-item"><span class="info-label">部门:</span> IT开发部</div>
+                        <div class="info-item"><span class="info-label">职族:</span> 专业族</div>
+                        <div class="info-item"><span class="info-label">职类:</span> IT类</div>
+                        <div class="info-item"><span class="info-label">子类:</span> IT系统开发</div>
+                    </div>
+                </div>
+
+                <!-- Right: Match Progress -->
+                <div class="match-progress-section" style="width: auto; flex-direction: column; align-items: center; padding-top: 0;">
+                    <div class="match-circle" style="width: 70px; height: 70px;">
+                       <div class="match-percent" style="font-size: 18px;">10<span style="font-size:12px">%</span></div>
+                    </div>
+                    <div class="match-level" style="margin-top: 6px; font-size: 14px; font-weight: bold; color: var(--primary-yellow);">P 1A</div>
+                </div>
+            </div>
+
+            <!-- Growth Path -->
+            <div class="growth-path">
+                <div class="path-line"><div class="path-line-fill"></div></div>
+                <div class="path-node active">
+                    <div class="node-circle">P1</div>
+                    <div class="node-label">当前</div>
+                </div>
+                <div class="path-node future">
+                    <div class="node-circle">P2</div>
+                    <div class="node-label"></div>
+                </div>
+                <div class="path-node future">
+                    <div class="node-circle">P3</div>
+                    <div class="node-label"></div>
+                </div>
+                <div class="path-node future">
+                    <div class="node-circle">P4</div>
+                    <div class="node-label"></div>
+                </div>
+                <div class="path-node future">
+                    <div class="node-circle">P5</div>
+                    <div class="node-label"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Process Process -->
+        <div class="card">
+            <div class="process-tabs">
+                <div class="p-tab active" id="tab-evidence" onclick="switchProcessTab('evidence')">举证进程</div>
+                <div class="p-tab" id="tab-promotion" onclick="switchProcessTab('promotion')">晋升进程</div>
+            </div>
+            
+            <!-- Evidence Content -->
+            <div id="content-evidence" class="status-scroll">
+                <div class="status-box" onclick="window.location.href='mobile_evidence_list.html'">
+                    <span class="status-num">5</span>
+                    <span class="status-name">草稿</span>
+                </div>
+                <div class="status-box">
+                    <span class="status-num">0</span>
+                    <span class="status-name">待校验</span>
+                </div>
+                <div class="status-box">
+                    <span class="status-num">0</span>
+                    <span class="status-name">待完善</span>
+                </div>
+                <div class="status-box">
+                    <span class="status-num">3</span>
+                    <span class="status-name">公示中</span>
+                </div>
+                <div class="status-box">
+                    <span class="status-num">2</span>
+                    <span class="status-name">已完成</span>
+                </div>
+                <div class="status-box">
+                    <span class="status-num">11</span>
+                    <span class="status-name">全部</span>
+                </div>
+            </div>
+
+            <!-- Promotion Content -->
+            <div id="content-promotion" style="display: none; flex-direction: column;">
+                <div class="step-scroll">
+                    <!-- Step 1: 申请 (Completed) -->
+                    <div class="step-item completed">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="step-label">申请</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <!-- Step 2: 认证 (Completed) -->
+                    <div class="step-item completed">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="step-label">认证</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <!-- Step 3: 签字确认 (Active) -->
+                    <div class="step-item active" onclick="window.location.href='mobile_promotion_signature.html'">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex">3</div>
+                        </div>
+                        <div class="step-label">签字确认</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <!-- Step 4: 公示 -->
+                    <div class="step-item">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex">4</div>
+                        </div>
+                        <div class="step-label">公示</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <!-- Step 5: 预算核验 -->
+                    <div class="step-item">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex">5</div>
+                        </div>
+                        <div class="step-label">预算核验</div>
+                        <div class="step-line"></div>
+                    </div>
+                     <!-- Step 6: 待生效 -->
+                     <div class="step-item">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex">6</div>
+                        </div>
+                        <div class="step-label">待生效</div>
+                        <div class="step-line"></div>
+                    </div>
+                     <!-- Step 7: 生效 -->
+                     <div class="step-item">
+                        <div class="step-icon-wrapper">
+                            <div class="step-hex">7</div>
+                        </div>
+                        <div class="step-label">生效</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Qualification Dashboard -->
+        <div class="card-header" style="margin-bottom: 8px; font-size:14px;">任职资格</div>
+        <div class="qual-grid">
+            <!-- Core Values -->
+            <div class="qual-item">
+                <div class="q-title">核心价值观</div>
+                <div class="c-prog green">
+                    <div class="c-text">100%</div>
+                </div>
+                <div class="q-sub">考核周期: 2025年1-6月</div>
+                <div class="badges-mini-row">
+                    <div class="badge-mini" style="background:var(--badge-bg-green); color:var(--badge-text-green)"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="badge-mini" style="background:var(--badge-bg-orange); color:var(--badge-text-orange)"><i class="fa-solid fa-lightbulb"></i></div>
+                    <div class="badge-mini" style="background:var(--badge-bg-red); color:var(--badge-text-red)"><i class="fa-solid fa-fire"></i></div>
+                    <div class="badge-mini" style="background:var(--badge-bg-blue); color:var(--badge-text-blue)"><i class="fa-solid fa-award"></i></div>
+                </div>
+            </div>
+
+            <!-- Conditions -->
+            <div class="qual-item">
+                <div class="q-title">必备条件</div>
+                <div class="c-prog green">
+                    <div class="c-text">100%</div>
+                </div>
+                <div style="font-size:11px; margin-top:4px;">诚信体系: 18/18</div>
+                <div style="font-size:11px;">年度绩效: A+</div>
+            </div>
+
+            <!-- Job Behavior -->
+            <div class="qual-item full-width" style="align-items: flex-start; text-align: left;">
+                <div style="display:flex; flex-direction:column; align-items:center; margin-right:16px;">
+                    <div class="q-title">任职行为</div>
+                    <div class="c-prog yellow">
+                        <div class="c-text">10%</div>
+                    </div>
+                </div>
+                <div class="stats-mini-grid">
+                    <div class="stat-mini">活动主导 <strong>0/3</strong></div>
+                    <div class="stat-mini">活动协助 <strong>0/3</strong></div>
+                    <div class="stat-mini">任务主导 <strong>0/8</strong></div>
+                    <div class="stat-mini">任务协助 <strong>0/6</strong></div>
+                    <div class="stat-mini" style="grid-column: span 2; background:#fff; text-align:left; color:#999;">还有 20 项待完成</div>
+                </div>
+            </div>
+
+            <!-- Knowledge -->
+            <div class="qual-item">
+                <div class="q-title">必备知识</div>
+                <div class="c-prog gray">
+                    <div class="c-text">0%</div>
+                </div>
+                <div class="q-sub">公司基础知识 0/1</div>
+            </div>
+
+            <!-- Skills -->
+            <div class="qual-item">
+                <div class="q-title">必备技能</div>
+                <div class="c-prog gray">
+                    <div class="c-text">0%</div>
+                </div>
+                <div class="q-sub">管理技能 0/1</div>
+            </div>
+
+            <!-- Tech Skills -->
+            <div class="qual-item">
+                <div class="q-title">专业技能</div>
+                <div class="hex-box filled" style="margin-top:8px;">
+                    1/5
+                </div>
+            </div>
+
+            <!-- Domain Skills -->
+            <div class="qual-item">
+                <div class="q-title">领域技能</div>
+                <div class="hex-box filled" style="margin-top:8px;">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div style="height: 20px;"></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="mobile_index.html" class="nav-item active">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>首页</span>
+        </a>
+        <a href="mobile_evidence_list.html" class="nav-item">
+            <i class="fa-solid fa-file-signature nav-icon"></i>
+            <span>举证</span>
+        </a>
+        <a href="mobile_dashboard.html" class="nav-item">
+            <i class="fa-solid fa-chart-pie nav-icon"></i>
+            <span>看板</span>
+        </a>
+        <a href="mobile_promotion_list.html" class="nav-item">
+            <i class="fa-solid fa-arrow-trend-up nav-icon"></i>
+            <span>晋升</span>
+        </a>
+        <a href="mobile_publicity.html" class="nav-item">
+            <i class="fa-solid fa-bullhorn nav-icon"></i>
+            <span>公示</span>
+        </a>
+    </div>
+
+    <script>
+        // Notification toggle logic
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Process Tab Switch
+        function switchProcessTab(type) {
+            // Update tabs
+            document.querySelectorAll('.p-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+            
+            // Update content
+            document.getElementById('content-evidence').style.display = type === 'evidence' ? 'flex' : 'none';
+            document.getElementById('content-promotion').style.display = type === 'promotion' ? 'flex' : 'none';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const btn = document.querySelector('.notification-btn');
+            
+            if (dropdown.classList.contains('active') && 
+                !dropdown.contains(event.target) && 
+                !btn.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

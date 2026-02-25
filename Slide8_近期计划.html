@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Slide 8 - 近期计划（竖版）</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .card { 
+            width: 400px; height: 580px; 
+            background: white; 
+            display: flex; flex-direction: column; 
+            padding: 30px 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            border-top: 6px solid #165DFF;
+            position: relative;
+        }
+
+        .timeline { position: relative; padding-left: 30px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .line { 
+            position: absolute; left: 10px; top: 20px; bottom: 20px; width: 2px; 
+            background: linear-gradient(to bottom, #165DFF 0%, #165DFF 40%, #C9CDD4 100%); 
+        }
+
+        .node { position: relative; margin-bottom: 40px; }
+        .node:last-child { margin-bottom: 0; }
+
+        .dot { 
+            position: absolute; left: -29px; top: 0; width: 16px; height: 16px; 
+            background: white; border: 4px solid #165DFF; border-radius: 50%; 
+            box-shadow: 0 0 0 4px rgba(22, 93, 255, 0.1); z-index: 2;
+        }
+        .dot.future { border-color: #FF7D00; box-shadow: 0 0 0 4px rgba(255, 125, 0, 0.1); }
+
+        .content-box { 
+            background: #F7F8FA; border-left: 4px solid #165DFF; border-radius: 0 8px 8px 0; 
+            padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .content-box.future { border-left-color: #FF7D00; }
+
+        .time-tag { 
+            display: inline-block; background: #165DFF; color: white; padding: 2px 8px; 
+            border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 8px; 
+        }
+        .time-tag.future { background: #FF7D00; }
+
+        .title { font-size: 16px; font-weight: bold; color: #1d2129; margin-bottom: 8px; display: flex; align-items: center; }
+        
+        .list { margin: 0; padding: 0; list-style: none; font-size: 13px; color: #4e5969; }
+        .list li { margin-bottom: 5px; line-height: 1.5; }
+        .list b { color: #1d2129; }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="timeline">
+            <div class="line"></div>
+            
+            <!-- 节点1 -->
+            <div class="node">
+                <div class="dot"></div>
+                <div class="content-box">
+                    <div class="time-tag">第 1 个月</div>
+                    <div class="title">🚩 速赢战 (Quick Win)</div>
+                    <ul class="list">
+                        <li><b>AI文档评审上线</b>：利用AI驱动，评审质量提升</li>
+                        <li><b>关键需求交付</b>：按时交付2个高优IT需求，建立信任</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 节点2 -->
+            <div class="node">
+                <div class="dot future"></div>
+                <div class="content-box future">
+                    <div class="time-tag future">前 3 个月</div>
+                    <div class="title">🏆 里程碑 (Milestone)</div>
+                    <ul class="list">
+                        <li><b>任职资格系统上线</b>：完成举证/升等试用，收集反馈</li>
+                        <li><b>效率提升20%</b>：引入AI辅助，量化提升项目评审效率</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>补充材料模式 - 行为举证</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    /* 顶部导航 */
+    .header {
+      background: #fff;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid #e8e8e8;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #1890ff;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #1890ff, #096dd9);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 32px;
+      margin-left: 48px;
+    }
+
+    .nav-item {
+      color: #666;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .nav-item:hover {
+      color: #1890ff;
+    }
+
+    .nav-item.active {
+      color: #1890ff;
+    }
+
+    /* 主体内容 */
+    .main {
+      margin-top: 56px;
+      padding: 0;
+    }
+
+    /* 补充材料提示条 - 核心设计 */
+    .supplement-notice {
+      background: linear-gradient(90deg, #fffbe6 0%, #fff7e6 100%);
+      border-bottom: 1px solid #ffe58f;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notice-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notice-icon {
+      width: 20px;
+      height: 20px;
+      background: #faad14;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .notice-text {
+      font-size: 14px;
+      color: #8c6e00;
+      line-height: 1.6;
+    }
+
+    .notice-text .score {
+      color: #f5222d;
+      font-weight: 600;
+    }
+
+    .notice-text .status {
+      color: #f5222d;
+      font-weight: 500;
+    }
+
+    .notice-text .suggestion {
+      color: #666;
+      margin-left: 8px;
+    }
+
+    .notice-link {
+      color: #1890ff;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .notice-link:hover {
+      background: rgba(24, 144, 255, 0.1);
+    }
+
+    /* 步骤条 */
+    .steps-container {
+      background: #fff;
+      padding: 24px 48px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .step-icon.done {
+      background: #52c41a;
+      color: #fff;
+    }
+
+    .step-icon.active {
+      background: #1890ff;
+      color: #fff;
+    }
+
+    .step-icon.pending {
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      color: #999;
+    }
+
+    .step-title {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .step-title.active {
+      color: #1890ff;
+      font-weight: 500;
+    }
+
+    .step-title.pending {
+      color: #999;
+    }
+
+    .step-line {
+      width: 120px;
+      height: 1px;
+      background: #e8e8e8;
+      margin: 0 16px;
+    }
+
+    .step-line.done {
+      background: #52c41a;
+    }
+
+    /* 表单内容区 */
+    .content {
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section {
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-tag {
+      background: #e6f7ff;
+      color: #1890ff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: normal;
+    }
+
+    .behavior-card {
+      padding: 20px 24px;
+      border: 2px solid #1890ff;
+      border-radius: 8px;
+      margin: 16px 24px;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .behavior-card::before {
+      content: "✓";
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      background: #52c41a;
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px 0 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .behavior-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .behavior-icon {
+      font-size: 20px;
+    }
+
+    .behavior-name {
+      color: #1890ff;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .behavior-role {
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .behavior-desc {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .behavior-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed #e8e8e8;
+    }
+
+    .info-column h4 {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .info-column p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* 表单项 */
+    .form-section {
+      padding: 24px;
+    }
+
+    .form-item {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .form-label .required {
+      color: #f5222d;
+    }
+
+    .form-control {
+      display: flex;
+      gap: 12px;
+    }
+
+    .radio-btn {
+      padding: 6px 16px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .radio-btn.active {
+      border-color: #1890ff;
+      color: #1890ff;
+      background: #e6f7ff;
+    }
+
+    .input-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      color: #bfbfbf;
+      font-size: 14px;
+      width: 240px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .form-row .form-item {
+      flex: 1;
+    }
+
+    /* 指标要求卡片 */
+    .metric-card {
+      border: 2px solid #52c41a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .metric-card::before {
+      content: "✓";
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      background: #52c41a;
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px 0 6px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .metric-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .metric-tag {
+      background: #e6f7ff;
+      color: #1890ff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .metric-row {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .metric-row span:first-child {
+      color: #999;
+      width: 60px;
+    }
+
+    .metric-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #f0f0f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #1890ff;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .metric-result {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #e8e8e8;
+    }
+
+    .result-label {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .result-value {
+      color: #bfbfbf;
+      font-size: 13px;
+    }
+
+    .auto-calc-btn {
+      color: #1890ff;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border: 1px solid #1890ff;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    /* 底部操作栏 */
+    .footer {
+      background: #fff;
+      padding: 16px 24px;
+      border-top: 1px solid #e8e8e8;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .footer-link {
+      color: #666;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn {
+      padding: 8px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+
+    .btn-primary {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #40a9ff;
+      border-color: #40a9ff;
+      color: #fff;
+    }
+
+    /* 帮助按钮 */
+    .help-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 80px;
+      background: #1890ff;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+      .supplement-notice {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .notice-link {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">资</div>
+      <span>任职资格管理-DEV</span>
+    </div>
+    <nav class="nav-menu">
+      <span class="nav-item">首页</span>
+      <span class="nav-item active">任职举证</span>
+      <span class="nav-item">晋升发展</span>
+      <span class="nav-item">公示中心</span>
+      <span class="nav-item">任职标准</span>
+      <span class="nav-item">资源库</span>
+      <span class="nav-item">看板</span>
+      <span class="nav-item">设置</span>
+    </nav>
+  </header>
+
+  <main class="main">
+    <!-- 🔔 补充材料提示条 - 方案A核心设计 -->
+    <div class="supplement-notice">
+      <div class="notice-content">
+        <div class="notice-icon">!</div>
+        <div class="notice-text">
+          <span>补充材料模式：上次评审得分 </span>
+          <span class="score">12.22分</span>
+          <span>，评审结论：</span>
+          <span class="status">不通过</span>
+          <span class="suggestion">| 改善建议：核心附件失效，行为过程描述缺失，KPI口径与佐证材料缺乏...</span>
+        </div>
+      </div>
+      <a href="./mobile_evidence_detail.html" target="_blank" class="notice-link">
+        查看评审详情
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+    </div>
+
+    <!-- 步骤条 -->
+    <div class="steps-container">
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon done">✓</div>
+          <span class="step-title">行为选择</span>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step">
+          <div class="step-icon active">2</div>
+          <span class="step-title active">行为举证</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-icon pending">3</div>
+          <span class="step-title pending">技术举证</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-icon pending">4</div>
+          <span class="step-title pending">预览 & 提交</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表单内容 -->
+    <div class="content">
+      <!-- 任职行为 -->
+      <div class="section">
+        <div class="section-header">任职行为</div>
+        <div class="behavior-card">
+          <div class="behavior-title">
+            <span class="behavior-icon">🚩</span>
+            <span class="behavior-name">公共活动 1 定义信息技术支持...</span>
+            <span class="behavior-role">主导</span>
+          </div>
+          <div class="behavior-desc">
+            建立服务，为 IT 服务和解决方案的用户提供支持。定义组织为计算机、软件产品或其他电子/机械产品用户提供的大量服务。
+          </div>
+          <div class="behavior-info">
+            <div class="info-column">
+              <h4>| 活动输出</h4>
+              <p>1. 活动输出（衡量标准：输出物标准）</p>
+            </div>
+            <div class="info-column">
+              <h4>| 指标要求</h4>
+              <p>1. 累计项目难度之和：1 级（>=指标值）</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 举证方式 -->
+      <div class="section">
+        <div class="form-section">
+          <div class="form-item">
+            <div class="form-label">
+              <span class="required">*</span>
+              <span>举证方式：</span>
+            </div>
+            <div class="form-control">
+              <span class="radio-btn active">内部举证</span>
+              <span class="radio-btn">外部举证</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 项目信息 -->
+      <div class="section">
+        <div class="form-section">
+          <div class="form-item">
+            <div class="form-label">
+              <span class="required">*</span>
+              <span>项目信息：</span>
+            </div>
+            <div class="input-search">
+              <span>请选择项目信息</span>
+              <span>🔍</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-item">
+              <div class="form-label">
+                <span class="required">*</span>
+                <span>项目任务：</span>
+              </div>
+              <div class="input-search">
+                <span>请选择项目任务</span>
+                <span>🔍</span>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="form-label">
+                <span>周报：</span>
+              </div>
+              <div class="input-search">
+                <span>请选择RCMS历史周报</span>
+                <span>🔍</span>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="form-label">
+                <span>ALM任务：</span>
+              </div>
+              <div class="input-search">
+                <span>请选择ALM内的历史项目任务</span>
+                <span>🔍</span>
+              </div>
+            </div>
+            <div class="form-item">
+              <div class="form-label">
+                <span>Case：</span>
+              </div>
+              <div class="input-search">
+                <span>请选择ICM系统中的Case</span>
+                <span>🔍</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 指标要求 -->
+      <div class="section">
+        <div class="form-section">
+          <div class="form-item">
+            <div class="form-label">
+              <span class="required">*</span>
+              <span>指标要求：</span>
+              <div class="input-search" style="margin-left: 12px;">
+                <span>已选择 1 项指标要求</span>
+                <span>🔍</span>
+              </div>
+              <span style="color: #1890ff; margin-left: 12px; cursor: pointer;">清空全部</span>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-name">累计项目难度之和</span>
+                <span class="metric-tag">活动指标</span>
+                <span style="color: #999; font-size: 12px; margin-left: auto;">ⓘ</span>
+                <span style="color: #999; font-size: 12px; cursor: pointer;">🗑</span>
+              </div>
+              <div class="metric-row">
+                <span>指标描述</span>
+                <span style="color: #f5222d;">★</span>
+                <span>指标说明：根据您在项目中完成的活...</span>
+              </div>
+              <div class="metric-row">
+                <span>统计方式</span>
+                <span>职级内累加</span>
+              </div>
+              <div class="metric-row">
+                <span>计算公式</span>
+                <span>累计项目难度总和 = Σ完成【项目模板】...</span>
+              </div>
+              <div class="metric-row">
+                <span>判断标准</span>
+                <span>>= 1级</span>
+              </div>
+              <div class="metric-progress">
+                <span style="font-size: 12px; color: #999;">完成进度</span>
+                <div class="progress-bar">
+                  <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text">0% (0/1)</span>
+              </div>
+              <div class="metric-result">
+                <span class="result-label">交付结果</span>
+                <span class="result-value">选择项目后计...</span>
+                <span style="color: #999;">级</span>
+                <button class="auto-calc-btn">自动计算</button>
+                <span style="color: #999; font-size: 12px;">ⓘ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底部操作栏 -->
+  <footer class="footer">
+    <span class="footer-link">ⓘ 使用指南</span>
+    <button class="btn">上一步</button>
+    <button class="btn">临时保存</button>
+    <button class="btn btn-primary">下一步</button>
+  </footer>
+
+  <!-- 帮助按钮 -->
+  <div class="help-btn">
+    <span>❓</span>
+    <span>帮助</span>
+  </div>
+</body>
+</html>

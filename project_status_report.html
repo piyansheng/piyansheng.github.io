@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格项目进展汇报</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1890ff;
+            --success: #52c41a;
+            --warning: #faad14;
+            --gray: #f0f2f5;
+            --text-main: #333;
+            --text-sub: #666;
+            --bg-card: #fff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--gray);
+            margin: 0;
+            padding: 16px;
+            color: var(--text-main);
+            max-width: 600px; /* Limit width for desktop viewing to simulate mobile */
+            margin: 0 auto;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 20px 0 12px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        /* Status Grid */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .status-box {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .status-box.doing {
+            background: #e6f7ff;
+            border-color: #91d5ff;
+        }
+
+        .stat-num {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--success);
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .status-box.doing .stat-num { color: var(--primary); }
+
+        .stat-label { font-size: 12px; color: var(--text-sub); }
+
+        /* Tag List */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .task-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: #f5f5f5;
+            color: #666;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .task-tag.done { background: #f6ffed; color: #389e0d; }
+        .task-tag.doing { background: #e6f7ff; color: #096dd9; font-weight: 500; }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+            margin-top: 10px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 4px;
+            bottom: 0;
+            width: 2px;
+            background: #e8e8e8;
+        }
+
+        .time-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .time-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            background: var(--gray);
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .time-item {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .time-item::before {
+            content: '';
+            position: absolute;
+            left: -22px;
+            top: 16px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-badge {
+            font-size: 10px;
+            background: #f9f0ff;
+            color: #722ed1;
+            padding: 1px 4px;
+            border-radius: 4px;
+            border: 1px solid #d3adf7;
+        }
+        
+        .duration-tag {
+            background: #fffbe6;
+            color: #faad14;
+            padding: 1px 6px;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="margin:0; font-size: 20px;">任职资格项目进展汇报</h2>
+        <span style="font-size: 12px; color: #999;">统计截止日期: 2025.01</span>
+    </div>
+
+    <!-- Part 1: Status Dashboard -->
+    <div class="section-title">本期进展 (Phase I)</div>
+    
+    <div class="card">
+        <div class="status-grid">
+            <div class="status-box">
+                <span class="stat-num">100%</span>
+                <span class="stat-label">核心功能上线</span>
+            </div>
+            <div class="status-box doing">
+                <span class="stat-num">1项</span>
+                <span class="stat-label">收尾进行中</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 13px; font-weight: bold; color: #333;">已完成核心交付点：</div>
+        <div class="tag-list">
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 公共框架</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 系统配置</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 个人达标页</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 标准维护</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 资源库</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 举证全流程</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 职业发展通道</span>
+            <span class="task-tag done"><i class="fa-solid fa-check"></i> 晋升与多语言</span>
+        </div>
+
+        <div style="margin-top: 16px; border-top: 1px dashed #eee; padding-top: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="task-tag doing"><i class="fa-solid fa-spinner fa-spin"></i> 移动端查看与审批</span>
+                <span style="font-size: 12px; color: #faad14;">预计 16天内 完成</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 2: Future Roadmap -->
+    <div class="section-title">下期规划 (Phase II)</div>
+    
+    <div class="timeline">
+        
+        <!-- Q1 -->
+        <div class="time-group">
+            <div class="time-label">2025 Q1 (2月 - 3月)</div>
+            
+            <div class="time-item">
+                <div class="item-title">
+                    <span>绿色通道晋升流程</span>
+                    <span class="duration-tag">15天</span>
+                </div>
+                <div class="item-meta">
+                    <i class="fa-regular fa-clock"></i> 预计 2月中旬启动
+                </div>
+            </div>
+
+            <div class="time-item">
+                <div class="item-title">
+                    <span>管理报表与数据分析</span>
+                    <span class="duration-tag">17天</span>
+                </div>
+                <div class="item-meta">
+                    <i class="fa-regular fa-clock"></i> 预计 3月初启动
+                </div>
+            </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="time-group">
+            <div class="time-label">2025 Q2 (4月 - 6月)</div>
+            
+            <div class="time-item">
+                <div class="item-title">
+                    <span>多通道晋升优化</span>
+                    <span class="duration-tag">22天</span>
+                </div>
+            </div>
+
+            <div class="time-item">
+                <div class="item-title">
+                    <span>移动端举证申请</span>
+                    <span class="duration-tag">22天</span>
+                </div>
+                <div class="item-meta">
+                    <i class="fa-solid fa-star" style="color: #faad14;"></i> 重点高频需求
+                </div>
+            </div>
+
+            <div class="time-item">
+                <div class="item-title">
+                    <span>AI 辅助用户行为分析</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div class="item-meta">
+                    <span class="duration-tag">17天</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q3 & Beyond -->
+        <div class="time-group">
+            <div class="time-label">2025 Q3 及后续</div>
+            
+            <div class="time-item">
+                <div class="item-title">
+                    <span>赋能招聘与人才盘点</span>
+                    <span class="duration-tag">62天</span>
+                </div>
+                <div class="item-meta">长期建设</div>
+            </div>
+
+            <div class="time-item">
+                <div class="item-title">
+                    <span>AI 辅助个人任职资格举证</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div class="item-meta">
+                    必备知识/技能智能识别 · 23天
+                </div>
+            </div>
+
+            <div class="time-item">
+                <div class="item-title">
+                    <span>AI 驱动的在线学习系统</span>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div class="item-meta">
+                    新版云学堂联动 · 93天
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

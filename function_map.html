@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格系统功能全景图 (Function Map)</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --border-color: #e8e8e8;
+            --success: #52c41a;
+            --processing: #1890ff;
+            --plan: #722ed1;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-light: #bfbfbf;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-color);
+            padding: 40px;
+            min-width: 1400px;
+            color: var(--text-primary);
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .stat-item.done .stat-value { color: var(--success); }
+        .stat-item.doing .stat-value { color: var(--processing); }
+        .stat-item.plan .stat-value { color: var(--plan); }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .legend-icon.done { background: var(--success); }
+        .legend-icon.doing { background: var(--processing); }
+        .legend-icon.plan { background: var(--plan); border-style: dashed; border-width: 1px; border-color: var(--plan); background: #f9f0ff; color: var(--plan); }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        /* Module Column */
+        .module-col {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .module-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .module-progress {
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* Feature Group */
+        .feature-group {
+            margin-bottom: 16px;
+        }
+
+        .group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--processing);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .group-title i {
+            font-size: 12px;
+        }
+
+        .group-title.plan-title {
+            color: var(--plan);
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-left: 4px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-primary);
+            padding: 4px 0;
+        }
+
+        .feature-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .feature-icon.done {
+            background: #f6ffed;
+            color: var(--success);
+            border: 1px solid #b7eb8f;
+        }
+
+        .feature-icon.doing {
+            background: #e6f7ff;
+            color: var(--processing);
+            border: 1px solid #91d5ff;
+        }
+
+        .feature-icon.plan {
+            background: #f9f0ff;
+            color: var(--plan);
+            border: 1px dashed #d3adf7;
+        }
+
+        .feature-name {
+            flex: 1;
+        }
+
+        .feature-tags {
+            display: flex;
+            gap: 4px;
+        }
+
+        .feature-tag {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: #f0f0f0;
+            color: var(--text-secondary);
+        }
+
+        .feature-tag.mutex {
+            background: #fff7e6;
+            color: #d48806;
+            border: 1px solid #ffd591;
+        }
+
+        /* Info Box */
+        .info-box {
+            margin-top: 16px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .info-box.depend {
+            background: #e6f7ff;
+            border: 1px dashed #91d5ff;
+            color: #096dd9;
+        }
+
+        .info-box.flow {
+            background: #f9f0ff;
+            border: 1px dashed #d3adf7;
+            color: #531dab;
+        }
+
+        .info-box.mutex {
+            background: #fff7e6;
+            border: 1px dashed #ffd591;
+            color: #d48806;
+        }
+
+        .info-box.external {
+            background: #fff1f0;
+            border: 1px dashed #ffa39e;
+            color: #cf1322;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Divider */
+        .group-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 12px 0;
+        }
+
+        /* Logic Summary Section */
+        .logic-section {
+            margin-top: 40px;
+            max-width: 1500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .logic-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .logic-card {
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .logic-card.depend {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .logic-card.mutex {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+        }
+
+        .logic-card.rule {
+            background: #f9f0ff;
+            border: 1px solid #d3adf7;
+        }
+
+        .logic-card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logic-card.depend .logic-card-title { color: #096dd9; }
+        .logic-card.mutex .logic-card-title { color: #d48806; }
+        .logic-card.rule .logic-card-title { color: #531dab; }
+
+        .logic-card ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .logic-card li {
+            margin: 4px 0;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="page-header">
+        <h1 class="page-title">任职资格系统功能全景图 (Function Map)</h1>
+        
+        <div class="stats-summary">
+            <div class="stat-item done">
+                <div class="stat-value">37</div>
+                <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat-item doing">
+                <div class="stat-value">5</div>
+                <div class="stat-label">开发中</div>
+            </div>
+            <div class="stat-item plan">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Phase II 规划</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-icon done"><i class="fa-solid fa-check"></i></div>
+                <span>已完成</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon doing"><i class="fa-solid fa-circle"></i></div>
+                <span>进行中</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon plan"><i class="fa-solid fa-flag"></i></div>
+                <span>Phase II 规划</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+
+        <!-- Column 1: 标准管理 -->
+        <div class="module-col">
+            <div class="module-header">
+                <span class="module-title">标准管理（100%）</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 子类标准维护</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子类标准库维护</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">AI辅助生成子类标准</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子类标准版本管理</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子类标准审批与发布</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 资源库</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">活动库</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">知识库</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">技能库</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">指标库</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">技术库</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 移动端</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子列标准查看</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子列标准评审</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box depend">
+                <div class="info-box-title"><i class="fa-solid fa-link"></i> 依赖关系</div>
+                <div>• 资源库 → 子类标准</div>
+                <div>• 标准发布 → 举证申请</div>
+                <div>• 标准发布 → 晋升申请</div>
+            </div>
+        </div>
+
+        <!-- Column 2: 举证管理 -->
+        <div class="module-col">
+            <div class="module-header">
+                <span class="module-title">举证管理（91%）</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 举证流程</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证申请</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证校验</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证公示与异议处理</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证人工复核</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 举证查询</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">个人举证记录查询</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">管理者查询他人举证记录</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证数据统计</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-circle" style="color:var(--processing);"></i> 移动端</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证公示查看&提出异议</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证人工复核</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">举证列表查询</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-divider"></div>
+
+            <div class="feature-group">
+                <div class="group-title plan-title"><i class="fa-solid fa-flag"></i> Phase II 规划</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">移动端举证申请</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box flow">
+                <div class="info-box-title"><i class="fa-solid fa-arrow-right"></i> 数据流向</div>
+                <div>举证通过 → 更新个人匹配度 → 影响晋升达标判断</div>
+            </div>
+        </div>
+
+        <!-- Column 3: 晋升管理 -->
+        <div class="module-col">
+            <div class="module-header">
+                <span class="module-title">晋升管理（77%）</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 标准晋升</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">升等申请</span>
+                        <div class="feature-tags"><span class="feature-tag mutex">互斥</span></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">升级申请</span>
+                        <div class="feature-tags"><span class="feature-tag mutex">互斥</span></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">晋升校验与审批</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">晋升签字</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">晋升公示与异议处理</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">预算审批与排队</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">薪资管理员确认生效</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-circle" style="color:var(--processing);"></i> 移动端</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">晋升公示查看&提出异议</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">晋升签字</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">晋升评委打分</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">晋升预算审批</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-divider"></div>
+
+            <div class="feature-group">
+                <div class="group-title plan-title"><i class="fa-solid fa-flag"></i> Phase II 规划</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">绿色通道晋升</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">多通道（跨子类）晋升</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box mutex">
+                <div class="info-box-title"><i class="fa-solid fa-code-branch"></i> 通道互斥</div>
+                <div>同子类 ⊕ 跨子类 ⊕ 绿色通道</div>
+                <div>同一时间只能选择一种晋升路径</div>
+            </div>
+        </div>
+
+        <!-- Column 4: 其他 -->
+        <div class="module-col">
+            <div class="module-header">
+                <span class="module-title">其他（60%）</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-check-square"></i> 系统设置</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">角色与权限管理</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">任职要素配置</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">评委库配置</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">预算池配置</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-circle" style="color:var(--processing);"></i> 看板</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">PC端管理看板</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">移动端管理看板</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title"><i class="fa-solid fa-circle" style="color:var(--processing);"></i> 多语言</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">举证模块英文适配</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon done"><i class="fa-solid fa-check"></i></div>
+                        <span class="feature-name">子类标准模块英文适配</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">晋升模块英文适配</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon doing"><i class="fa-solid fa-circle"></i></div>
+                        <span class="feature-name">移动端页面英文适配</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 5: 生态赋能 -->
+        <div class="module-col">
+            <div class="module-header">
+                <span class="module-title">生态赋能（0%）</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title plan-title"><i class="fa-solid fa-flag"></i> Phase II 规划</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">个人任职资格发展分析</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">多通道机晋升途径推荐</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">绩效考核</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">广义项目团队成员推荐</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">知识技能联动云课堂</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">招聘HC</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon plan"><i class="fa-solid fa-flag"></i></div>
+                        <span class="feature-name">人才盘点</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box external">
+                <div class="info-box-title"><i class="fa-solid fa-plug"></i> 外部集成</div>
+                <div>需对接：云学堂、招聘系统、绩效系统、人才盘点</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Logic Summary Section -->
+    <div class="logic-section">
+        <h2 class="logic-title"><i class="fa-solid fa-sitemap"></i> 核心业务逻辑关系总览</h2>
+        
+        <div class="logic-grid">
+            <div class="logic-card depend">
+                <div class="logic-card-title"><i class="fa-solid fa-link"></i> 主流程依赖链</div>
+                <div>标准发布 → 举证申请 → 匹配度更新 → 晋升达标 → 晋升申请 → 评审 → 预算 → 生效</div>
+            </div>
+
+            <div class="logic-card mutex">
+                <div class="logic-card-title"><i class="fa-solid fa-code-branch"></i> 互斥关系汇总</div>
+                <ul>
+                    <li><strong>升级 ⊕ 升等</strong>：同一申请二选一</li>
+                    <li><strong>同子类 ⊕ 跨子类 ⊕ 绿通</strong>：通道互斥</li>
+                    <li><strong>预算通过 ⊕ 排队等待</strong>：结果互斥</li>
+                </ul>
+            </div>
+
+            <div class="logic-card rule">
+                <div class="logic-card-title"><i class="fa-solid fa-list-ol"></i> 预算排队规则</div>
+                <ul>
+                    <li>历史批次 > 当前批次</li>
+                    <li>同批次内：低职级 > 高职级</li>
+                    <li>仅在同一成本中心内排序</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

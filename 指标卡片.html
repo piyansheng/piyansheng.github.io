@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标卡片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-label {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        .section-label.required::before {
+            content: '* ';
+            color: #ff4d4f;
+            margin-right: 2px;
+        }
+
+        .selected-indicator {
+            padding: 4px 12px;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .search-icon {
+            color: #bfbfbf;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .link-button {
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            background: none;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        .link-button:hover {
+            color: #40a9ff;
+        }
+
+        /* 指标卡片 */
+        .indicator-card {
+            display: flex;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .card-sidebar {
+            width: 56px;
+            background: linear-gradient(180deg, #1890ff 0%, #096dd9 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .card-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #fff;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+            background: transparent;
+        }
+
+        .checkbox.checked {
+            background: #fff;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: #1890ff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .card-sidebar-text {
+            writing-mode: vertical-rl;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            user-select: none;
+        }
+
+        .card-content {
+            flex: 1;
+            background: #fff;
+            padding: 20px 24px;
+            position: relative;
+        }
+
+        .card-delete {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #bfbfbf;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .card-delete:hover {
+            color: #ff4d4f;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .card-tag {
+            padding: 2px 8px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+            border-radius: 2px;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        .card-row {
+            display: flex;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 22px;
+            align-items: flex-start;
+        }
+
+        .card-row:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .card-row-label {
+            color: rgba(0, 0, 0, 0.65);
+            min-width: 90px;
+            flex-shrink: 0;
+        }
+
+        .card-row-value {
+            color: rgba(0, 0, 0, 0.85);
+            flex: 1;
+        }
+
+        /* 完成进度条 */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1890ff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* 交付结果显示 */
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .input-row-label {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            min-width: 90px;
+        }
+
+        .result-display {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1890ff;
+            padding: 4px 12px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 2px;
+        }
+
+        .auto-calculate-badge {
+            padding: 2px 8px;
+            background: #f0f0f0;
+            color: rgba(0, 0, 0, 0.45);
+            border-radius: 2px;
+            font-size: 12px;
+            border: 1px solid #d9d9d9;
+        }
+
+        /* 帮助图标和提示框 */
+        .help-icon-wrapper {
+            position: relative;
+            margin-left: 8px;
+        }
+
+        .help-icon {
+            font-size: 16px;
+            cursor: help;
+            color: #8c8c8c;
+            transition: color 0.3s;
+        }
+
+        .help-icon:hover {
+            color: #1890ff;
+        }
+
+        .help-tooltip {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            max-height: 80vh;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .help-tooltip-content {
+            padding: 16px;
+        }
+
+        .help-icon-wrapper:hover .help-tooltip {
+            display: block;
+        }
+
+        /* 滚动条样式 */
+        .help-tooltip::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .help-tooltip::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+
+        .help-tooltip::-webkit-scrollbar-thumb {
+            background: #bfbfbf;
+            border-radius: 3px;
+        }
+
+        .help-tooltip::-webkit-scrollbar-thumb:hover {
+            background: #8c8c8c;
+        }
+
+        .tooltip-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tooltip-icon {
+            font-size: 16px;
+        }
+
+        .tooltip-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .tooltip-section {
+            margin-bottom: 12px;
+        }
+
+        .tooltip-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .tooltip-label {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .tooltip-content {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.85);
+            background: #fafafa;
+            padding: 8px 10px;
+            border-radius: 2px;
+            line-height: 1.6;
+        }
+
+        .depth-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .depth-table th,
+        .depth-table td {
+            padding: 6px 10px;
+            border: 1px solid #f0f0f0;
+            text-align: left;
+        }
+
+        .depth-table th {
+            background: #fafafa;
+            color: rgba(0, 0, 0, 0.65);
+            font-weight: 500;
+        }
+
+        .depth-table td {
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .tooltip-projects {
+            background: #fafafa;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .tooltip-project {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tooltip-project:last-child {
+            border-bottom: none;
+        }
+
+        .tooltip-project-name {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.85);
+            flex: 1;
+        }
+
+        .tooltip-project-calc {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tooltip-role {
+            padding: 2px 6px;
+            background: #fff;
+            color: rgba(0, 0, 0, 0.65);
+            border-radius: 2px;
+            font-size: 11px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .tooltip-formula {
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.65);
+            font-family: 'Courier New', monospace;
+        }
+
+        .tooltip-summary {
+            margin-top: 12px;
+            padding: 8px 10px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 2px;
+            font-size: 12px;
+            color: #1890ff;
+        }
+
+        .tooltip-summary strong {
+            font-weight: 600;
+        }
+
+        /* 说明信息框 */
+        .result-info {
+            background: #fafafa;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-note {
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .info-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            flex: 1;
+        }
+
+        .info-value {
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .info-highlight {
+            color: #fa8c16;
+            font-weight: 500;
+        }
+
+        .info-warning {
+            color: #ff4d4f;
+            font-weight: 500;
+        }
+
+        .formula-text {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        /* 可编辑输入框样式 */
+        .input-box-editable {
+            flex: 1;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 4px 11px;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: all 0.3s;
+        }
+
+        .input-box-editable:hover {
+            border-color: #40a9ff;
+        }
+
+        .input-box-editable:focus {
+            border-color: #40a9ff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .input-box-editable::placeholder {
+            color: #bfbfbf;
+        }
+
+        .input-suffix {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            margin-left: 8px;
+        }
+
+        .input-arrow-up {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background: #fff;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .input-arrow-up:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        /* 模板提醒框 */
+        .template-reminder {
+            display: flex;
+            gap: 10px;
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-left: 3px solid #fa8c16;
+            padding: 12px 16px;
+            border-radius: 2px;
+            margin-top: 16px;
+        }
+
+        .reminder-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            line-height: 1.5;
+        }
+
+        .reminder-content {
+            flex: 1;
+        }
+
+        .reminder-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #d46b08;
+            margin-bottom: 6px;
+        }
+
+        .reminder-text {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.65);
+            line-height: 1.6;
+        }
+
+        .reminder-text strong {
+            color: #fa8c16;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部操作栏 -->
+        <div class="section-header">
+            <div class="section-label required">指标要求:</div>
+            <div class="selected-indicator">已选择 2 项指标要求</div>
+            <span class="search-icon">🔍</span>
+            <button class="link-button">清空全部</button>
+        </div>
+
+        <!-- 指标卡片 -->
+        <div class="indicator-card">
+            <!-- 左侧边栏 -->
+            <div class="card-sidebar">
+                <div class="card-checkbox-wrapper">
+                    <div class="checkbox checked"></div>
+                </div>
+                <div class="card-sidebar-text">衡量指标</div>
+            </div>
+
+            <!-- 右侧内容 -->
+            <div class="card-content">
+                <div class="card-delete">🗑️</div>
+                
+                <!-- 标题 -->
+                <div class="card-header">
+                    <div class="card-title">累计项目难度之和</div>
+                    <div class="card-tag">活动指标</div>
+                </div>
+
+                <!-- 指标描述 -->
+                <div class="card-row">
+                    <div class="card-row-label">指标描述:</div>
+                    <div class="card-row-value">累计完成项目的难度系数总和</div>
+                </div>
+
+                <!-- 统计方式 -->
+                <div class="card-row">
+                    <div class="card-row-label">统计方式:</div>
+                    <div class="card-row-value">职级内累加</div>
+                </div>
+
+                <!-- 计算公式 -->
+                <div class="card-row">
+                    <div class="card-row-label">计算公式:</div>
+                    <div class="card-row-value">
+                        <span class="formula-text">Σ完成【项目难度】的项目数量×【项目难...</span>
+                    </div>
+                </div>
+
+                <!-- 判断标准 -->
+                <div class="card-row">
+                    <div class="card-row-label">判断标准:</div>
+                    <div class="card-row-value">>= 31分</div>
+                </div>
+
+                <!-- 完成进度 -->
+                <div class="card-row">
+                    <div class="card-row-label">完成进度:</div>
+                    <div class="card-row-value">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%;"></div>
+                            </div>
+                            <div class="progress-text">75% (23.2/31)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交付结果（自动计算，不可编辑） -->
+                <div class="input-row">
+                    <div class="input-row-label">交付结果:</div>
+                    <div class="result-display">23.2 分</div>
+                    <div class="auto-calculate-badge">自动计算</div>
+                    <div class="help-icon-wrapper">
+                        <span class="help-icon">❓</span>
+                        <div class="help-tooltip">
+                            <div class="help-tooltip-content">
+                                <div class="tooltip-header">
+                                    <span class="tooltip-icon">📐</span>
+                                    <span class="tooltip-title">计算说明</span>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">计算公式：</div>
+                                    <div class="tooltip-content">
+                                        累计项目难度总和 = Σ完成【项目模板】的项目数量×【项目模板】难度系数×参与深度系数
+                                    </div>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">参与深度系数：</div>
+                                    <table class="depth-table">
+                                        <tr>
+                                            <th>角色</th>
+                                            <th>系数</th>
+                                        </tr>
+                                        <tr>
+                                            <td>主导</td>
+                                            <td>1.0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>协助</td>
+                                            <td>0.8</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">举证项目列表：</div>
+                                    <div class="tooltip-projects">
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">技术预研项目 A</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">主导</span>
+                                                <span class="tooltip-formula">13 × 1.0 = 13 分</span>
+                                            </div>
+                                        </div>
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">产品开发项目 B</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">协助</span>
+                                                <span class="tooltip-formula">4 × 0.8 = 3.2 分</span>
+                                            </div>
+                                        </div>
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">产品开发项目 C</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">主导</span>
+                                                <span class="tooltip-formula">4 × 1.0 = 4 分</span>
+                                            </div>
+                                        </div>
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">维护项目 D</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">主导</span>
+                                                <span class="tooltip-formula">3 × 1.0 = 3 分</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tooltip-summary">
+                                    系统自动计算：13 + 3.2 + 4 + 3 = <strong>23.2 分</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 说明信息 -->
+                <div class="result-info">
+                    <div class="info-note">系统将根据您举证的项目模板难度系数和参与深度系数自动计算累计难度总和</div>
+                    <div class="info-line">
+                        <span class="info-icon">💡</span>
+                        <span class="info-text">
+                            本次填写：<span class="info-value">23.2分</span>，累计完成 <span class="info-value">23.2分</span>
+                        </span>
+                    </div>
+                    <div class="info-line">
+                        <span class="info-icon">📊</span>
+                        <span class="info-text">
+                            职级内累加统计 | 要求 <span class="info-highlight">>=31分</span>
+                        </span>
+                    </div>
+                    <div class="info-line">
+                        <span class="info-text">
+                            结果：<span class="info-icon">⚠️</span> <span class="info-warning">未达标，还需 7.8分</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二个指标卡片：产品预研项目数量要求 -->
+        <div class="indicator-card" style="margin-top: 16px;">
+            <!-- 左侧边栏 -->
+            <div class="card-sidebar">
+                <div class="card-checkbox-wrapper">
+                    <div class="checkbox checked"></div>
+                </div>
+                <div class="card-sidebar-text">衡量指标</div>
+            </div>
+
+            <!-- 右侧内容 -->
+            <div class="card-content">
+                <div class="card-delete">🗑️</div>
+                
+                <!-- 标题 -->
+                <div class="card-header">
+                    <div class="card-title">C级项目数量要求</div>
+                    <div class="card-tag">活动指标</div>
+                </div>
+
+                <!-- 指标描述 -->
+                <div class="card-row">
+                    <div class="card-row-label">指标描述:</div>
+                    <div class="card-row-value">累计完成的C级（复杂级）及以上项目数量</div>
+                </div>
+
+                <!-- 统计方式 -->
+                <div class="card-row">
+                    <div class="card-row-label">统计方式:</div>
+                    <div class="card-row-value">职级内累加</div>
+                </div>
+
+                <!-- 计算公式 -->
+                <div class="card-row">
+                    <div class="card-row-label">计算公式:</div>
+                    <div class="card-row-value">
+                        <span class="formula-text">统计难度系数≥8的项目数量</span>
+                    </div>
+                </div>
+
+                <!-- 判断标准 -->
+                <div class="card-row">
+                    <div class="card-row-label">判断标准:</div>
+                    <div class="card-row-value">>= 2个</div>
+                </div>
+
+                <!-- 完成进度 -->
+                <div class="card-row">
+                    <div class="card-row-label">完成进度:</div>
+                    <div class="card-row-value">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%;"></div>
+                            </div>
+                            <div class="progress-text">50% (1/2)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交付结果（自动计算，不可编辑） -->
+                <div class="input-row">
+                    <div class="input-row-label">交付结果:</div>
+                    <div class="result-display">1 个</div>
+                    <div class="auto-calculate-badge">自动计算</div>
+                    <div class="help-icon-wrapper">
+                        <span class="help-icon">❓</span>
+                        <div class="help-tooltip">
+                            <div class="help-tooltip-content">
+                                <div class="tooltip-header">
+                                    <span class="tooltip-icon">📐</span>
+                                    <span class="tooltip-title">计算说明</span>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">计算规则：</div>
+                                    <div class="tooltip-content">
+                                        C级项目数量 = 统计难度系数≥8的项目数量（包含C级和HC级）
+                                    </div>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">覆盖原则：</div>
+                                    <div class="tooltip-content">
+                                        • 高等级项目可以覆盖低等级要求<br>
+                                        • C级项目（难度系数8-10）可以计入<br>
+                                        • HC级项目（难度系数11-13）也可以计入<br>
+                                        • S/M级项目（难度系数1-7）不能计入
+                                    </div>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">项目难度级别定义：</div>
+                                    <table class="depth-table">
+                                        <tr>
+                                            <th>级别</th>
+                                            <th>难度系数</th>
+                                            <th>是否计入</th>
+                                        </tr>
+                                        <tr>
+                                            <td>S级（简单级）</td>
+                                            <td>1-4</td>
+                                            <td>❌ 不计入</td>
+                                        </tr>
+                                        <tr>
+                                            <td>M级（中等级）</td>
+                                            <td>5-7</td>
+                                            <td>❌ 不计入</td>
+                                        </tr>
+                                        <tr style="background: #fff7e6;">
+                                            <td><strong>C级（复杂级）</strong></td>
+                                            <td><strong>8-10</strong></td>
+                                            <td><strong>✅ 计入</strong></td>
+                                        </tr>
+                                        <tr style="background: #fff1f0;">
+                                            <td><strong>HC级（高度复杂）</strong></td>
+                                            <td><strong>11-13</strong></td>
+                                            <td><strong>✅ 计入</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="tooltip-section">
+                                    <div class="tooltip-label">举证项目列表：</div>
+                                    <div class="tooltip-projects">
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">技术开发项目 A（难度系数10）</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">C级</span>
+                                                <span class="tooltip-formula">✅ 计入</span>
+                                            </div>
+                                        </div>
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">产品预研项目 B（难度系数7）</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">M级</span>
+                                                <span class="tooltip-formula">❌ 不计入</span>
+                                            </div>
+                                        </div>
+                                        <div class="tooltip-project">
+                                            <div class="tooltip-project-name">产品开发项目 C（难度系数5）</div>
+                                            <div class="tooltip-project-calc">
+                                                <span class="tooltip-role">M级</span>
+                                                <span class="tooltip-formula">❌ 不计入</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tooltip-summary">
+                                    系统自动统计：1个C级项目 = <strong>1个</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板提醒 -->
+                <div class="template-reminder">
+                    <div class="reminder-icon">⚠️</div>
+                    <div class="reminder-content">
+                        <div class="reminder-title">项目级别提醒</div>
+                        <div class="reminder-text">
+                            您选择的指标包含【C级项目】数量要求。<span style="color: #52c41a; font-weight: 500;">举证项目难度系数必须≥8</span>（包括C级8-10和HC级11-13），允许高等级项目覆盖低等级要求。若选择低等级项目（S/M级）将校验不通过。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 说明信息 -->
+                <div class="result-info">
+                    <div class="info-note">系统将自动统计您举证的项目中，难度系数≥8的项目数量（包含C级和HC级）</div>
+                    <div class="info-line">
+                        <span class="info-icon">💡</span>
+                        <span class="info-text">
+                            本次填写：<span class="info-value">1个</span>，累计完成 <span class="info-value">1个</span>
+                        </span>
+                    </div>
+                    <div class="info-line">
+                        <span class="info-icon">📊</span>
+                        <span class="info-text">
+                            职级内累加统计 | 要求 <span class="info-highlight">>=2个</span>
+                        </span>
+                    </div>
+                    <div class="info-line">
+                        <span class="info-text">
+                            结果：<span class="info-icon">⚠️</span> <span class="info-warning">未达标，还需 1个</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 复选框切换
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // 删除卡片
+        document.querySelectorAll('.card-delete').forEach(deleteBtn => {
+            deleteBtn.addEventListener('click', function() {
+                if (confirm('确定要删除这个指标吗？')) {
+                    this.closest('.indicator-card').remove();
+                    updateSelectedCount();
+                }
+            });
+        });
+
+        // 清空全部
+        document.querySelector('.link-button').addEventListener('click', function() {
+            if (confirm('确定要清空全部指标吗？')) {
+                document.querySelectorAll('.indicator-card').forEach(card => card.remove());
+                updateSelectedCount();
+            }
+        });
+
+        // 更新已选择数量
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.indicator-card').length;
+            document.querySelector('.selected-indicator').textContent = '已选择 ' + count + ' 项指标要求';
+        }
+
+        // 页面加载时自动更新两个指标的进度条
+        window.addEventListener('DOMContentLoaded', function() {
+            // 第一个指标：累计项目难度之和
+            const firstCard = document.querySelectorAll('.indicator-card')[0];
+            if (firstCard) {
+            const currentValue = 23.2;
+            const targetValue = 31;
+            const progress = Math.min((currentValue / targetValue) * 100, 100);
+            
+                firstCard.querySelector('.progress-fill').style.width = progress + '%';
+                firstCard.querySelector('.progress-text').textContent = 
+                    Math.round(progress) + '% (' + currentValue + '/' + targetValue + ')';
+            }
+
+            // 第二个指标：C级项目数量要求
+        const secondCard = document.querySelectorAll('.indicator-card')[1];
+        if (secondCard) {
+                const currentValue = 1;
+                const targetValue = 2;
+                const progress = Math.min((currentValue / targetValue) * 100, 100);
+                
+                secondCard.querySelector('.progress-fill').style.width = progress + '%';
+                secondCard.querySelector('.progress-text').textContent = 
+                    Math.round(progress) + '% (' + currentValue + '/' + targetValue + ')';
+            }
+        });
+    </script>
+</body>
+</html>
+

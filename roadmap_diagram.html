@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目里程碑规划图</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --phase1-bg: #f6ffed;
+            --phase1-border: #b7eb8f;
+            --phase1-text: #389e0d;
+            --phase2-bg: #e6f7ff;
+            --phase2-border: #91d5ff;
+            --phase2-text: #096dd9;
+            --ai-bg: #f9f0ff;
+            --ai-border: #d3adf7;
+            --ai-text: #722ed1;
+            --gray: #f5f5f5;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #fff;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 900px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 30px;
+            background: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* Phase 1 Area */
+        .phase-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-badge {
+            background: #333;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .done-card {
+            background: var(--phase1-bg);
+            border: 1px solid var(--phase1-border);
+            color: var(--phase1-text);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        /* Phase 2 Roadmap */
+        .roadmap-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .time-column {
+            flex: 1;
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 16px;
+            border-top: 4px solid #ccc;
+        }
+
+        .time-column.q1 { border-top-color: #faad14; }
+        .time-column.q2 { border-top-color: var(--phase2-text); }
+        .time-column.q3 { border-top-color: var(--ai-text); }
+
+        .time-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .task-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .task-card.ai {
+            border-left: 3px solid var(--ai-text);
+        }
+
+        .task-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .duration-tag {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #666;
+        }
+        
+        .ai-badge {
+            background: var(--ai-bg);
+            color: var(--ai-text);
+            border: 1px solid var(--ai-border);
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 4px;
+        }
+
+        .arrow-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ddd;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">任职资格系统建设 · 阶段规划全景图</div>
+            <div class="subtitle">Phase I 成果回顾 & Phase II 实施路线图</div>
+        </div>
+
+        <!-- Phase 1 -->
+        <div class="phase-section">
+            <div class="section-header">
+                <span class="section-badge" style="background: #52c41a;">Phase I 已完成</span>
+                <span class="section-title">核心框架与基础服务</span>
+                <span style="margin-left: auto; font-size: 13px; color: #999;">状态: 100% 上线验收</span>
+            </div>
+            <div class="grid-container">
+                <div class="done-card"><i class="fa-solid fa-check"></i> 公共框架</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 系统配置</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 个人达标页</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 子类标准维护</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 资源库管理</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 举证全流程</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 职业发展通道</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 晋升标准</div>
+                <div class="done-card"><i class="fa-solid fa-check"></i> 多语言支持</div>
+                <div class="done-card" style="background: #e6f7ff; border-color: #91d5ff; color: #096dd9;"><i class="fa-solid fa-spinner fa-spin"></i> 移动端审批</div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-section">
+            <div class="section-header">
+                <span class="section-badge" style="background: #1890ff;">Phase II 规划</span>
+                <span class="section-title">全场景、智能化与价值深化</span>
+                <span style="margin-left: auto; font-size: 13px; color: #999;">周期: 2025.Q1 - 2025.Q3+</span>
+            </div>
+            
+            <div class="roadmap-container">
+                <!-- Q1 -->
+                <div class="time-column q1">
+                    <div class="time-header">2025 Q1 (启动期)</div>
+                    
+                    <div class="task-card">
+                        <div class="task-title">绿色通道晋升流程</div>
+                        <div class="task-meta">
+                            <span><i class="fa-regular fa-clock"></i> 2月中启动</span>
+                            <span class="duration-tag">15天</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-title">管理报表与数据分析</div>
+                        <div class="task-meta">
+                            <span><i class="fa-regular fa-clock"></i> 3月初启动</span>
+                            <span class="duration-tag">17天</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-divider"><i class="fa-solid fa-chevron-right"></i></div>
+
+                <!-- Q2 -->
+                <div class="time-column q2">
+                    <div class="time-header">2025 Q2 (攻坚期)</div>
+                    
+                    <div class="task-card">
+                        <div class="task-title">多通道晋升流程优化</div>
+                        <div class="task-meta">
+                            <span>流程复杂</span>
+                            <span class="duration-tag">22天</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-title">移动端举证申请</div>
+                        <div class="task-meta">
+                            <span style="color:#faad14">★ 重点需求</span>
+                            <span class="duration-tag">22天</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card ai">
+                        <div class="task-title">AI 辅助用户行为分析 <span class="ai-badge">AI</span></div>
+                        <div class="task-meta">
+                            <span>智能洞察</span>
+                            <span class="duration-tag">17天</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow-divider"><i class="fa-solid fa-chevron-right"></i></div>
+
+                <!-- Q3 -->
+                <div class="time-column q3">
+                    <div class="time-header">2025 Q3 及后续 (深化期)</div>
+                    
+                    <div class="task-card">
+                        <div class="task-title">赋能招聘、盘点与绩效</div>
+                        <div class="task-meta">
+                            <span>生态联动</span>
+                            <span class="duration-tag">62天</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card ai">
+                        <div class="task-title">AI 辅助个人举证 <span class="ai-badge">AI</span></div>
+                        <div class="task-meta">
+                            <span>知识/技能识别</span>
+                            <span class="duration-tag">23天</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card ai">
+                        <div class="task-title">AI 驱动在线学习系统 <span class="ai-badge">AI</span></div>
+                        <div class="task-meta">
+                            <span>云学堂联动</span>
+                            <span class="duration-tag">93天</span>
+                        </div>
+                    </div>
+
+                     <div class="task-card ai">
+                        <div class="task-title">AI 职业发展通道推荐 <span class="ai-badge">AI</span></div>
+                        <div class="task-meta">
+                            <span>个性化</span>
+                            <span class="duration-tag">25天</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

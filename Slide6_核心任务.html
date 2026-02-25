@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Slide 6 - 核心任务（竖版）</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .card { 
+            width: 400px; height: 580px; 
+            background: white; 
+            display: flex; flex-direction: column; 
+            padding: 30px 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            border-top: 6px solid #FF7D00; /* 橙色代表挑战与破局 */
+        }
+
+        /* 痛点区 */
+        .pain-section { margin-bottom: 20px; }
+        .section-title { font-size: 16px; font-weight: bold; color: #1d2129; margin-bottom: 10px; display: flex; align-items: center; }
+        .pain-card { 
+            background: #FFF7E8; border: 1px dashed #FF7D00; border-radius: 8px; padding: 12px; margin-bottom: 8px; 
+            font-size: 13px; color: #666; display: flex; align-items: center;
+        }
+        .pain-icon { font-size: 18px; margin-right: 10px; color: #FF7D00; }
+
+        /* 齿轮咬合区 */
+        .gear-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 20px 0; }
+        
+        .gear-wrapper { position: relative; width: 160px; height: 180px; }
+        .gear { 
+            width: 100px; height: 100px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            position: absolute; color: white; font-size: 12px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .gear::before { content: ''; position: absolute; width: 115%; height: 115%; border: 6px dashed rgba(0,0,0,0.1); border-radius: 50%; z-index: -1; }
+
+        .gear-it { background: #165DFF; top: 0; left: 0; z-index: 2; }
+        .gear-biz { background: #00B42A; bottom: 0; right: 0; z-index: 1; }
+        
+        .arrow-down { color: #165DFF; font-size: 28px; margin: 10px 0; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+        /* 解决方案卡片 */
+        .solution-card {
+            background: #E8F3FF; border: 2px solid #165DFF; border-radius: 12px;
+            padding: 20px; text-align: center; width: 100%; box-sizing: border-box;
+            box-shadow: 0 8px 20px rgba(22, 93, 255, 0.1);
+        }
+        .sol-title { font-size: 18px; font-weight: bold; color: #165DFF; margin-bottom: 5px; }
+        .sol-desc { font-size: 13px; color: #333; }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- 痛点 -->
+        <div class="pain-section">
+            <div class="section-title">⚠️ 当前痛点：供需错位</div>
+            <div class="pain-card">
+                <div class="pain-icon">⚡</div>
+                <div>IT侧：懂代码不懂生意<br>功能做完，用户不爱用</div>
+            </div>
+            <div class="pain-card">
+                <div class="pain-icon">🧩</div>
+                <div>业务侧：懂痛点不懂体系<br>需求碎片，系统越建越乱</div>
+            </div>
+        </div>
+        
+        <!-- 齿轮 -->
+        <div class="gear-section">
+            <div class="gear-wrapper">
+                <div class="gear gear-it">IT<br>业务化</div>
+                <div class="gear gear-biz">业务<br>结构化</div>
+            </div>
+            <div class="arrow-down">⬇</div>
+        </div>
+
+        <!-- 解决方案 -->
+        <div class="solution-card">
+            <div class="sol-title">解决方案评审机制</div>
+            <div class="sol-desc">
+                开发前 IT出方案 + 业务认效果<br>
+                <b>= 价值闭环</b>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>晋升记录 - 移动端</title>
+    <style>
+        :root {
+            --primary-yellow: #FFD700;
+            --light-yellow: #FFFACD;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+            --active-blue: #1890ff;
+            --status-draft: #d9d9d9;
+            --status-pending: #faad14;
+            --status-processing: #1890ff;
+            --status-success: #52c41a;
+            --status-error: #ff4d4f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        /* Top Tabs */
+        .top-tabs {
+            display: flex;
+            background: #fff;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 15px;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .top-tab-item.active {
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        .top-tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background-color: var(--primary-yellow);
+            border-radius: 2px;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            background: #fff;
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-icon {
+            color: var(--text-light);
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .filter-btn {
+            background: #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            color: var(--text-secondary);
+        }
+
+        /* Status Filter Chips (Horizontal Scroll) */
+        .status-scroll-wrapper {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 4px; /* Hide scrollbar visual impact if any */
+            margin-bottom: 16px;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        .status-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .status-chips {
+            display: inline-flex;
+            gap: 8px;
+        }
+
+        .status-chip {
+            padding: 6px 16px;
+            background: #fff;
+            border-radius: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-chip.active {
+            background: #fffbe6; /* Light yellow bg */
+            color: #d48806;
+            border-color: #ffe58f;
+            font-weight: 500;
+        }
+
+        .chip-count {
+            font-size: 11px;
+            background: #f5f5f5;
+            padding: 1px 5px;
+            border-radius: 8px;
+            color: var(--text-light);
+        }
+        
+        .status-chip.active .chip-count {
+            background: #fff;
+            color: #d48806;
+        }
+
+        /* Promotion List */
+        .promotion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .promotion-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .pm-id {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .status-badge.draft { background: #f5f5f5; color: rgba(0,0,0,0.25); border: 1px solid #d9d9d9; }
+        .status-badge.pending { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .status-badge.processing { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .status-badge.completed { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+
+        .card-main {
+            margin-bottom: 12px;
+        }
+
+        .applicant-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .avatar-small {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .applicant-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-right: 8px;
+        }
+
+        .applicant-dept {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .info-row {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label {
+            width: 60px;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        .change-arrow {
+            margin: 0 6px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .card-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            font-size: 13px;
+            color: var(--text-primary);
+            padding: 4px 12px;
+            border-radius: 14px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+        }
+        
+        .action-btn.primary {
+            color: var(--active-blue);
+            border-color: var(--active-blue);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            font-size: 10px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <i class="fa-solid fa-chevron-left header-icon" onclick="window.location.href='mobile_index.html'"></i>
+        <span>晋升记录</span>
+        <i class="fa-solid fa-ellipsis header-icon"></i>
+    </div>
+
+    <!-- Top Tabs -->
+    <div class="top-tabs">
+        <div class="top-tab-item active">我的晋升</div>
+        <div class="top-tab-item">团队晋升</div>
+        <div class="top-tab-item">全部晋升</div>
+    </div>
+
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="搜索申请人、单号">
+            </div>
+            <div class="filter-btn">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+        </div>
+
+        <!-- Status Filter Chips -->
+        <div class="status-scroll-wrapper">
+            <div class="status-chips">
+                <div class="status-chip active">
+                    全部 <span class="chip-count">1</span>
+                </div>
+                <div class="status-chip">
+                    草稿 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    认证/审批 <span class="chip-count">1</span>
+                </div>
+                <div class="status-chip">
+                    签字确认 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    公示 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    预算核验 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    待生效 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    生效 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    复核 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    终止 <span class="chip-count">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promotion List -->
+        <div class="promotion-list">
+            <!-- Item 1 -->
+            <div class="promotion-card">
+                <div class="card-top">
+                    <span class="pm-id">PL20251210005</span>
+                    <span class="status-badge pending">认证/审批</span>
+                </div>
+                <div class="card-main">
+                    <div class="applicant-info">
+                        <img src="https://ui-avatars.com/api/?name=Yu&background=random" class="avatar-small">
+                        <span class="applicant-name">余从军</span>
+                        <span class="applicant-dept">IT开发部</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">晋升类型</span>
+                        <span>升级</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">调整前</span>
+                        <span>IT系统开发/1级/A</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">调整后</span>
+                        <span>IT系统开发/2级/E</span>
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-12-10</div>
+                    <div class="action-group">
+                        <div class="action-btn">撤回</div>
+                        <div class="action-btn primary" onclick="window.location.href='mobile_promotion_signature.html'">查看详情</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Load More -->
+        <div style="text-align: center; color: #999; font-size: 12px; margin-top: 16px;">
+            没有更多了
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="mobile_index.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>首页</span>
+        </a>
+        <a href="mobile_evidence_list.html" class="nav-item">
+            <i class="fa-solid fa-file-signature nav-icon"></i>
+            <span>举证</span>
+        </a>
+        <a href="mobile_promotion_list.html" class="nav-item active">
+            <i class="fa-solid fa-arrow-trend-up nav-icon"></i>
+            <span>晋升</span>
+        </a>
+        <a href="mobile_publicity.html" class="nav-item">
+            <i class="fa-solid fa-bullhorn nav-icon"></i>
+            <span>公示</span>
+        </a>
+    </div>
+
+    <script>
+        // Simple tab switching logic for top tabs
+        document.querySelectorAll('.top-tab-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.top-tab-item').forEach(tab => tab.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Simple filter logic for chips
+        document.querySelectorAll('.status-chip').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.status-chip').forEach(chip => chip.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>举证详情 - 移动端</title>
+    <style>
+        :root {
+            --primary-blue: #1890ff;
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 80px; /* Adjusted for bottom bar */
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 50px;
+            z-index: 99;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: var(--primary-blue);
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 12px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Section Header */
+        .section-header { display: flex; align-items: center; margin-bottom: 12px; justify-content: space-between; }
+        .sec-left { display: flex; align-items: center; flex: 1; }
+        .sec-num { 
+            width: 20px; height: 20px; background: #fff; border: 1px solid var(--primary-blue); 
+            color: var(--primary-blue); border-radius: 50%; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; margin-right: 8px; flex-shrink: 0; 
+        }
+        .sec-title { font-size: 15px; font-weight: 500; color: #333; } 
+        .sec-sub { font-size: 12px; color: #999; margin-left: 8px; }
+        .sec-status-tag { font-size: 11px; padding: 0 4px; border-radius: 2px; margin-left: 8px; border: 1px solid currentColor; }
+        .sec-status-tag.fail { color: var(--error-red); }
+        .sec-status-tag.success { color: var(--success-green); }
+        .sec-links { font-size: 12px; color: #999; display: flex; gap: 12px; }
+
+        /* User Info */
+        .user-header { display: flex; align-items: flex-start; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; margin-right: 12px; }
+        .user-info { flex: 1; }
+        .user-row-1 { display: flex; flex-wrap: wrap; align-items: baseline; font-size: 16px; font-weight: bold; color: #333; margin-bottom: 6px; }
+        .user-meta-inline { font-size: 12px; color: #666; font-weight: normal; margin-left: 10px; display: flex; gap: 10px; }
+        .user-row-2 { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #999; margin-bottom: 8px; align-items: center; }
+        .tag-gray { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; border: 1px solid #eee; color: #666; }
+        .summary-box { margin-top:12px; font-size:13px; color:#333; padding-top:10px; border-top:1px dashed #eee; line-height: 1.6; }
+        .highlight { color: var(--primary-blue); font-weight: 500; }
+
+        /* Result Box */
+        .result-box { padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 12px; border: 1px solid transparent; }
+        .result-box.fail { background: #fff1f0; border-color: #ffccc7; }
+        .result-box.success { background: #f6ffed; border-color: #b7eb8f; }
+        .score-line { font-weight: 500; font-size: 13px; margin-bottom: 4px; color: inherit; }
+        .suggest-text { color: #666; }
+
+        /* Collapsible Section */
+        .collapse-trigger {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            background: #f9fbfd;
+            color: var(--primary-blue);
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .collapse-content {
+            display: none;
+            padding-top: 12px;
+            border-top: 1px dashed #eee;
+            margin-top: 12px;
+        }
+        .collapse-content.show {
+            display: block;
+        }
+        .arrow-icon {
+            margin-left: 6px;
+            transition: transform 0.3s;
+            font-size: 10px;
+        }
+
+        /* Project Wrap */
+        .project-wrap { background: #fafafa; border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+        .project-line { font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
+        .badge-int { background: #e6f7ff; color: var(--primary-blue); border: 1px solid #91d5ff; font-size: 10px; padding: 0 3px; border-radius: 2px; margin-left: 4px; font-weight: normal; }
+        .witness-line { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .simple-task-card { background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 10px; }
+        .task-title-simple { font-weight: 500; font-size: 13px; margin-bottom: 6px; color: #333; }
+        .badge-custom { font-size: 10px; color: #faad14; border: 1px solid #ffe58f; padding: 0 2px; border-radius: 2px; margin-left:4px; }
+        .task-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; color: #999; }
+
+        /* Metrics */
+        .metric-block { margin-top: 12px; }
+        .metric-header-title { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 8px; }
+        .metric-card-simple { background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+        .metric-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .metric-name { font-size: 13px; font-weight: 500; color: #333; display: flex; align-items: center; gap: 6px; }
+        .metric-badge { font-size: 10px; background: #e6f7ff; color: var(--primary-blue); padding: 1px 4px; border-radius: 2px; }
+        .metric-detail-row { font-size: 11px; color: #666; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .progress-bar-thin { height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+        .progress-val-thin { height: 100%; background: var(--primary-blue); }
+
+        /* Activity */
+        .act-header { font-weight: 500; color: #333; margin-bottom: 4px; display: flex; align-items: center; font-size: 14px; }
+        .act-tag { font-size: 10px; background: #fff7e6; border: 1px solid #ffe58f; color: #faad14; padding: 1px 4px; border-radius: 2px; margin-left: 6px; }
+        .act-desc { font-size: 12px; color: #666; margin-bottom: 8px; line-height: 1.5; }
+        .sub-task-box { background: #f9f9f9; padding: 8px; border-radius: 4px; font-size: 12px; }
+        .sub-task-title { font-weight: bold; margin-bottom: 4px; color: #333; }
+        .file-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .file-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--primary-blue); background: #f0f7ff; padding: 6px 10px; border-radius: 4px; }
+
+        /* Tech */
+        .tech-head-flex { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #333; }
+        .tech-icons { margin-left: 6px; font-size: 12px; }
+        
+        /* Deliverables */
+        .deliv-card-final { background: #f9fbfd; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e6f7ff; }
+        .deliv-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .deliv-title { font-size: 13px; font-weight: 500; color: #333; }
+        .deliv-link-row { display: flex; align-items: center; font-size: 12px; color: var(--primary-blue); gap: 8px; }
+        .check-row { display: flex; gap: 12px; font-size: 11px; color: var(--text-light); }
+
+        /* Timeline Styles */
+        .timeline { padding: 16px 12px; }
+        .timeline-item { display: flex; gap: 12px; padding-bottom: 24px; position: relative; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-left { display: flex; flex-direction: column; align-items: center; width: 24px; flex-shrink: 0; position: relative; }
+        .timeline-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 50%; color: var(--success-green); font-size: 18px; z-index: 2; }
+        .timeline-line { position: absolute; top: 24px; bottom: -24px; width: 2px; background: #e8e8e8; left: 50%; transform: translateX(-50%); z-index: 1; }
+        .timeline-item:last-child .timeline-line { display: none; }
+        .timeline-right { flex: 1; padding-top: 2px; }
+        .timeline-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .timeline-title { font-size: 15px; font-weight: bold; color: var(--text-primary); }
+        .timeline-status { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #f6ffed; color: var(--success-green); border: 1px solid #b7eb8f; }
+        .timeline-meta { display: flex; justify-content: space-between; font-size: 12px; color: #999; margin-bottom: 8px; }
+        .timeline-detail { background: #f9f9f9; padding: 10px; border-radius: 6px; font-size: 13px; color: #666; line-height: 1.5; border: 1px solid #eee; }
+        .detail-score { color: var(--warning-orange); font-weight: bold; }
+
+        /* Comment Area */
+        .empty-state { text-align: center; padding: 20px; color: #ccc; font-size: 12px; }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: none; /* Hidden by default */
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background: #fff1f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: #fff;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: flex-end; /* Bottom sheet style */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .close-icon {
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .form-label.required::before {
+            content: "*";
+            color: var(--error-red);
+            margin-right: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 24px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .radio-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-top: 3px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-blue);
+        }
+
+        .cb-label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .upload-area {
+            border: 1px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .anonymous-check {
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <i class="fa-solid fa-chevron-left header-icon" onclick="window.location.href='mobile_evidence_list.html'"></i>
+        <span>举证详情</span>
+        <i class="fa-solid fa-ellipsis header-icon"></i>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab-item active" onclick="switchTab('content')">举证内容</div>
+        <div class="tab-item" onclick="switchTab('process')">流程动态</div>
+    </div>
+
+    <!-- Tab Content: Evidence Content (Structured Layout) -->
+    <div id="tab-content" class="tab-content active">
+        
+        <!-- 1. Applicant Info -->
+        <div class="card">
+            <div class="user-header">
+                <img src="https://ui-avatars.com/api/?name=Li&background=random" class="avatar" alt="Avatar">
+                <div class="user-info">
+                    <div class="user-row-1">
+                        李信
+                        <div class="user-meta-inline"><span>04251</span><span>数字芯片研究中心</span></div>
+                    </div>
+                    <div class="user-row-2">
+                        <span class="tag-gray">FPGA工程师</span>
+                        <span>司龄: 3年0个月</span>
+                        <span>上级: 马鑫</span>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-box">
+                <span class="highlight">李信</span> 主导了 <span class="highlight">逻辑详细设计</span>，在 <span class="highlight">募投项目-源测量单元...</span> 项目中，运用了 1 个技术，交付了 1 个交付物，满足了 2 个衡量标准
+            </div>
+        </div>
+
+        <!-- 2. Job Behavior (Collapsible) -->
+        <div class="card">
+            <div class="section-header">
+                <div class="sec-left">
+                    <div class="sec-num">1</div>
+                    <div class="sec-title">任职行为</div>
+                </div>
+                <div class="sec-sub">技术族/特殊技术类/逻辑类 (3级) - v3.0</div>
+            </div>
+            
+            <!-- Summary (Always Visible) -->
+            <div class="act-header">
+                <i class="fa-solid fa-flag" style="color:var(--primary-blue); margin-right:6px;"></i>
+                3 逻辑详细设计 <span class="act-tag">主导</span>
+            </div>
+            
+            <!-- Collapsible Trigger -->
+            <div class="collapse-trigger" onclick="toggleSection(this)">
+                <span>查看描述与输出</span> <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </div>
+            
+            <!-- Hidden Content -->
+            <div class="collapse-content">
+                <div class="act-desc">
+                    依据概要设计文档，针对每个功能模块制定具体的逻辑与电路实现方案。输出详细设计方案文档...
+                </div>
+                <div class="sub-task-box">
+                    <div class="sub-task-title">活动输出</div>
+                    <div class="file-list">
+                        <div class="file-item"><i class="fa-regular fa-file-word"></i> 逻辑详细设计</div>
+                        <div class="file-item"><i class="fa-regular fa-file-excel"></i> 寄存器列表</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Behavior Evidence (Collapsible) -->
+        <div class="card">
+            <div class="section-header">
+                <div class="sec-left">
+                    <div class="sec-num">2</div>
+                    <div class="sec-title">行为举证</div>
+                    <span class="sec-status-tag fail">不合格</span>
+                </div>
+                <div class="sec-links"><span>参考案例</span><span>评分标准</span></div>
+            </div>
+            
+            <!-- Result (Highlight - Always Visible) -->
+            <div class="result-box fail">
+                <div class="score-line">总得分: 57.56分，评审结论: 需补充材料。</div>
+                <div class="suggest-text">改善建议: 文档展现了较好的设计基础与结构化能力，但衡量指标层面存在核心短板...</div>
+            </div>
+
+            <!-- Collapsible Trigger -->
+            <div class="collapse-trigger" onclick="toggleSection(this)">
+                <span>查看详情 (项目、任务、指标)</span> <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </div>
+            
+            <!-- Hidden Content -->
+            <div class="collapse-content">
+                <div class="project-wrap">
+                    <div class="project-line">
+                        <div>项目: 募投项目-源测量单元(SMU)开发 (电勉-IPD) <span class="badge-int">内部</span></div>
+                    </div>
+                    <div class="witness-line">见证人: 马鑫, 王公森</div>
+                    
+                    <div class="simple-task-card">
+                        <div class="task-title-simple">逻辑详细设计 <span class="badge-custom">自定义</span></div>
+                        <div class="task-meta">
+                            <div>开始: 2025-10-15</div>
+                            <div>结束: 2025-10-24</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-block">
+                    <div class="metric-header-title">衡量指标</div>
+                    <div class="metric-card-simple">
+                        <div class="metric-head">
+                            <div class="metric-name"><i class="fa-solid fa-square-check" style="color:var(--primary-blue);"></i> 项目难度系数</div>
+                            <span class="metric-badge">活动指标</span>
+                        </div>
+                        <div class="metric-detail-row"><span>判断标准: >= 31分</span><span>交付结果: 3分</span></div>
+                        <div class="metric-detail-row" style="align-items:center;">
+                            <span>完成进度: 0% (0/31)</span>
+                            <div class="progress-bar-thin" style="width:80px; display:inline-block; margin:0;"><div class="progress-val-thin" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="metric-card-simple">
+                        <div class="metric-head">
+                            <div class="metric-name"><i class="fa-solid fa-square-check" style="color:var(--primary-blue);"></i> M级项目数量要求</div>
+                            <span class="metric-badge">活动指标</span>
+                        </div>
+                        <div class="metric-detail-row"><span>判断标准: >= 1个</span><span>交付结果: 1个</span></div>
+                        <div class="metric-detail-row" style="align-items:center;">
+                            <span>完成进度: 0% (0/1)</span>
+                            <div class="progress-bar-thin" style="width:80px; display:inline-block; margin:0;"><div class="progress-val-thin" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Technical Evidence (Collapsible) -->
+        <div class="card">
+            <div class="section-header">
+                <div class="sec-left">
+                    <div class="sec-num">3</div>
+                    <div class="sec-title">技术举证 (1)</div>
+                </div>
+                <div class="sec-links"><span>参考案例</span><span>评分标准</span></div>
+            </div>
+            
+            <div class="tech-head-flex">
+                <div class="tech-title-wrap">
+                    1. 同步设计技术-状态机 <span class="tech-icons">💎</span>
+                    <span class="sec-status-tag success" style="margin-left:6px;">合格</span>
+                </div>
+            </div>
+            
+            <div class="result-box success">
+                <div class="score-line" style="color:var(--success-green);">总得分: 83.11分，评审结论: 通过。</div>
+                <div class="suggest-text">技术难度匹配 85, 指标匹配 89.3, 交付物匹配 75</div>
+            </div>
+
+            <!-- Collapsible Trigger -->
+            <div class="collapse-trigger" onclick="toggleSection(this)">
+                <span>查看指标详情</span> <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </div>
+            <div class="collapse-content">
+                <div style="background:#f9f9f9; padding:8px; border-radius:4px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; color:#666; padding:4px 0; border-bottom:1px dashed #eee;">
+                        <span>应用模块数量</span>
+                        <span>>= 2个</span>
+                        <span>>= 2个</span>
+                    </div>
+                    <div style="font-size:11px; color:#999; margin-top:4px;">指标达成值: 2个 <i class="fa-solid fa-check" style="color:var(--success-green)"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Deliverables (Collapsible) -->
+        <div class="card">
+            <div class="section-header">
+                <div class="sec-left">
+                    <div class="sec-num">4</div>
+                    <div class="sec-title">交付物 (1)</div>
+                </div>
+            </div>
+            
+            <!-- Collapsible Trigger -->
+            <div class="collapse-trigger" onclick="toggleSection(this)" style="margin-top:0;">
+                <span>查看交付物清单</span> <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </div>
+            
+            <!-- Hidden Content -->
+            <div class="collapse-content">
+                <div class="deliv-card-final">
+                    <div class="deliv-head">
+                        <div class="deliv-title">1. 《逻辑详细设计》</div>
+                        <div class="deliv-link-row"><i class="fa-regular fa-file-lines"></i> 逻辑详细设计</div>
+                    </div>
+                    <div class="check-row">
+                        <span>行为举证 <i class="fa-solid fa-check" style="color:var(--success-green)"></i></span>
+                        <span>技术举证 <i class="fa-solid fa-check" style="color:var(--success-green)"></i></span>
+                    </div>
+                </div>
+                
+                <div class="deliv-card-final">
+                    <div class="deliv-head">
+                        <div class="deliv-title">2. 《寄存器列表》</div>
+                        <div class="deliv-link-row"><i class="fa-regular fa-file-lines"></i> 逻辑详细设计 (引用)</div>
+                    </div>
+                    <div class="check-row">
+                        <span>行为举证 <i class="fa-solid fa-check" style="color:var(--success-green)"></i></span>
+                        <span>技术举证 <i class="fa-solid fa-check" style="color:var(--success-green)"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Comments -->
+        <div class="card">
+            <div class="section-header">
+                <div class="sec-left">
+                    <div class="sec-num">5</div>
+                    <div class="sec-title">评论动态</div>
+                </div>
+            </div>
+            <div class="empty-state">
+                <i class="fa-regular fa-comment-dots" style="font-size:24px; margin-bottom:8px;"></i>
+                <div>暂无评论</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Process Dynamics (Preserved) -->
+    <div id="tab-process" class="tab-content">
+        <div class="timeline">
+            <!-- Step 5 -->
+            <div class="timeline-item">
+                <div class="timeline-left">
+                    <div class="timeline-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="timeline-right">
+                    <div class="timeline-header">
+                        <div class="timeline-title">接受评估</div>
+                        <div class="timeline-status">已完成</div>
+                    </div>
+                    <div class="timeline-meta">
+                        <span>操作人: 李信</span>
+                        <span>2025-10-29 18:20</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="timeline-item">
+                <div class="timeline-left">
+                    <div class="timeline-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="timeline-right">
+                    <div class="timeline-header">
+                        <div class="timeline-title">综合评审</div>
+                        <div class="timeline-status">已完成</div>
+                    </div>
+                    <div class="timeline-meta">
+                        <span>操作人: 举证小助手</span>
+                        <span>2025-10-29 18:09</span>
+                    </div>
+                    <div class="timeline-detail">
+                        <div style="color: #faad14; margin-bottom: 4px; font-weight:bold;">详情:</div>
+                        综合评审: 行为见证未通过 (<span class="detail-score">57.56分</span>, 要求≥60分)，根据规则判定整体不合格。技术见证平均得分83.11分。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="timeline-item">
+                <div class="timeline-left">
+                    <div class="timeline-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="timeline-right">
+                    <div class="timeline-header">
+                        <div class="timeline-title">技术举证校验 (同步设计技术-状态机)</div>
+                        <div class="timeline-status">已完成</div>
+                    </div>
+                    <div class="timeline-meta">
+                        <span>操作人: 举证小助手</span>
+                        <span>2025-10-29 18:09</span>
+                    </div>
+                    <div class="timeline-detail">
+                        <div style="color: var(--success-green); margin-bottom: 4px; font-weight:bold;"><i class="fa-regular fa-circle-check"></i> 合格</div>
+                        总得分: 83.11分, 评审结论: 通过。其中技术难度匹配 85分, 指标匹配 89.3分, 交付物匹配 75分。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="timeline-item">
+                <div class="timeline-left">
+                    <div class="timeline-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="timeline-right">
+                    <div class="timeline-header">
+                        <div class="timeline-title">行为举证校验</div>
+                        <div class="timeline-status">已完成</div>
+                    </div>
+                    <div class="timeline-meta">
+                        <span>操作人: 举证小助手</span>
+                        <span>2025-10-29 18:08</span>
+                    </div>
+                    <div class="timeline-detail">
+                        <div style="color: var(--error-red); margin-bottom: 4px; font-weight:bold;"><i class="fa-regular fa-circle-xmark"></i> 不合格</div>
+                        总得分: <span class="detail-score" style="color: var(--error-red);">57.56分</span>, 评审结论: 需补充材料。其中工作行为匹配 76分, 指标匹配 35分, 交付物匹配 61.7分。<br>
+                        <div style="margin-top: 4px; font-size: 11px;">改善建议: 文档展现了较好的设计基础与结构化能力，但衡量指标层面存在核心短板...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="timeline-item">
+                <div class="timeline-left">
+                    <div class="timeline-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="timeline-line"></div>
+                </div>
+                <div class="timeline-right">
+                    <div class="timeline-header">
+                        <div class="timeline-title">提交申请</div>
+                        <div class="timeline-status">已完成</div>
+                    </div>
+                    <div class="timeline-meta">
+                        <span>操作人: 李信</span>
+                        <span>2025-10-29 18:04</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar">
+        <button class="btn btn-danger" onclick="openDissentModal()">提出异议</button>
+    </div>
+
+    <!-- Dissent Modal -->
+    <div id="dissent-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height: auto; height: auto;">
+            <div class="modal-header" style="justify-content: center; position: relative;">
+                <div class="modal-title">异议申请</div>
+                <!-- <i class="fa-solid fa-xmark close-icon" onclick="closeDissentModal()" style="position: absolute; right: 16px;"></i> -->
+            </div>
+            <div class="modal-body">
+                <!-- Submission Method -->
+                <div class="form-group">
+                    <div class="form-label required">提交方式</div>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="submission_method" value="real" checked>
+                            <span class="radio-label">实名</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="submission_method" value="anonymous">
+                            <span class="radio-label">匿名</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Objection Reason -->
+                <div class="form-group">
+                    <div class="form-label required">异议原因</div>
+                    <div class="textarea-wrapper">
+                        <textarea id="dissent-desc" placeholder="" oninput="updateCharCount(this)" maxlength="150" style="height: 100px;"></textarea>
+                        <div class="char-count"><span id="current-count">0</span> / 150</div>
+                    </div>
+                </div>
+
+                <!-- Upload -->
+                <div class="form-group">
+                    <div class="form-label required">证明材料</div>
+                    <div class="upload-area" style="padding: 16px;">
+                        <i class="fa-solid fa-arrow-up-from-bracket upload-icon"></i>
+                        <div class="upload-text">点击或拖拽文件到此处上传</div>
+                        <div class="upload-hint">支持单个或批量上传，文件大小不超过 10MB</div>
+                    </div>
+                </div>
+
+                <div style="height: 10px;"></div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer" style="border-top: none; padding-top: 0;">
+                <div class="modal-actions" style="justify-content: center;">
+                    <button class="btn btn-primary" style="border-radius: 4px; height: 36px; max-width: 100px;" onclick="submitDissent()">提交</button>
+                    <button class="btn btn-secondary" style="border-radius: 4px; height: 36px; max-width: 100px; background: #fff; border: 1px solid #d9d9d9;" onclick="closeDissentModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check URL params to decide whether to show Dissent button
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const source = urlParams.get('source');
+            const status = urlParams.get('status');
+
+            // Only show if source is publicity and status is active
+            if (source === 'publicity' && status === 'active') {
+                const bottomBar = document.querySelector('.bottom-bar');
+                if (bottomBar) {
+                    bottomBar.style.display = 'flex';
+                }
+            } else {
+                 // Adjust body padding if no bottom bar
+                 document.body.style.paddingBottom = '20px';
+            }
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.arrow-icon');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                icon.style.transform = 'rotate(0deg)';
+                header.querySelector('span').innerText = header.querySelector('span').innerText.replace('收起', '查看');
+            } else {
+                content.classList.add('show');
+                icon.style.transform = 'rotate(180deg)';
+                header.querySelector('span').innerText = header.querySelector('span').innerText.replace('查看', '收起');
+            }
+        }
+
+        // Dissent Modal Logic
+        function openDissentModal() {
+            document.getElementById('dissent-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDissentModal() {
+            document.getElementById('dissent-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            document.getElementById('current-count').textContent = count;
+            if (count >= 150) {
+                document.getElementById('current-count').style.color = 'red';
+            } else {
+                document.getElementById('current-count').style.color = '#ccc';
+            }
+        }
+
+        function submitDissent() {
+            const desc = document.getElementById('dissent-desc').value.trim();
+
+            if (!desc) {
+                alert('请填写异议原因');
+                return;
+            }
+
+            const method = document.querySelector('input[name="submission_method"]:checked').value;
+            const message = method === 'anonymous' ? '已匿名提交异议申请' : '已提交异议申请';
+            
+            alert(message);
+            closeDissentModal();
+            
+            // Disable button
+            const btn = document.querySelector('.bottom-bar .btn-danger');
+            if(btn) {
+                 btn.textContent = '异议处理中';
+                 btn.disabled = true;
+                 btn.style.opacity = '0.6';
+            }
+        }
+    </script>
+</body>
+</html>

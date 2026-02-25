@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Slide 9 - 协作邀请（竖版）</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .card { 
+            width: 400px; height: 580px; 
+            background: white; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            border-top: 6px solid #165DFF;
+        }
+
+        .loop-container { position: relative; width: 280px; height: 450px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* 上环 - 业务 */
+        .top-circle {
+            width: 240px; height: 200px; border: 8px solid #FF7D00; border-radius: 50%;
+            position: absolute; top: 0; z-index: 1; background: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            box-shadow: 0 4px 10px rgba(255, 125, 0, 0.1);
+        }
+        .circle-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .circle-desc { font-size: 13px; color: #666; line-height: 1.5; }
+        
+        /* 下环 - IT */
+        .bottom-circle {
+            width: 240px; height: 200px; border: 8px solid #165DFF; border-radius: 50%;
+            position: absolute; bottom: 0; z-index: 1; background: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            box-shadow: 0 4px 10px rgba(22, 93, 255, 0.1);
+        }
+
+        /* 中间交汇 */
+        .center-knot {
+            width: 160px; height: 60px; background: linear-gradient(90deg, #FF7D00, #165DFF);
+            border-radius: 30px; z-index: 10; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px; font-weight: bold; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-top: -10px; margin-bottom: -10px;
+        }
+
+        .arrow-down { position: absolute; color: #ccc; font-size: 20px; }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="loop-container">
+            <!-- 上环：业务 -->
+            <div class="top-circle">
+                <div style="margin-bottom:20px;"></div> <!-- 占位 -->
+                <div class="circle-title" style="color:#D25F00;">业务伙伴</div>
+                <div class="circle-desc">
+                    👉 讲清“为什么”<br>
+                    👉 做首席体验官<br>
+                    (深度验收)
+                </div>
+            </div>
+            
+            <!-- 中间结 -->
+            <div class="center-knot">价值共创</div>
+            
+            <!-- 下环：IT -->
+            <div class="bottom-circle">
+                <div class="circle-title" style="color:#165DFF;">IT团队</div>
+                <div class="circle-desc">
+                    👈 出具解决方案<br>
+                    👈 全程闭环交付<br>
+                    (主动Owner)
+                </div>
+                <div style="margin-top:20px;"></div> <!-- 占位 -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

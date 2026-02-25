@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目难度系数配置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 24px;
+        }
+
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 配置区块 */
+        .config-section {
+            background: #ffffff;
+            border-radius: 2px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 表格样式 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #f0f0f0;
+        }
+
+        .config-table th,
+        .config-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .config-table th {
+            background: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+        }
+
+        .config-table td {
+            background: #ffffff;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .config-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        /* 输入框 */
+        .config-input {
+            width: 100%;
+            height: 32px;
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .config-input:focus {
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .config-input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            padding: 0 8px;
+            border: none;
+            background: none;
+            color: #1890ff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            color: #40a9ff;
+        }
+
+        .action-btn.danger {
+            color: #ff4d4f;
+        }
+
+        .action-btn.danger:hover {
+            color: #ff7875;
+        }
+
+        /* 添加按钮 */
+        .add-row-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+            padding: 0 16px;
+            border: 1px dashed #d9d9d9;
+            background: #ffffff;
+            border-radius: 2px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 12px;
+        }
+
+        .add-row-btn:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        /* 底部操作栏 */
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #f0f0f0;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            background: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #ffffff;
+        }
+
+        /* 合并单元格样式 */
+        .merged-cell {
+            background: #fafafa;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        /* 分组标题行 */
+        .group-row {
+            background: #f5f5f5 !important;
+        }
+
+        .group-row td {
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 难度级别标签 */
+        .level-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .level-tag.level-s {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .level-tag.level-m {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .level-tag.level-c {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .level-tag.level-hc {
+            background: #fff1f0;
+            color: #f5222d;
+            border: 1px solid #ffa39e;
+        }
+
+        .level-tag.level-none {
+            background: #fafafa;
+            color: #d9d9d9;
+            border: 1px solid #f0f0f0;
+        }
+
+        /* 难度级别说明 */
+        .level-info {
+            display: flex;
+            gap: 16px;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .level-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .level-info-item .level-tag {
+            font-size: 11px;
+            padding: 1px 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">项目难度系数配置</h1>
+        </div>
+
+        <!-- 参与深度系数配置 -->
+        <div class="config-section">
+            <div class="section-title">参与深度系数配置</div>
+            <table class="config-table">
+                <thead>
+                    <tr>
+                        <th style="width: 250px;">活动/任务角色</th>
+                        <th style="width: 200px;">参与深度系数</th>
+                    </tr>
+                </thead>
+                <tbody id="roleTableBody">
+                    <tr>
+                        <td><input type="text" class="config-input" value="主导" disabled></td>
+                        <td><input type="number" class="config-input" value="1.0" step="0.1" placeholder="请输入系数"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="协助" disabled></td>
+                        <td><input type="number" class="config-input" value="0.8" step="0.1" placeholder="请输入系数"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 项目模板难度系数配置 -->
+        <div class="config-section">
+            <div class="section-title">项目模板难度系数配置</div>
+            
+            <!-- 难度级别说明 -->
+            <div class="level-info">
+                <div class="level-info-item">
+                    <span class="level-tag level-s">S级</span>
+                    <span>简单级（1-4）</span>
+                </div>
+                <div class="level-info-item">
+                    <span class="level-tag level-m">M级</span>
+                    <span>中等级（5-7）</span>
+                </div>
+                <div class="level-info-item">
+                    <span class="level-tag level-c">C级</span>
+                    <span>复杂级（8-10）</span>
+                </div>
+                <div class="level-info-item">
+                    <span class="level-tag level-hc">HC级</span>
+                    <span>高度复杂级（11-13）</span>
+                </div>
+            </div>
+
+            <table class="config-table">
+                <thead>
+                    <tr>
+                        <th style="width: 180px;">项目模板类别<br>(APQC业务域)</th>
+                        <th style="width: 180px;">项目模板子类</th>
+                        <th style="width: 350px;">项目模板名称</th>
+                        <th style="width: 120px;">难度系数</th>
+                        <th style="width: 120px;">难度级别</th>
+                    </tr>
+                </thead>
+                <tbody id="templateTableBody">
+                    <!-- 通用管理 -->
+                    <tr class="group-row">
+                        <td rowspan="2" class="merged-cell">通用管理</td>
+                        <td><input type="text" class="config-input" value="--" disabled></td>
+                        <td><input type="text" class="config-input" value="简洁项目" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="1" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-s">S级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="--" disabled></td>
+                        <td><input type="text" class="config-input" value="普通项目" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="2" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-s">S级</span></td>
+                    </tr>
+
+                    <!-- 产品设计与研发 -->
+                    <tr class="group-row">
+                        <td rowspan="15" class="merged-cell">产品设计与研发</td>
+                        <td><input type="text" class="config-input" value="技术预研"></td>
+                        <td><input type="text" class="config-input" value="技术预研" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="13" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-hc">HC级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="技术开发"></td>
+                        <td><input type="text" class="config-input" value="技术开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="10" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-c">C级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="产品预研"></td>
+                        <td><input type="text" class="config-input" value="产品预研" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="7" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="8"><input type="text" class="config-input" value="产品开发"></td>
+                        <td><input type="text" class="config-input" value="集成产品开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="集成数字电路开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="集成模拟电路开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="软件产品开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="IT软件产品开发" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="结构&ID设计流程" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="产品开发外包流程" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="产品ID&UI设计流程" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="5" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-m">M级</span></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><input type="text" class="config-input" value="产品维护"></td>
+                        <td><input type="text" class="config-input" value="维护项目_硬件" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="3" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-s">S级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="维护项目_Firmware(含逻辑)" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="3" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-s">S级</span></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="config-input" value="维护项目_软件" placeholder="请输入模板名称"></td>
+                        <td><input type="number" class="config-input difficulty-input" value="3" placeholder="请输入系数" onchange="updateLevel(this)"></td>
+                        <td class="level-cell"><span class="level-tag level-s">S级</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 占位符，避免底部内容被固定操作栏遮挡 -->
+        <div style="height: 80px;"></div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="footer-actions">
+        <button class="btn" onclick="cancelConfig()">取消</button>
+        <button class="btn-primary" onclick="saveConfig()">保存配置</button>
+    </div>
+
+    <script>
+        /**
+         * 根据难度系数判断难度级别
+         * S级：1-4，M级：5-7，C级：8-10，HC级：11-13
+         */
+        function getDifficultyLevel(coefficient) {
+            const value = parseInt(coefficient);
+            
+            if (isNaN(value) || value <= 0) {
+                return { level: 'NONE', text: '-', class: 'level-none' };
+            }
+            
+            if (value >= 1 && value <= 4) {
+                return { level: 'S', text: 'S级', class: 'level-s' };
+            } else if (value >= 5 && value <= 7) {
+                return { level: 'M', text: 'M级', class: 'level-m' };
+            } else if (value >= 8 && value <= 10) {
+                return { level: 'C', text: 'C级', class: 'level-c' };
+            } else if (value >= 11 && value <= 13) {
+                return { level: 'HC', text: 'HC级', class: 'level-hc' };
+            } else {
+                return { level: 'NONE', text: '-', class: 'level-none' };
+            }
+        }
+
+        /**
+         * 更新难度级别显示
+         * @param {HTMLInputElement} input - 难度系数输入框
+         */
+        function updateLevel(input) {
+            const value = input.value;
+            const levelInfo = getDifficultyLevel(value);
+            
+            // 找到同一行的级别显示单元格
+            const row = input.closest('tr');
+            const levelCell = row.querySelector('.level-cell');
+            const levelTag = levelCell.querySelector('.level-tag');
+            
+            // 移除旧的样式类
+            levelTag.className = 'level-tag';
+            
+            // 添加新的样式类和文本
+            levelTag.classList.add(levelInfo.class);
+            levelTag.textContent = levelInfo.text;
+        }
+
+        /**
+         * 页面加载时初始化所有级别显示
+         */
+        window.addEventListener('DOMContentLoaded', function() {
+            // 初始化所有难度级别
+            document.querySelectorAll('.difficulty-input').forEach(input => {
+                updateLevel(input);
+            });
+        });
+
+        /**
+         * 保存配置
+         */
+        function saveConfig() {
+            // 收集参与深度系数数据
+            const roleData = [];
+            document.querySelectorAll('#roleTableBody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                roleData.push({
+                    role: inputs[0].value,
+                    coefficient: parseFloat(inputs[1].value) || 0
+                });
+            });
+
+            // 收集项目模板数据
+            const templateData = [];
+            document.querySelectorAll('#templateTableBody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const levelCell = row.querySelector('.level-cell');
+                const levelTag = levelCell ? levelCell.querySelector('.level-tag') : null;
+                
+                templateData.push({
+                    category: inputs[0] ? inputs[0].value : '',
+                    subCategory: inputs[1] ? inputs[1].value : '',
+                    templateName: inputs[2] ? inputs[2].value : '',
+                    difficulty: parseInt(inputs[3] ? inputs[3].value : 0) || 0,
+                    level: levelTag ? levelTag.textContent : '-'
+                });
+            });
+
+            console.log('参与深度系数配置:', roleData);
+            console.log('项目模板配置:', templateData);
+
+            // 显示统计信息
+            const levelStats = {
+                S: templateData.filter(t => t.level === 'S级').length,
+                M: templateData.filter(t => t.level === 'M级').length,
+                C: templateData.filter(t => t.level === 'C级').length,
+                HC: templateData.filter(t => t.level === 'HC级').length
+            };
+
+            alert('配置保存成功！\n\n' +
+                  '参与角色数：' + roleData.length + '\n' +
+                  '项目模板数：' + templateData.length + '\n\n' +
+                  '级别分布：\n' +
+                  '  S级：' + levelStats.S + ' 个\n' +
+                  '  M级：' + levelStats.M + ' 个\n' +
+                  '  C级：' + levelStats.C + ' 个\n' +
+                  '  HC级：' + levelStats.HC + ' 个');
+        }
+
+        /**
+         * 取消配置
+         */
+        function cancelConfig() {
+            if (confirm('确定要取消配置吗？未保存的修改将丢失。')) {
+                window.history.back();
+            }
+        }
+    </script>
+</body>
+</html>
+

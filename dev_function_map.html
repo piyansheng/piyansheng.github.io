@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格系统 - 开发功能全景图 v2.0</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --line-color: #d9d9d9;
+            --card-bg: #fff;
+            --text-primary: #262626;
+            --success: #52c41a;
+            --processing: #1890ff;
+            --warning: #faad14;
+            --default: #d9d9d9;
+            --plan: #722ed1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            padding: 30px;
+            color: var(--text-primary);
+            min-width: 1600px;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0 0 5px; font-size: 24px; }
+        .header p { color: #8c8c8c; margin: 0; }
+
+        .legend {
+            display: flex; justify-content: center; gap: 25px; margin-bottom: 25px;
+            font-size: 13px; flex-wrap: wrap;
+        }
+        .legend span { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* Main Container */
+        .main-container {
+            display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;
+        }
+
+        /* Module Card */
+        .module {
+            background: #fff; border-radius: 12px; padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            min-width: 320px; max-width: 380px;
+        }
+        .module-header {
+            display: flex; align-items: center; gap: 10px;
+            padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; margin-bottom: 15px;
+        }
+        .module-icon { font-size: 24px; }
+        .module-title { font-size: 16px; font-weight: 700; }
+        .module-progress { font-size: 12px; color: #8c8c8c; margin-left: auto; }
+
+        /* Feature Group */
+        .feature-group { margin-bottom: 15px; }
+        .group-title {
+            font-size: 13px; font-weight: 600; color: #595959; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .group-title .badge {
+            font-size: 10px; padding: 2px 6px; border-radius: 3px;
+            font-weight: 500;
+        }
+        .badge-pc { background: #e6f7ff; color: #1890ff; }
+        .badge-mobile { background: #f6ffed; color: #52c41a; }
+        .badge-ai { background: #f9f0ff; color: #722ed1; }
+
+        /* Feature Item */
+        .feature-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 10px; margin: 4px 0; border-radius: 6px;
+            font-size: 13px; background: #fafafa; transition: all 0.2s;
+        }
+        .feature-item:hover { background: #f0f0f0; }
+        .feature-item i { width: 16px; text-align: center; }
+
+        .fi-done i { color: var(--success); }
+        .fi-doing i { color: var(--processing); }
+        .fi-todo i { color: var(--warning); }
+        .fi-plan i { color: var(--plan); }
+        .fi-defer i { color: var(--default); }
+
+        .feature-name { flex: 1; }
+        .feature-tag {
+            font-size: 10px; padding: 1px 5px; border-radius: 3px;
+            background: #f5f5f5; color: #999;
+        }
+
+        /* Logic Annotations */
+        .logic-box {
+            background: #fffbe6; border: 1px dashed #ffe58f; border-radius: 6px;
+            padding: 10px 12px; margin: 10px 0; font-size: 12px; color: #ad8b00;
+        }
+        .logic-box .logic-title {
+            font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+        }
+        .logic-box ul { margin: 5px 0 0 15px; padding: 0; }
+        .logic-box li { margin: 3px 0; }
+
+        .mutex-box {
+            background: #fff1f0; border: 1px dashed #ffa39e; border-radius: 6px;
+            padding: 10px 12px; margin: 10px 0; font-size: 12px; color: #cf1322;
+        }
+        .mutex-box .logic-title { font-weight: 600; margin-bottom: 5px; }
+
+        .depend-box {
+            background: #e6f7ff; border: 1px dashed #91d5ff; border-radius: 6px;
+            padding: 10px 12px; margin: 10px 0; font-size: 12px; color: #096dd9;
+        }
+        .depend-box .logic-title { font-weight: 600; margin-bottom: 5px; }
+
+        /* Separator */
+        .separator { border-top: 1px dashed #e8e8e8; margin: 15px 0; }
+
+        /* Progress Bar */
+        .progress-bar { height: 4px; background: #f0f0f0; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 2px; }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: flex; justify-content: center; gap: 40px; margin-bottom: 30px;
+            background: #fff; padding: 15px 30px; border-radius: 8px; width: fit-content; margin: 0 auto 30px;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-label { font-size: 12px; color: #8c8c8c; }
+        .stat-done .stat-value { color: var(--success); }
+        .stat-doing .stat-value { color: var(--processing); }
+        .stat-todo .stat-value { color: var(--warning); }
+        .stat-plan .stat-value { color: var(--plan); }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>开发功能全景图 (Function Map)</h1>
+        <p>工程视角 · 功能清单 · 状态追踪 · 逻辑关系</p>
+    </div>
+
+    <div class="summary-stats">
+        <div class="stat-item stat-done"><div class="stat-value">42</div><div class="stat-label">已完成</div></div>
+        <div class="stat-item stat-doing"><div class="stat-value">8</div><div class="stat-label">开发中</div></div>
+        <div class="stat-item stat-todo"><div class="stat-value">3</div><div class="stat-label">待开发/Bug</div></div>
+        <div class="stat-item stat-plan"><div class="stat-value">15</div><div class="stat-label">Phase II</div></div>
+    </div>
+
+    <div class="legend">
+        <span><div class="dot" style="background:var(--success)"></div> 已完成</span>
+        <span><div class="dot" style="background:var(--processing)"></div> 开发中</span>
+        <span><div class="dot" style="background:var(--warning)"></div> 待开发/Bug</span>
+        <span><div class="dot" style="background:var(--plan)"></div> Phase II 规划</span>
+        <span><div class="dot" style="background:var(--default)"></div> 延期/暂缓</span>
+    </div>
+
+    <div class="main-container">
+
+        <!-- Module 1: 基础配置 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">⚙️</span>
+                <span class="module-title">基础配置</span>
+                <span class="module-progress">100%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">系统设置</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">权限管理 (角色/数据权限)</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">多语言支持 (中/英)</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">审批流程配置</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">批次管理 (周期/时间窗)</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">消息通知配置</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">资源库</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">活动库维护</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">知识库维护</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">技能库维护</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">指标库 (预设指标)</span></div>
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--success);"></div></div>
+        </div>
+
+        <!-- Module 2: 标准管理 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">📋</span>
+                <span class="module-title">标准管理</span>
+                <span class="module-progress">95%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">标准库 <span class="badge badge-ai">AI</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">子类标准库维护</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">AI辅助生成子类标准</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">标准草稿编辑</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">标准版本管理</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">标准审批</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">审批流程 (转交/加签)</span><span class="feature-tag">PC</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">移动端审批</span><span class="feature-tag">Mobile</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">标准发布</span></div>
+            </div>
+
+            <div class="logic-box">
+                <div class="logic-title"><i class="fa-solid fa-link"></i> 依赖关系</div>
+                <ul>
+                    <li>标准发布 → 举证申请 (举证需引用已发布标准)</li>
+                    <li>标准发布 → 晋升申请 (晋升需引用已发布标准)</li>
+                </ul>
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:95%; background:linear-gradient(90deg, var(--success) 90%, var(--processing) 100%);"></div></div>
+        </div>
+
+        <!-- Module 3: 举证中心 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">📝</span>
+                <span class="module-title">举证中心</span>
+                <span class="module-progress">75%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">举证申请 <span class="badge badge-pc">PC</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">举证信息维护</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">举证材料上传</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">AI举证校验</span><span class="feature-tag">AI</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">举证提交</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">举证审核</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">举证人工复核</span><span class="feature-tag">PC+Mobile</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">举证公示</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">异议处理</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">举证查询 <span class="badge badge-mobile">Mobile</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">举证列表查询</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">举证详情查看</span></div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="feature-group">
+                <div class="group-title" style="color:var(--plan);">Phase II 规划</div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">移动端举证申请</span><span class="feature-tag">Mobile</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">AI辅助个人举证</span><span class="feature-tag">AI</span></div>
+            </div>
+
+            <div class="depend-box">
+                <div class="logic-title"><i class="fa-solid fa-arrow-right"></i> 数据流向</div>
+                举证通过 → 更新个人匹配度 → 影响晋升达标判断
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:75%; background:linear-gradient(90deg, var(--success) 65%, var(--processing) 100%);"></div></div>
+        </div>
+
+        <!-- Module 4: 晋升管理 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">🚀</span>
+                <span class="module-title">晋升管理</span>
+                <span class="module-progress">70%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">晋升申请 <span class="badge badge-pc">PC</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">升级申请</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">升等申请</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">AI总体校验</span><span class="feature-tag">AI</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">晋升材料填写 (STAR)</span></div>
+            </div>
+
+            <div class="mutex-box">
+                <div class="logic-title"><i class="fa-solid fa-code-branch"></i> 互斥关系</div>
+                <strong>升级 ⊕ 升等</strong>：同一时间只能选择一种晋升路径
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">评审流程</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">评委安排</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">升级评委审批</span><span class="feature-tag">PC</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">升级评委审批</span><span class="feature-tag">Mobile</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">专业技术审批</span><span class="feature-tag">Mobile</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">升等评审</span><span class="feature-tag">PC</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">升等审批</span><span class="feature-tag">Mobile</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">签字 & 公示</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">批量签字</span><span class="feature-tag">PC</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">移动端签字</span><span class="feature-tag">Mobile</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">晋升公示</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">异议处理</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">预算审批</div>
+                <div class="feature-item fi-todo"><i class="fa-solid fa-hammer"></i><span class="feature-name">预算审批页面重构</span><span class="feature-tag">重构中</span></div>
+                <div class="feature-item fi-todo"><i class="fa-solid fa-hammer"></i><span class="feature-name">成本中心排队逻辑</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">移动端预算审批</span><span class="feature-tag">Mobile</span></div>
+            </div>
+
+            <div class="logic-box">
+                <div class="logic-title"><i class="fa-solid fa-sort-amount-down"></i> 预算排队规则</div>
+                <ul>
+                    <li>历史批次 > 当前批次</li>
+                    <li>同批次内：低职级 > 高职级</li>
+                    <li>仅在同一成本中心内排序</li>
+                </ul>
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:70%; background:linear-gradient(90deg, var(--success) 55%, var(--processing) 85%, var(--warning) 100%);"></div></div>
+        </div>
+
+        <!-- Module 5: 多通道晋升 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">🔀</span>
+                <span class="module-title">多通道晋升</span>
+                <span class="module-progress">0%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title" style="color:var(--plan);">Phase II 规划</div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">跨子类晋升流程</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">绿色通道晋升</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">多通道流程优化</span></div>
+            </div>
+
+            <div class="mutex-box">
+                <div class="logic-title"><i class="fa-solid fa-code-branch"></i> 通道互斥</div>
+                <strong>同子类 ⊕ 跨子类 ⊕ 绿通</strong><br>
+                同一晋升申请只能选择一种通道
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:0%; background:var(--plan);"></div></div>
+        </div>
+
+        <!-- Module 6: 数据看板 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">📊</span>
+                <span class="module-title">数据看板</span>
+                <span class="module-progress">40%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">驾驶舱 (Demo)</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">PC端看板 (Demo)</span><span class="feature-tag">Demo</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">移动端看板 (Demo)</span><span class="feature-tag">Demo</span></div>
+                <div class="feature-item fi-doing"><i class="fa-solid fa-spinner fa-spin"></i><span class="feature-name">数据接口对接</span></div>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title">个人视图</div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">个人首页 (PC)</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">个人首页 (Mobile)</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">个人达标进度</span></div>
+                <div class="feature-item fi-done"><i class="fa-solid fa-check-circle"></i><span class="feature-name">个人晋升记录</span></div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="feature-group">
+                <div class="group-title" style="color:var(--plan);">Phase II 规划</div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">管理层报表 (PC)</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">管理报表查看 (Mobile)</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">职级分布正态分析</span></div>
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:40%; background:linear-gradient(90deg, var(--success) 35%, var(--processing) 100%);"></div></div>
+        </div>
+
+        <!-- Module 7: 生态赋能 -->
+        <div class="module">
+            <div class="module-header">
+                <span class="module-icon">🌐</span>
+                <span class="module-title">生态赋能</span>
+                <span class="module-progress">0%</span>
+            </div>
+
+            <div class="feature-group">
+                <div class="group-title" style="color:var(--plan);">Phase II 规划 <span class="badge badge-ai">AI</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">赋能招聘</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">赋能人才盘点</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">赋能绩效考核</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">AI推荐项目团队成员</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">知识技能联动云学堂</span></div>
+                <div class="feature-item fi-plan"><i class="fa-solid fa-flag"></i><span class="feature-name">AI驱动在线学习</span></div>
+            </div>
+
+            <div class="depend-box">
+                <div class="logic-title"><i class="fa-solid fa-plug"></i> 外部集成</div>
+                需对接：云学堂、招聘系统、绩效系统、人才盘点系统
+            </div>
+
+            <div class="progress-bar"><div class="progress-fill" style="width:0%; background:var(--plan);"></div></div>
+        </div>
+
+    </div>
+
+    <!-- Logic Summary Section -->
+    <div style="max-width: 1200px; margin: 40px auto 0; background: #fff; border-radius: 12px; padding: 25px;">
+        <h2 style="margin: 0 0 20px; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-sitemap" style="color: var(--processing);"></i> 核心业务逻辑关系总览
+        </h2>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="depend-box" style="margin: 0;">
+                <div class="logic-title"><i class="fa-solid fa-arrow-right"></i> 主流程依赖链</div>
+                <div style="font-size: 13px; line-height: 1.8;">
+                    <strong>标准发布</strong> → <strong>举证申请</strong> → <strong>匹配度更新</strong> → <strong>晋升达标</strong> → <strong>晋升申请</strong> → <strong>评审</strong> → <strong>预算</strong> → <strong>生效</strong>
+                </div>
+            </div>
+
+            <div class="mutex-box" style="margin: 0;">
+                <div class="logic-title"><i class="fa-solid fa-code-branch"></i> 互斥关系汇总</div>
+                <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 12px;">
+                    <li><strong>升级 ⊕ 升等</strong>：同一申请二选一</li>
+                    <li><strong>同子类 ⊕ 跨子类 ⊕ 绿通</strong>：通道互斥</li>
+                    <li><strong>预算通过 ⊕ 排队等待</strong>：结果互斥</li>
+                </ul>
+            </div>
+
+            <div class="logic-box" style="margin: 0;">
+                <div class="logic-title"><i class="fa-solid fa-calculator"></i> 关键计算规则</div>
+                <ul style="margin: 5px 0 0 15px; padding: 0; font-size: 12px;">
+                    <li><strong>匹配度</strong> = Σ(举证项 × 权重)</li>
+                    <li><strong>升级</strong>：匹配度 ≥ 100%</li>
+                    <li><strong>升等</strong>：匹配度 ≥ 等级阈值 (20%/40%/60%/80%)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

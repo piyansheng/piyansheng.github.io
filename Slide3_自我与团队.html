@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Slide 3 - 团队全景图</title>
+    <style>
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .card { 
+            width: 400px; height: 580px; 
+            background: white; 
+            display: flex; flex-direction: column; 
+            padding: 30px 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 16px; 
+            box-sizing: border-box; 
+            position: relative;
+            border-top: 6px solid #165DFF; /* 顶部装饰条 */
+        }
+
+        /* 标题区 */
+        .header { text-align: center; margin-bottom: 20px; }
+        .main-title { font-size: 20px; font-weight: bold; color: #1d2129; }
+        .sub-title { font-size: 12px; color: #86909C; margin-top: 5px; letter-spacing: 1px; }
+
+        /* 架构图区域 */
+        .org-chart { 
+            flex: 1; 
+            display: flex; flex-direction: column; align-items: center; 
+            background: #F7F8FA; border-radius: 12px;
+            padding: 20px 15px;
+            border: 1px solid #E5E6EB;
+        }
+
+        .node { 
+            background: white; border: 1px solid #E5E6EB; border-radius: 6px; 
+            padding: 10px 0; width: 100%; text-align: center; 
+            font-size: 15px; font-weight: 500; color: #333;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        /* TL节点 */
+        .tl-node { 
+            background: linear-gradient(135deg, #165DFF 0%, #4080FF 100%); 
+            color: white; border: none; font-weight: bold; font-size: 16px;
+            width: 120px; margin-bottom: 15px; z-index: 2;
+        }
+        
+        /* 连接线 */
+        .line-vertical { width: 2px; height: 15px; background: #C9CDD4; margin-bottom: 10px; }
+        .line-horizontal { width: 80%; height: 2px; background: #C9CDD4; margin-bottom: 10px; }
+
+        /* 成员网格 */
+        .members-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; 
+        }
+        .member-item {
+            background: white; border: 1px solid #E5E6EB; border-radius: 6px;
+            padding: 8px 0; text-align: center; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tag-part { font-size: 12px; background: #FFF7E8; color: #FF7D00; padding: 1px 4px; border-radius: 3px; margin-left: 4px; }
+        .tag-ai { font-size: 12px; background: #E8FFEA; color: #00B42A; padding: 1px 4px; border-radius: 3px; margin-left: 4px; }
+
+        /* 转型方向区 */
+        .transition-box { 
+            margin-top: 20px; 
+            background: #F2F3F5; border-radius: 8px; 
+            padding: 15px; 
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .t-state { text-align: center; font-size: 12px; color: #4e5969; }
+        .t-state b { display: block; font-size: 14px; color: #1d2129; margin-bottom: 2px; }
+        .t-arrow { color: #165DFF; font-size: 20px; font-weight: bold; }
+
+        /* 口号区 */
+        .slogan-bar { 
+            margin-top: 20px; 
+            display: flex; justify-content: space-around;
+            border-top: 1px dashed #E5E6EB; padding-top: 15px;
+        }
+        .slogan-item { 
+            display: flex; align-items: center; font-size: 12px; color: #165DFF; font-weight: bold; 
+            background: #E8F3FF; padding: 4px 10px; border-radius: 20px;
+        }
+        .slogan-icon { margin-right: 4px; }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="main-title">战略与人力资源 ITBP团队</div>
+            <div class="sub-title">STRATEGY & HR TEAM</div>
+        </div>
+
+        <div class="org-chart">
+            <!-- TL -->
+            <div class="node tl-node">皮延升 (TL)</div>
+            
+            <!-- 连接线 -->
+            <div class="line-vertical" style="margin-top:-15px;"></div>
+            <div class="line-horizontal"></div>
+            <div class="members-grid" style="position:relative;">
+                <div style="position:absolute; top:-10px; left:25%; width:2px; height:10px; background:#C9CDD4;"></div>
+                <div style="position:absolute; top:-10px; right:25%; width:2px; height:10px; background:#C9CDD4;"></div>
+            </div>
+
+            <!-- 成员列表 -->
+            <div class="members-grid">
+                <div class="member-item">徐燕男</div>
+                <div class="member-item">宋进伟</div>
+                <div class="member-item">余从军</div>
+                <div class="member-item">韩晨旋</div>
+                <div class="member-item" style="border-left:3px solid #FF7D00;">刘昊<span class="tag-part">兼</span></div>
+                <div class="member-item" style="border-left:3px solid #00B42A;">陈方正<span class="tag-ai">AI</span></div>
+            </div>
+        </div>
+
+        <!-- 转型方向 -->
+        <div class="transition-box">
+            <div class="t-state">
+                <b>技术执行者</b>
+                <span>被动接单</span>
+            </div>
+            <div class="t-arrow">➔</div>
+            <div class="t-state">
+                <b style="color:#165DFF;">产品交付者</b>
+                <span style="color:#165DFF;">主动Owner</span>
+            </div>
+        </div>
+
+        <!-- 口号 -->
+        <div class="slogan-bar">
+            <div class="slogan-item"><span class="slogan-icon">⚡</span>懂业务</div>
+            <div class="slogan-item"><span class="slogan-icon">🛡️</span>保质量</div>
+            <div class="slogan-item"><span class="slogan-icon">🎯</span>拿结果</div>
+        </div>
+    </div>
+</body>
+</html>

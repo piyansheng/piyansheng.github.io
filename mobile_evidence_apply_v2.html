@@ -1,0 +1,3860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>举证申请 - 移动端</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========================================
+           CSS变量 - 与其他页面保持统一
+        ======================================== */
+        :root {
+            /* 主色调 - 金黄色系（晋升/成长象征） */
+            --primary-yellow: #FFD700;
+            --light-yellow: #FFFACD;
+            --yellow-bg: #fffbe6;
+            --yellow-border: #ffe58f;
+            --yellow-text: #d48806;
+            
+            /* 操作色 - 蓝色系 */
+            --active-blue: #1890ff;
+            --light-blue: #e6f7ff;
+            --blue-border: #91d5ff;
+            
+            /* 状态色 */
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            
+            /* 中性色 */
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+            --divider-color: #f0f0f0;
+            
+            /* 安全区域 */
+            --safe-area-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ========================================
+           基础重置
+        ======================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: calc(140px + var(--safe-area-bottom));
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* ========================================
+           入场动画
+        ======================================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* ========================================
+           Header - 统一风格
+        ======================================== */
+        .header {
+            background: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .header-icon:active {
+            background: var(--bg-color);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* ========================================
+           步骤导航 - 金黄色主题
+        ======================================== */
+        .stepper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 53px;
+            z-index: 90;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .stepper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-item:hover {
+            border-color: var(--yellow-border);
+        }
+
+        .step-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            background: #fff;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .step-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        /* 激活态 - 金黄色 */
+        .step-item.active {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+        }
+
+        .step-item.active .step-dot {
+            border-color: var(--primary-yellow);
+            background: var(--primary-yellow);
+            color: #fff;
+        }
+
+        .step-item.active .step-title {
+            color: var(--yellow-text);
+            font-weight: 600;
+        }
+
+        /* 完成态 - 绿色 */
+        .step-item.done {
+            background: #f6ffed;
+            border-color: #b7eb8f;
+        }
+
+        .step-item.done .step-dot {
+            border-color: var(--success-green);
+            background: var(--success-green);
+            color: #fff;
+        }
+
+        .step-item.done .step-title {
+            color: var(--success-green);
+        }
+
+        /* ========================================
+           主内容区
+        ======================================== */
+        .page {
+            padding: 12px;
+        }
+
+        /* ========================================
+           卡片 - 带左侧装饰条
+        ======================================== */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.995);
+        }
+
+        .card-inner {
+            padding: 16px;
+            border-left: 4px solid var(--primary-yellow);
+        }
+
+        /* 卡片头部 */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        .sec-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sec-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-yellow) 0%, #FFA500 100%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+        }
+
+        .sec-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sec-toggle {
+            font-size: 12px;
+            color: var(--active-blue);
+            cursor: pointer;
+            padding: 4px 10px;
+            background: var(--light-blue);
+            border-radius: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sec-toggle:active {
+            background: #bae7ff;
+        }
+
+        /* 卡片内容 */
+        .section-body {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ========================================
+           表单字段
+        ======================================== */
+        .field {
+            padding: 14px;
+            background: #fafbfc;
+            border: 1px solid var(--divider-color);
+            border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .field:focus-within {
+            border-color: var(--active-blue);
+        }
+
+        .label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .label.required::before {
+            content: "*";
+            color: var(--error-red);
+            font-weight: 600;
+        }
+
+        .label-tip {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-left: auto;
+        }
+
+        /* 输入框 */
+        .input,
+        .textarea {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input:focus,
+        .textarea:focus {
+            outline: none;
+            border-color: var(--active-blue);
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+
+        .textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .input.error,
+        .textarea.error {
+            border-color: var(--error-red);
+            background: #fff1f0;
+        }
+
+        .error-text {
+            font-size: 12px;
+            color: var(--error-red);
+            margin-top: 6px;
+            display: none;
+            animation: fadeInUp 0.2s ease-out;
+        }
+
+        .error-text.show {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ========================================
+           Chip 标签组
+        ======================================== */
+        .chip-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            border-color: var(--blue-border);
+        }
+
+        .chip:active {
+            transform: scale(0.95);
+        }
+
+        .chip.selected {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+            color: var(--yellow-text);
+            font-weight: 500;
+        }
+
+        .chip-remove {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-left: 2px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .chip-remove:hover {
+            color: var(--error-red);
+        }
+
+        .chip-add {
+            background: var(--light-blue);
+            border-color: var(--blue-border);
+            color: var(--active-blue);
+        }
+
+        /* ========================================
+           操作行
+        ======================================== */
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .action-row .input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .action-link {
+            font-size: 13px;
+            color: var(--active-blue);
+            cursor: pointer;
+            padding: 6px 12px;
+            background: var(--light-blue);
+            border: 1px solid var(--blue-border);
+            border-radius: 16px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-link:active {
+            background: #bae7ff;
+            transform: scale(0.95);
+        }
+
+        .summary-badge {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: #f5f5f5;
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .summary-badge.highlight {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+            color: var(--yellow-text);
+        }
+
+        /* ========================================
+           迷你卡片
+        ======================================== */
+        .mini-card {
+            border: 1px solid var(--divider-color);
+            border-radius: 10px;
+            padding: 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .mini-card:hover {
+            border-color: var(--blue-border);
+        }
+
+        .mini-card.selected {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
+
+        .mini-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .mini-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--light-blue);
+            color: var(--active-blue);
+            border: 1px solid var(--blue-border);
+        }
+
+        .mini-tag.role {
+            background: var(--yellow-bg);
+            color: var(--yellow-text);
+            border-color: var(--yellow-border);
+        }
+
+        .mini-tag.type {
+            background: #f0f5ff;
+            color: #2f54eb;
+            border-color: #adc6ff;
+        }
+
+        /* 父级信息条 */
+        .parent-info-bar {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .parent-info-bar i {
+            color: var(--active-blue);
+            font-size: 11px;
+        }
+
+        /* 输出列表 */
+        .output-list {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding-top: 12px;
+            border-top: 1px dashed var(--divider-color);
+        }
+
+        .output-list + .output-list {
+            margin-top: 10px;
+        }
+
+        .output-list strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .output-list ul {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .output-list li {
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        /* meta网格 */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 16px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .meta-grid span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ========================================
+           指标卡片
+        ======================================== */
+        .indicator-card {
+            border: 1px solid var(--divider-color);
+            border-radius: 10px;
+            padding: 14px;
+            background: #fff;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .indicator-card:hover {
+            border-color: var(--blue-border);
+        }
+
+        .indicator-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .indicator-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        .progress {
+            height: 6px;
+            background: var(--divider-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--active-blue) 0%, #69c0ff 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* ========================================
+           交付物卡片
+        ======================================== */
+        .deliverable-card {
+            border: 1px solid var(--blue-border);
+            border-radius: 10px;
+            padding: 14px;
+            background: #fafeff;
+            margin-bottom: 12px;
+        }
+
+        .deliverable-head {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .deliverable-row {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .deliverable-row i {
+            color: var(--active-blue);
+            margin-top: 2px;
+        }
+
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .file-item {
+            background: var(--light-blue);
+            color: var(--active-blue);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            background: #bae7ff;
+        }
+
+        .file-item .remove-file {
+            color: var(--error-red);
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .upload-card {
+            border: 2px dashed var(--border-color);
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .upload-card:hover {
+            border-color: var(--active-blue);
+            background: var(--light-blue);
+        }
+
+        .upload-card i {
+            font-size: 24px;
+            color: var(--active-blue);
+        }
+
+        .upload-card strong {
+            color: var(--text-primary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .link-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .link-input .input {
+            flex: 1;
+        }
+
+        /* ========================================
+           列表面板
+        ======================================== */
+        .list-panel {
+            background: #fff;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .list-panel-empty {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 13px;
+            padding: 16px;
+        }
+
+        /* ========================================
+           按钮
+        ======================================== */
+        .btn {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #fff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--active-blue) 0%, #096dd9 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+
+        .btn.primary:active {
+            box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+        }
+
+        .btn.ghost {
+            background: var(--light-blue);
+            color: var(--active-blue);
+            border-color: var(--blue-border);
+        }
+
+        .btn.warning {
+            background: var(--yellow-bg);
+            color: var(--yellow-text);
+            border-color: var(--yellow-border);
+        }
+
+        /* ========================================
+           底部操作栏
+        ======================================== */
+        .bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 56px;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            padding: 12px 16px calc(12px + var(--safe-area-bottom));
+            display: flex;
+            gap: 12px;
+            z-index: 200;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .bottom-bar .btn {
+            flex: 1;
+            height: 44px;
+            font-size: 15px;
+            border-radius: 22px;
+        }
+
+        /* ========================================
+           底部导航 - 与其他页面统一
+        ======================================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            font-size: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item:active {
+            opacity: 0.7;
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--primary-yellow);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+
+        /* ========================================
+           Bottom Sheet 弹出面板
+        ======================================== */
+        .sheet-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 300;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 56px; /* 导航栏高度 */
+            background: #fff;
+            border-radius: 16px 16px 0 0;
+            max-height: calc(85vh - 56px);
+            display: none;
+            flex-direction: column;
+            z-index: 320;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .sheet.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .sheet-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .sheet-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sheet-close {
+            font-size: 20px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .sheet-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .sheet-footer {
+            display: none !important;
+        }
+
+        /* 底部按钮区域 - 固定在Sheet底部 */
+        .sheet-actions-wrapper {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #fff 85%, transparent);
+            padding: 20px 0 0 0;
+            margin: 0 -16px;
+            z-index: 10;
+        }
+
+        .sheet-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: #fff;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .sheet-actions .btn {
+            flex: 1;
+            height: 48px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sheet-actions .btn.cancel-btn {
+            background: #f8f9fa;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .sheet-actions .btn.cancel-btn:active {
+            background: #eee;
+            transform: scale(0.98);
+        }
+
+        .sheet-actions .btn.confirm-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
+            border: none;
+            box-shadow: 0 4px 16px rgba(255, 165, 0, 0.35);
+            font-weight: 700;
+        }
+
+        .sheet-actions .btn.confirm-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+        }
+
+        /* 选中项详情展示 */
+        .selection-detail {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid var(--blue-border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+
+        .selection-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--blue-border);
+        }
+
+        .selection-detail-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--active-blue);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .selection-detail-title {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .selection-detail-type {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--active-blue);
+            color: #fff;
+        }
+
+        .selection-parent-info {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .selection-parent-info .parent-label {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .selection-parent-info .parent-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .selection-io-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .selection-io-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .selection-io-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .selection-io-label i {
+            color: var(--active-blue);
+        }
+
+        .selection-io-list {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .selection-io-list li {
+            margin-bottom: 4px;
+            padding-left: 12px;
+            position: relative;
+        }
+
+        .selection-io-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--active-blue);
+        }
+
+        /* Sheet内的选项 */
+        .sheet-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--divider-color);
+            font-size: 14px;
+        }
+
+        .sheet-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
+            background: #fff;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background: var(--active-blue);
+            border-color: var(--active-blue);
+        }
+
+        /* ========================================
+           Modal 全屏弹窗
+        ======================================== */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 400;
+        }
+
+        .modal-panel {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            display: none;
+            flex-direction: column;
+            z-index: 420;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 22px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg-color);
+        }
+
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+            height: 44px;
+        }
+
+        /* Modal内的搜索 */
+        .modal-search {
+            margin-bottom: 16px;
+        }
+
+        .modal-search .input {
+            background: #fff;
+        }
+
+        /* Modal内的Tabs */
+        .modal-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .modal-pill {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-pill:active {
+            transform: scale(0.95);
+        }
+
+        .modal-pill.active {
+            border-color: var(--yellow-border);
+            color: var(--yellow-text);
+            background: var(--yellow-bg);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           筛选标签
+        ======================================== */
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .filter-chip {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:active {
+            transform: scale(0.95);
+        }
+
+        .filter-chip.active {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+            color: var(--yellow-text);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           下拉选择
+        ======================================== */
+        .select-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .select-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .select {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            background: #fff;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: var(--active-blue);
+        }
+
+        /* ========================================
+           树形结构
+        ======================================== */
+        .tree {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tree-item {
+            border: 1px solid var(--divider-color);
+            border-radius: 10px;
+            padding: 12px;
+            background: #fff;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .tree-item:hover {
+            border-color: var(--blue-border);
+        }
+
+        .tree-item.selected {
+            border-color: var(--primary-yellow);
+            background: linear-gradient(135deg, #fffef5 0%, #fffbe6 100%);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.15);
+        }
+
+        .tree-item.selected > .tree-line > .tree-title span:last-child {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tree-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .tree-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .tree-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .tree-children {
+            margin-top: 10px;
+            padding-left: 12px;
+            border-left: 2px solid var(--primary-yellow);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tree-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .tree-tag.role-tag {
+            background: var(--light-blue);
+            color: var(--active-blue);
+            border: 1px solid var(--blue-border);
+        }
+
+        .tree-tag.status-tag {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .tree-tag.status-done {
+            background: #f6ffed;
+            color: var(--success-green);
+            border: 1px solid #b7eb8f;
+        }
+
+        /* ========================================
+           技术表格
+        ======================================== */
+        .tech-table {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid var(--divider-color);
+            overflow: hidden;
+        }
+
+        .tech-row {
+            display: grid;
+            grid-template-columns: 28px 1fr 60px;
+            gap: 10px;
+            padding: 12px;
+            border-bottom: 1px solid var(--divider-color);
+            align-items: center;
+            font-size: 13px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .tech-row:last-child {
+            border-bottom: none;
+        }
+
+        .tech-row:hover {
+            background: #fafafa;
+        }
+
+        .tech-row.selected {
+            background: #fffef5;
+        }
+
+        .tech-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tech-sub {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .tech-metrics {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .tech-level {
+            color: var(--primary-yellow);
+            font-size: 14px;
+            text-align: right;
+        }
+
+        /* ========================================
+           列表卡片
+        ======================================== */
+        .list-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--divider-color);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .list-card:hover {
+            border-color: var(--blue-border);
+        }
+
+        .list-card.selected {
+            border-color: var(--primary-yellow);
+            background: #fffef5;
+        }
+
+        .list-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .list-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 16px;
+        }
+
+        .list-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* ========================================
+           快捷选择网格
+        ======================================== */
+        .chip-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .chip-card {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #fff;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .chip-card:active {
+            transform: scale(0.95);
+        }
+
+        .chip-card.active {
+            border-color: var(--yellow-border);
+            background: var(--yellow-bg);
+            color: var(--yellow-text);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           预览区域
+        ======================================== */
+        .preview-empty {
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: center;
+            padding: 24px 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .preview-item {
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            align-items: flex-start;
+        }
+
+        .preview-label {
+            color: var(--text-light);
+            min-width: 72px;
+            flex-shrink: 0;
+        }
+
+        .preview-value {
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .preview-highlight {
+            color: var(--active-blue);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           辅助提示
+        ======================================== */
+        .helper {
+            background: var(--yellow-bg);
+            border: 1px solid var(--yellow-border);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--yellow-text);
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .helper i {
+            margin-top: 2px;
+        }
+
+        /* ========================================
+           开关
+        ======================================== */
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 10px 0;
+        }
+
+        .switch {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--border-color);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .switch::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .switch.active {
+            background: var(--active-blue);
+        }
+
+        .switch.active::after {
+            left: 22px;
+        }
+
+        /* ========================================
+           难度钻石
+        ======================================== */
+        .diamond {
+            color: var(--primary-yellow);
+            margin-right: 2px;
+        }
+
+        /* ========================================
+           见证人卡片
+        ======================================== */
+        .witness-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid var(--divider-color);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .witness-card:hover {
+            border-color: var(--blue-border);
+        }
+
+        .witness-card.selected {
+            border-color: var(--primary-yellow);
+            background: #fffef5;
+        }
+
+        .witness-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .witness-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .witness-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .witness-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .witness-dept {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .witness-role {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--light-blue);
+            color: var(--active-blue);
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* ========================================
+           标准盒子
+        ======================================== */
+        .standard-box {
+            background: #f9fbfd;
+            border: 1px solid var(--light-blue);
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .standard-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .standard-box ul {
+            padding-left: 18px;
+            margin: 6px 0 0;
+        }
+
+        .standard-box li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-icon" onclick="window.history.back()">
+            <i class="fa-solid fa-chevron-left"></i>
+        </div>
+        <div class="header-title">举证申请</div>
+        <div class="header-icon">
+            <i class="fa-solid fa-ellipsis"></i>
+        </div>
+    </div>
+
+    <!-- 步骤导航 -->
+    <div class="stepper" id="stepperNav">
+        <div class="step-item done animate-in" data-step="behavior">
+            <span class="step-dot"><i class="fa-solid fa-check" style="font-size:10px;"></i></span>
+            <span class="step-title">行为选择</span>
+        </div>
+        <div class="step-item active animate-in animate-delay-1" data-step="evidence">
+            <span class="step-dot">2</span>
+            <span class="step-title">行为鉴证</span>
+        </div>
+        <div class="step-item animate-in animate-delay-2" data-step="tech">
+            <span class="step-dot">3</span>
+            <span class="step-title">技术举证</span>
+        </div>
+        <div class="step-item animate-in animate-delay-3" data-step="preview">
+            <span class="step-dot">4</span>
+            <span class="step-title">预览提交</span>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="page">
+        <!-- Step 1: 行为选择 -->
+        <div class="card animate-in animate-delay-1">
+            <div class="card-inner">
+                <div class="section-header">
+                    <div class="sec-left">
+                        <span class="sec-num">1</span>
+                        <span class="sec-title">行为选择</span>
+                    </div>
+                    <span class="sec-toggle" data-toggle="section-behavior">
+                        <span>收起</span>
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </span>
+                </div>
+                <div class="section-body" id="section-behavior">
+                    <div class="field">
+                        <div class="label required">任职行为</div>
+                        <div class="action-row">
+                            <span class="summary-badge highlight" id="behaviorSelectedCount">
+                                <i class="fa-solid fa-check-circle"></i> 已选择 1 项
+                            </span>
+                            <span class="action-link" data-open-sheet="behavior">
+                                <i class="fa-solid fa-refresh"></i> 重新选择
+                            </span>
+                        </div>
+                        <div class="summary-badge" id="behaviorProfile" style="margin-top:8px;">
+                            <i class="fa-solid fa-sitemap"></i> 专业族 / IT类 / ITBP -v5.0 / 3级
+                        </div>
+                        <div class="mini-card selected" style="margin-top:12px;">
+                            <div class="mini-title">
+                                制订项目任务书
+                                <span class="mini-tag role">主导</span>
+                            </div>
+                            <div class="mini-desc">基于业务需求与年度规划，定义项目目标、范围、干系人、资源需求、关键里程碑和约束条件，形成项目启动式文档。</div>
+                            <div class="output-list">
+                                <strong><i class="fa-solid fa-arrow-right-to-bracket"></i> 活动输入</strong>
+                                <ul>
+                                    <li>组织评审会并获取批准</li>
+                                    <li>初步业务调研结果</li>
+                                </ul>
+                            </div>
+                            <div class="output-list">
+                                <strong><i class="fa-solid fa-arrow-right-from-bracket"></i> 活动输出</strong>
+                                <ul>
+                                    <li>项目任务书（签字确认率100%，符合SMART原则）</li>
+                                </ul>
+                            </div>
+                            <div class="output-list">
+                                <strong><i class="fa-solid fa-bullseye"></i> 活动指标要求</strong>
+                                <ul>
+                                    <li>累计项目进度总和 ≥ 22 分</li>
+                                    <li>普通项目数量要求 ≥ 4 个</li>
+                                    <li>IT信息化系统开发流程项目数量要求 ≥ 2 个</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: 行为鉴证 -->
+        <div class="card animate-in animate-delay-2">
+            <div class="card-inner">
+                <div class="section-header">
+                    <div class="sec-left">
+                        <span class="sec-num">2</span>
+                        <span class="sec-title">行为鉴证</span>
+                    </div>
+                    <span class="sec-toggle" data-toggle="section-evidence">
+                        <span>收起</span>
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </span>
+                </div>
+                <div class="section-body" id="section-evidence">
+                    <!-- 鉴证方式 -->
+                    <div class="field">
+                        <div class="label required">鉴证方式</div>
+                        <div class="chip-group" id="evidenceType">
+                            <span class="chip selected" data-value="internal">
+                                <i class="fa-solid fa-building"></i> 内部鉴证
+                            </span>
+                            <span class="chip" data-value="external">
+                                <i class="fa-solid fa-globe"></i> 外部鉴证
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 项目信息 -->
+                    <div class="field">
+                        <div class="label required">项目信息</div>
+                        <div class="action-row">
+                            <input class="input" id="projectInfo" value="AI驱动项目管理（CS-IP-GV-250001）" placeholder="请选择项目" readonly>
+                            <span class="action-link" id="openProjectModal">
+                                <i class="fa-solid fa-folder-open"></i> 选择
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 项目任务 -->
+                    <div class="field">
+                        <div class="label required">
+                            项目任务
+                            <span class="label-tip">多选</span>
+                        </div>
+                        <div class="action-row">
+                            <span class="summary-badge highlight" id="taskCount">
+                                <i class="fa-solid fa-tasks"></i> 已选择 2 个任务
+                            </span>
+                            <span class="action-link" id="openTaskModal">
+                                <i class="fa-solid fa-list-check"></i> 选择
+                            </span>
+                            <span class="action-link" data-clear="task" style="background:#fff1f0;color:#ff4d4f;border-color:#ffccc7;">
+                                <i class="fa-solid fa-trash-can"></i> 清空
+                            </span>
+                        </div>
+                        <div id="taskList" class="list-panel" style="margin-top:10px;">
+                            <div class="mini-card" style="margin-bottom:8px;">
+                                <div class="mini-title">
+                                    任职资格配置页面第一期
+                                    <span class="mini-tag role">主导</span>
+                                </div>
+                                <div class="meta-grid">
+                                    <span><i class="fa-regular fa-calendar"></i> 2025-06-27</span>
+                                    <span><i class="fa-regular fa-calendar-check"></i> 2025-08-11</span>
+                                    <span><i class="fa-regular fa-clock"></i> 37小时</span>
+                                    <span style="color:#ff4d4f;"><i class="fa-solid fa-arrow-trend-down"></i> -9小时</span>
+                                </div>
+                            </div>
+                            <div class="mini-card">
+                                <div class="mini-title">
+                                    举证模块集成测试
+                                    <span class="mini-tag">协助</span>
+                                </div>
+                                <div class="meta-grid">
+                                    <span><i class="fa-regular fa-calendar"></i> 2025-08-01</span>
+                                    <span><i class="fa-regular fa-calendar-check"></i> 2025-08-11</span>
+                                    <span><i class="fa-regular fa-clock"></i> 16小时</span>
+                                    <span style="color:#52c41a;"><i class="fa-solid fa-equals"></i> 0小时</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 指标要求 -->
+                    <div class="field">
+                        <div class="label required">
+                            指标要求
+                            <span class="label-tip">多选</span>
+                        </div>
+                        <div class="action-row">
+                            <span class="summary-badge highlight" id="indicatorCount">
+                                <i class="fa-solid fa-chart-line"></i> 已选择 2 项指标
+                            </span>
+                            <span class="action-link" data-open-sheet="indicator">
+                                <i class="fa-solid fa-sliders"></i> 选择
+                            </span>
+                        </div>
+                        <div id="indicatorList" style="margin-top:10px;">
+                            <div class="indicator-card">
+                                <div class="indicator-title">
+                                    累计项目进度总和
+                                    <span class="mini-tag">活动指标</span>
+                                </div>
+                                <div class="indicator-meta">判断标准：≥ 22 分</div>
+                                <div class="indicator-meta">完成进度：23% (5/22)</div>
+                                <div class="progress"><span style="width: 23%;"></span></div>
+                            </div>
+                            <div class="indicator-card">
+                                <div class="indicator-title">
+                                    普通项目数量要求
+                                    <span class="mini-tag">活动指标</span>
+                                </div>
+                                <div class="indicator-meta">判断标准：≥ 4 个</div>
+                                <div class="indicator-meta">完成进度：50% (2/4)</div>
+                                <div class="progress"><span style="width: 50%;"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 见证人 -->
+                    <div class="field">
+                        <div class="label required">
+                            推荐行为见证人
+                            <span class="label-tip">至少2位</span>
+                        </div>
+                        <div class="chip-group" id="behaviorWitness">
+                            <span class="chip selected" data-name="吴军">
+                                <i class="fa-solid fa-user"></i> 吴军
+                                <span class="chip-remove">×</span>
+                            </span>
+                            <span class="chip selected" data-name="余波">
+                                <i class="fa-solid fa-user"></i> 余波
+                                <span class="chip-remove">×</span>
+                            </span>
+                            <span class="chip chip-add" id="addBehaviorWitness">
+                                <i class="fa-solid fa-user-plus"></i> 添加
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 交付物 -->
+                    <div class="field">
+                        <div class="label required">交付物信息</div>
+                        <div class="deliverable-card">
+                            <div class="deliverable-head">
+                                <i class="fa-solid fa-file-lines"></i> 项目任务书
+                            </div>
+                            <div class="deliverable-row">
+                                <i class="fa-solid fa-ruler"></i>
+                                衡量标准：签字确认率100%，符合SMART原则
+                            </div>
+                            <div class="deliverable-row">
+                                <i class="fa-solid fa-tag"></i>
+                                用途：举证行为（可复用到技术举证）
+                            </div>
+                            <div class="file-list" data-file-list="behavior">
+                                <div class="file-item">
+                                    <i class="fa-solid fa-image"></i>
+                                    企业验收说明_1675285218649.png
+                                    <span class="remove-file">×</span>
+                                </div>
+                                <div class="file-item">
+                                    <i class="fa-solid fa-image"></i>
+                                    20260114-132605.jpg
+                                    <span class="remove-file">×</span>
+                                </div>
+                            </div>
+                            <label class="upload-card">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <strong>点击上传本地文件</strong>
+                                <span>支持图片、PDF、Word等格式</span>
+                                <input class="file-input" type="file" multiple data-file-input="behavior">
+                            </label>
+                            <div class="link-input">
+                                <input class="input" placeholder="粘贴飞书文档链接" data-link-input="behavior">
+                                <button class="btn ghost" type="button" data-link-add="behavior">
+                                    <i class="fa-solid fa-link"></i> 添加
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: 技术举证 -->
+        <div class="card animate-in animate-delay-3">
+            <div class="card-inner">
+                <div class="section-header">
+                    <div class="sec-left">
+                        <span class="sec-num">3</span>
+                        <span class="sec-title">技术举证</span>
+                        <span class="mini-tag" style="margin-left:8px;">可选</span>
+                    </div>
+                    <span class="sec-toggle" data-toggle="section-tech">
+                        <span>收起</span>
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </span>
+                </div>
+                <div class="section-body" id="section-tech">
+                    <!-- 技术选择 -->
+                    <div class="field">
+                        <div class="label">技术举证</div>
+                        <div class="action-row">
+                            <input class="input" id="techTitle" value="上位机技术 · 视觉处理" placeholder="可选技术举证" readonly>
+                            <span class="action-link" id="openTechModal">
+                                <i class="fa-solid fa-microchip"></i> 选择
+                            </span>
+                        </div>
+                        <div class="helper">
+                            <i class="fa-solid fa-gem"></i>
+                            <span>难度等级：<span class="diamond">◆◆</span><span style="color:#ccc;">◇◇◇</span></span>
+                        </div>
+                    </div>
+
+                    <!-- 指标详情 -->
+                    <div class="field" id="techMetricBlock">
+                        <div class="label">指标详情</div>
+                        <div class="mini-card">
+                            <div class="mini-title">
+                                <i class="fa-solid fa-gauge-high"></i> QPS
+                            </div>
+                            <div class="mini-desc">指标名称：阿里云性能测试指标</div>
+                            <div class="meta-grid">
+                                <span>目标值：10~5000 QPS</span>
+                                <span>计量单位：次/秒</span>
+                                <span>计算公式：总请求数/时间段</span>
+                                <span style="color:var(--active-blue);font-weight:600;">量化指标：> 1000</span>
+                            </div>
+                            <div style="margin-top:12px;">
+                                <input class="input" id="metricValueInput" value="1200" placeholder="请输入达成值" data-target="1000" data-target-type=">=">
+                                <div class="helper" style="margin-top:8px;background:#f6ffed;border-color:#b7eb8f;color:#52c41a;">
+                                    <i class="fa-solid fa-check-circle"></i>
+                                    <span>已达标！当前值 1200 ≥ 目标值 1000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技术见证人 -->
+                    <div class="field">
+                        <div class="label">
+                            推荐技术见证人
+                            <span class="label-tip">至少2位</span>
+                        </div>
+                        <div class="chip-group" id="techWitness">
+                            <span class="chip selected" data-name="吴军">
+                                <i class="fa-solid fa-user"></i> 吴军
+                                <span class="chip-remove">×</span>
+                            </span>
+                            <span class="chip selected" data-name="余波">
+                                <i class="fa-solid fa-user"></i> 余波
+                                <span class="chip-remove">×</span>
+                            </span>
+                            <span class="chip chip-add" id="addTechWitness">
+                                <i class="fa-solid fa-user-plus"></i> 添加
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 技术交付物 -->
+                    <div class="field">
+                        <div class="label">交付物信息</div>
+                        <div class="deliverable-card">
+                            <div class="deliverable-head">
+                                <i class="fa-solid fa-file-code"></i> 技术文档
+                            </div>
+                            <div class="deliverable-row">
+                                <i class="fa-solid fa-tag"></i>
+                                用途：举证技术（可复用行为交付物）
+                            </div>
+                            <div class="file-list" data-file-list="tech">
+                                <div class="file-item">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    性能测试报告_v2.pdf
+                                    <span class="remove-file">×</span>
+                                </div>
+                            </div>
+                            <label class="upload-card">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <strong>点击上传本地文件</strong>
+                                <span>支持图片、PDF、Word等格式</span>
+                                <input class="file-input" type="file" multiple data-file-input="tech">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: 预览 & 提交 -->
+        <div class="card animate-in animate-delay-4">
+            <div class="card-inner">
+                <div class="section-header">
+                    <div class="sec-left">
+                        <span class="sec-num">4</span>
+                        <span class="sec-title">预览 & 提交</span>
+                    </div>
+                    <span class="sec-toggle" data-toggle="section-preview">
+                        <span>展开</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="section-body" id="section-preview" style="display:none;">
+                    <div id="previewContent">
+                        <div class="mini-card" style="margin-bottom:12px;">
+                            <div class="mini-title">
+                                <i class="fa-solid fa-clipboard-list"></i> 行为选择
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">已选行为</div>
+                                <div class="preview-value preview-highlight">制订项目任务书（主导）</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">职族职类</div>
+                                <div class="preview-value">专业族 / IT类 / ITBP -v5.0 / 3级</div>
+                            </div>
+                        </div>
+                        <div class="mini-card" style="margin-bottom:12px;">
+                            <div class="mini-title">
+                                <i class="fa-solid fa-folder-open"></i> 行为鉴证
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">项目</div>
+                                <div class="preview-value">AI驱动项目管理（CS-IP-GV-250001）</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">任务</div>
+                                <div class="preview-value preview-highlight">任职资格配置页面第一期、举证模块集成测试</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">指标</div>
+                                <div class="preview-value">累计项目进度总和、普通项目数量要求</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">见证人</div>
+                                <div class="preview-value preview-highlight">吴军、余波</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">交付物</div>
+                                <div class="preview-value">2 个文件</div>
+                            </div>
+                        </div>
+                        <div class="mini-card">
+                            <div class="mini-title">
+                                <i class="fa-solid fa-microchip"></i> 技术举证
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">技术</div>
+                                <div class="preview-value preview-highlight">上位机技术 · 视觉处理</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">达成值</div>
+                                <div class="preview-value preview-highlight">1200（已达标）</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">见证人</div>
+                                <div class="preview-value">吴军、余波</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">交付物</div>
+                                <div class="preview-value">1 个文件</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+        <button class="btn">
+            <i class="fa-regular fa-floppy-disk"></i> 保存草稿
+        </button>
+        <button class="btn primary" id="submitBtn">
+            <i class="fa-solid fa-paper-plane"></i> 提交申请
+        </button>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a class="nav-item" href="mobile_index.html">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>首页</span>
+        </a>
+        <a class="nav-item active" href="mobile_evidence_list.html">
+            <i class="fa-solid fa-file-signature nav-icon"></i>
+            <span>举证</span>
+        </a>
+        <a class="nav-item" href="mobile_promotion_list.html">
+            <i class="fa-solid fa-arrow-up-right-dots nav-icon"></i>
+            <span>晋升</span>
+        </a>
+        <a class="nav-item" href="mobile_dashboard.html">
+            <i class="fa-solid fa-chart-pie nav-icon"></i>
+            <span>看板</span>
+        </a>
+        <a class="nav-item" href="#">
+            <i class="fa-solid fa-user nav-icon"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <!-- Sheet 弹出面板（行为选择/指标选择） -->
+    <div class="sheet-mask" id="sheetMask"></div>
+    <div class="sheet" id="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <span class="sheet-title" id="sheetTitle">选择</span>
+            <span class="sheet-close" id="sheetClose"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="sheet-body" id="sheetBody"></div>
+        <div class="sheet-footer" id="sheetFooter">
+            <button class="btn" id="sheetCancel">取消</button>
+            <button class="btn primary" id="sheetConfirm">确定</button>
+        </div>
+    </div>
+
+    <!-- Modal 项目选择 -->
+    <div class="modal-mask" id="projectMask"></div>
+    <div class="modal-panel" id="projectModal">
+        <div class="modal-header">
+            <span>选择项目</span>
+            <span class="modal-close" id="closeProjectModal"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="modal-body">
+            <div class="modal-search">
+                <div class="action-row">
+                    <input class="input" id="projectSearch" placeholder="搜索项目名称/代号/编号">
+                    <span class="action-link" id="projectSearchClear">
+                        <i class="fa-solid fa-eraser"></i> 清空
+                    </span>
+                </div>
+            </div>
+            <div class="label" style="margin-bottom:10px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> 最近使用
+            </div>
+            <div class="chip-list" id="projectQuickList">
+                <div class="chip-card active">AI驱动项目管理</div>
+                <div class="chip-card">基于AI的任职资格重构</div>
+                <div class="chip-card">AML Online客户订单</div>
+                <div class="chip-card">SRM系统实施与部署</div>
+            </div>
+            <div class="label" style="margin-bottom:10px;">
+                <i class="fa-solid fa-folder-tree"></i> 全部项目
+            </div>
+            <div id="projectList">
+                <div class="list-card selected">
+                    <div class="list-row">
+                        <div>
+                            <div class="list-title">AI驱动项目管理</div>
+                            <div class="summary-badge" style="margin-top:4px;">CS-IP-GV-250001</div>
+                        </div>
+                        <div class="checkbox checked"><i class="fa-solid fa-check" style="font-size:10px;"></i></div>
+                    </div>
+                    <div class="list-meta" style="margin-top:10px;">
+                        <span><i class="fa-solid fa-circle-check" style="color:#52c41a;"></i> 已完成</span>
+                        <span><i class="fa-solid fa-building"></i> 人力资源部</span>
+                        <span><i class="fa-solid fa-user"></i> 陈欢</span>
+                        <span><i class="fa-solid fa-calendar"></i> 2024-01 ~ 2024-12</span>
+                    </div>
+                </div>
+                <div class="list-card">
+                    <div class="list-row">
+                        <div>
+                            <div class="list-title">基于AI的任职资格项目重构</div>
+                            <div class="summary-badge" style="margin-top:4px;">AI-RC-2024</div>
+                        </div>
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="list-meta" style="margin-top:10px;">
+                        <span><i class="fa-solid fa-spinner" style="color:#1890ff;"></i> 进行中</span>
+                        <span><i class="fa-solid fa-building"></i> 市场运营部</span>
+                        <span><i class="fa-solid fa-user"></i> 吴有</span>
+                        <span><i class="fa-solid fa-calendar"></i> 2024-03 ~ 2025-06</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="projectCancel">取消</button>
+            <button class="btn primary" id="projectConfirm">
+                <i class="fa-solid fa-check"></i> 确定
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 任务选择 -->
+    <div class="modal-mask" id="taskMask"></div>
+    <div class="modal-panel" id="taskModal">
+        <div class="modal-header">
+            <span>选择项目任务</span>
+            <span class="modal-close" id="closeTaskModal"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="modal-body">
+            <div class="label" style="margin-bottom:8px;">
+                <i class="fa-solid fa-folder"></i> 当前项目
+            </div>
+            <div class="summary-badge highlight" id="taskProjectName" style="margin-bottom:16px;">未选择项目</div>
+            <div class="label" style="margin-bottom:10px;">
+                <i class="fa-solid fa-list-check"></i> 任务列表
+            </div>
+            <div id="taskListModal"></div>
+            <div class="helper" id="taskEmptyHint" style="margin-top:16px;display:none;">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>暂无符合要求的任务，可选择"自定义任务"手动添加。</span>
+            </div>
+            <div class="helper" style="margin-top:16px;">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span>找不到任务？可以点击"自定义任务"手动添加</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn warning" id="openCustomTask">
+                <i class="fa-solid fa-plus"></i> 自定义任务
+            </button>
+            <button class="btn primary" id="taskConfirm">
+                <i class="fa-solid fa-check"></i> 确定
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 技术选择 -->
+    <div class="modal-mask" id="techMask"></div>
+    <div class="modal-panel" id="techModal">
+        <div class="modal-header">
+            <span>选择专业技术</span>
+            <span class="modal-close" id="closeTechModal"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="modal-body">
+            <div class="summary-badge" id="techRequirement" style="margin-bottom:12px;">
+                <i class="fa-solid fa-info-circle"></i> 职级要求：专业族 / IT类 / ITBP（3级）-v5.0
+            </div>
+            <div class="modal-tabs" id="techCategoryTabs"></div>
+            <div class="modal-search">
+                <input class="input" id="techSearch" placeholder="搜索技术名称">
+            </div>
+            <div class="switch-row">
+                <span><i class="fa-solid fa-eye"></i> 显示指标详情</span>
+                <span class="switch active" id="techDetailSwitch"></span>
+            </div>
+            <div class="summary-badge highlight" id="techSelectedCount" style="margin-bottom:12px;">
+                <i class="fa-solid fa-check-double"></i> 已选择：0 门技术
+            </div>
+            <div class="tech-table" id="techList"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="techCancel">取消</button>
+            <button class="btn primary" id="techConfirm">
+                <i class="fa-solid fa-check"></i> 确定
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 见证人选择 -->
+    <div class="modal-mask" id="witnessMask"></div>
+    <div class="modal-panel" id="witnessModal">
+        <div class="modal-header">
+            <span id="witnessModalTitle">选择见证人</span>
+            <span class="modal-close" id="closeWitnessModal"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="modal-body">
+            <div class="summary-badge" style="margin-bottom:12px;">
+                <i class="fa-solid fa-info-circle"></i> 根据项目任务自动推荐见证人；当推荐人数少于2人，由申请人自行搜索见证人
+            </div>
+            <div class="modal-search">
+                <div class="action-row">
+                    <input class="input" id="witnessSearch" placeholder="搜索见证人姓名/部门">
+                    <span class="action-link" id="witnessSearchClear">
+                        <i class="fa-solid fa-eraser"></i> 清空
+                    </span>
+                </div>
+            </div>
+            <div class="summary-badge highlight" id="witnessSelectedCount" style="margin-bottom:12px;">
+                <i class="fa-solid fa-user-check"></i> 已选择：0 位见证人
+            </div>
+            <div id="witnessList"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="witnessCancel">取消</button>
+            <button class="btn primary" id="witnessConfirm">
+                <i class="fa-solid fa-check"></i> 确定
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 自定义任务 -->
+    <div class="modal-mask" id="customTaskMask"></div>
+    <div class="modal-panel" id="customTaskModal">
+        <div class="modal-header">
+            <span>添加自定义任务</span>
+            <span class="modal-close" id="closeCustomTask"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <div class="modal-body">
+            <div class="field">
+                <div class="label required">任务名称</div>
+                <input class="input" id="customTaskName" placeholder="请输入任务名称">
+            </div>
+            <div class="field">
+                <div class="label">任务描述</div>
+                <textarea class="textarea" id="customTaskDesc" placeholder="请输入任务描述"></textarea>
+            </div>
+            <div class="field">
+                <div class="label required">开始时间</div>
+                <input class="input" type="date" id="customTaskStart">
+            </div>
+            <div class="field">
+                <div class="label required">结束时间</div>
+                <input class="input" type="date" id="customTaskEnd">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="customTaskCancel">取消</button>
+            <button class="btn primary" id="customTaskConfirm">
+                <i class="fa-solid fa-check"></i> 确定
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 数据结构
+        // ========================================
+        
+        // 职族职类职级选项
+        const profileOptions = {
+            families: [
+                {
+                    name: '专业族',
+                    categories: [
+                        {
+                            name: 'IT类',
+                            subclasses: [
+                                { name: '平台技术', levels: ['1级', '2级', '3级', '4级', '5级'] },
+                                { name: 'IT测试', levels: ['1级', '2级', '3级', '4级', '5级'] },
+                                { name: 'ITBP -v5.0', levels: ['1级', '2级', '3级', '4级', '5级'] },
+                                { name: 'IT系统维护', levels: ['1级', '2级', '3级', '4级', '5级'] }
+                            ]
+                        },
+                        { name: '法务类', subclasses: [{ name: '合规管理', levels: ['1级', '2级', '3级'] }] },
+                        { name: '公共关系类', subclasses: [{ name: '品牌传播', levels: ['1级', '2级', '3级'] }] },
+                        { name: '视觉设计类', subclasses: [{ name: '交互设计', levels: ['1级', '2级', '3级'] }] },
+                        { name: '财务类', subclasses: [{ name: '财务分析', levels: ['1级', '2级', '3级'] }] },
+                        { name: '资材类', subclasses: [{ name: '采购管理', levels: ['1级', '2级', '3级'] }] }
+                    ]
+                },
+                { name: '营销族', categories: [{ name: '市场类', subclasses: [{ name: '市场运营', levels: ['1级', '2级', '3级'] }] }] },
+                { name: '管理族', categories: [{ name: '管理类', subclasses: [{ name: '项目管理', levels: ['1级', '2级', '3级'] }] }] },
+                { name: '操作族', categories: [{ name: '操作类', subclasses: [{ name: '运营执行', levels: ['1级', '2级', '3级'] }] }] },
+                { name: '技术族', categories: [{ name: '技术类', subclasses: [{ name: '平台研发', levels: ['1级', '2级', '3级'] }] }] }
+            ]
+        };
+
+        // 职级标准
+        const levelStandards = {
+            '1级': { outputs: ['基础任务执行清单'], indicators: ['完成率 ≥ 80%'] },
+            '2级': { outputs: ['项目任务书（签字确认率100%，符合SMART原则）'], indicators: ['累计项目进度总和 ≥ 18 分', '普通项目数量要求 ≥ 3 个'] },
+            '3级': { outputs: ['项目任务书（签字确认率100%，符合SMART原则）'], indicators: ['累计项目进度总和 ≥ 22 分', '普通项目数量要求 ≥ 4 个', 'IT信息化系统开发流程项目数量要求 ≥ 2 个'] },
+            '4级': { outputs: ['项目任务书（签字确认率100%，符合SMART原则）', '关键里程碑风险复盘报告'], indicators: ['累计项目进度总和 ≥ 30 分', '普通项目数量要求 ≥ 5 个', 'IT信息化系统开发流程项目数量要求 ≥ 3 个'] },
+            '5级': { outputs: ['项目战略对齐说明', '年度项目复盘报告'], indicators: ['累计项目进度总和 ≥ 50 分', '普通项目数量要求 ≥ 8 个', 'IT信息化系统开发流程项目数量要求 ≥ 5 个'] }
+        };
+
+        // 任职行为数据
+        const behaviorData = [
+            {
+                id: 'behavior-1',
+                title: '制订项目任务书',
+                role: '主导',
+                status: '进行中',
+                desc: '基于业务需求与年度规划，定义项目目标、范围、干系人、资源需求、关键里程碑和约束条件，形成项目启动式文档。',
+                inputs: ['组织评审会并获取批准', '初步业务调研结果'],
+                outputs: ['项目任务书（签字确认率100%，符合SMART原则）'],
+                indicators: ['累计项目进度总和 ≥ 22 分', '普通项目数量要求 ≥ 4 个', 'IT信息化系统开发流程项目数量要求 ≥ 2 个'],
+                tasks: [
+                    { id: 'task-1', title: '文档验收系统需求分解', role: '主导', status: '进行中', inputs: ['需求澄清材料', '验收标准清单'], outputs: ['需求分解清单', '评审记录'], indicators: ['需求分解完整率 ≥ 90%'] },
+                    { id: 'task-2', title: '测试方案编写与评审', role: '协助', status: '待处理', inputs: ['测试范围说明', '历史缺陷数据'], outputs: ['测试方案文档', '评审意见清单'], indicators: ['评审通过率 ≥ 80%'], steps: [{ id: 'step-2-1', title: '需求澄清', status: '待处理' }, { id: 'step-2-2', title: '评审意见回收', status: '进行中' }] }
+                ]
+            },
+            {
+                id: 'behavior-2',
+                title: '编写项目章程',
+                role: '参与',
+                status: '待处理',
+                desc: '识别项目范围与关键风险，输出项目章程并完成审批。',
+                inputs: ['业务目标与范围说明', '风险清单（初版）'],
+                outputs: ['项目章程初稿', '审批记录'],
+                indicators: ['关键风险覆盖率 ≥ 80%'],
+                tasks: [
+                    { id: 'task-3', title: '项目章程初稿撰写', role: '参与', status: '待处理', inputs: ['项目范围与目标说明'], outputs: ['项目章程初稿'], indicators: ['初稿完整度 ≥ 80%'] },
+                    { id: 'task-4', title: '跨部门会签', role: '协助', status: '待处理', inputs: ['会签材料清单', '部门对接人信息'], outputs: ['会签意见汇总'], indicators: ['会签覆盖部门 ≥ 3'], steps: [{ id: 'step-4-1', title: '会签材料准备', status: '待处理' }] }
+                ]
+            },
+            {
+                id: 'behavior-3',
+                title: '项目里程碑复盘',
+                role: '主导',
+                status: '已完成',
+                desc: '复盘项目进度与风险，形成阶段性总结。',
+                inputs: ['阶段计划与里程碑清单', '风险与问题追踪记录'],
+                outputs: ['复盘报告', '改进清单'],
+                indicators: ['复盘行动项闭环率 ≥ 80%'],
+                tasks: [{ id: 'task-5', title: '复盘会议组织', role: '主导', status: '已完成', inputs: ['复盘议程', '问题清单'], outputs: ['会议纪要'], indicators: ['参会率 ≥ 90%'] }]
+            }
+        ];
+
+        // 指标数据
+        const indicatorData = [
+            { id: 'ind-1', title: '累计项目进度总和', tag: '活动指标', desc: '指标说明：根据项目中完成的活动总分值累计', standard: '判断标准：≥ 22 分', progress: '完成进度：5% (1/22)', percent: 5 },
+            { id: 'ind-2', title: '普通项目数量要求', tag: '活动指标', desc: '指标说明：统计完成的普通项目数量', standard: '判断标准：≥ 4 个', progress: '完成进度：0% (0/4)', percent: 0 },
+            { id: 'ind-3', title: 'IT信息化系统开发流程项目数量要求', tag: '活动指标', desc: '指标说明：统计完成的IT信息化流程项目数量', standard: '判断标准：≥ 2 个', progress: '完成进度：0% (0/2)', percent: 0 }
+        ];
+
+        // 项目数据
+        const projects = [
+            { id: 'proj-1', name: 'AI驱动项目管理', code: 'CS-IP-GV-250001', number: 'PJ-2024-001', status: '已完成', dept: '人力资源部', manager: '陈欢', start: '2024-01-25', end: '2024-12-31' },
+            { id: 'proj-2', name: '基于AI的任职资格项目重构', code: 'AI-RC-2024', number: 'PJ-2024-002', status: '进行中', dept: '市场运营部', manager: '吴有', start: '2024-03-05', end: '2025-06-18' },
+            { id: 'proj-3', name: 'AML Online客户订单系统搭建项目', code: 'AML-2024', number: 'PJ-2024-003', status: '已完成', dept: '采购部', manager: '诸佳乐', start: '2024-03-05', end: '2024-08-23' },
+            { id: 'proj-4', name: 'SRM系统实施与部署', code: 'SRM-2024', number: 'PJ-2024-004', status: '已完成', dept: '采购部', manager: '诸佳乐', start: '2024-03-05', end: '2024-08-23' },
+            { id: 'proj-5', name: '集成case管理系统', code: 'CASE-2024', number: 'PJ-2023-006', status: '已完成', dept: '--', manager: '徐银涛', start: '2023-09-06', end: '2024-01-15' }
+        ];
+
+        // 项目任务数据
+        const projectTasks = {
+            'proj-1': [
+                { id: 'task-a1', name: '任职资格配置页面第一期', status: '已完成', owner: '皮走升', start: '2025-06-27', end: '2025-08-11', role: '主导', hours: '37小时', variance: '-9小时' },
+                { id: 'task-a2', name: '举证模块集成测试', status: '已完成', owner: '多人', start: '2025-08-01', end: '2025-08-11', role: '协助', hours: '16小时', variance: '0小时' }
+            ],
+            'proj-2': [{ id: 'task-b1', name: '子类标准整理与举证全流程优化', status: '进行中', owner: '赵波', start: '2025-12-02', end: '2026-02-01', role: '主导', hours: '24小时', variance: '0小时' }],
+            'proj-3': [],
+            'proj-4': [],
+            'proj-5': [{ id: 'task-c1', name: '集成case管理系统需求分解', status: '已完成', owner: '徐银涛', start: '2023-09-06', end: '2024-01-15', role: '主导', hours: '20小时', variance: '-1小时' }]
+        };
+
+        // 技术数据
+        const techCategories = ['专业技术', '领域技术'];
+        const techOptions = [
+            { id: 'tech-1', category: '专业技术', name: '上位机技术', subName: '视觉处理', desc: '进行图像、视觉处理，常用的如Halcon、OpenCV。', level: 2, metrics: [{ name: '识别准确度', value: '0.9', unit: '%' }, { name: '量化指标值', value: '> 1000', unit: '次/秒' }] },
+            { id: 'tech-2', category: '专业技术', name: '开发技术', subName: 'WPF', desc: 'MVVM架构，如PRISM框架。', level: 2, metrics: [{ name: '是否应用', value: '是', unit: '' }] },
+            { id: 'tech-3', category: '专业技术', name: 'AI应用技术', subName: '翻译技术', desc: '使用大语言模型实现多语言翻译。', level: 3, metrics: [{ name: '支持语言种类', value: '≥ 40', unit: '种' }] },
+            { id: 'tech-4', category: '领域技术', name: '系统架构及部署技术', subName: '企业服务总线ESB', desc: '企业服务总线（Enterprise Service Bus）应用。', level: 2, metrics: [{ name: '交付物中应用次数', value: '≥ 1', unit: '个' }] }
+        ];
+
+        // 见证人数据（根据项目任务自动推荐）
+        const witnessData = [
+            { id: 'w-1', name: '吴有', dept: '业务解决方案部', avatar: null, role: '项目经理', recommended: true },
+            { id: 'w-2', name: '郑鑫', dept: '数字化体验&智能应用', avatar: null, role: '技术负责人', recommended: true },
+            { id: 'w-3', name: '吴军', dept: '人力资源部', avatar: null, role: 'HRBP', recommended: true },
+            { id: 'w-4', name: '余波', dept: 'IT平台部', avatar: null, role: '架构师', recommended: true },
+            { id: 'w-5', name: '陈欢', dept: '人力资源部', avatar: null, role: '项目经理', recommended: false },
+            { id: 'w-6', name: '赵波', dept: '市场运营部', avatar: null, role: '产品经理', recommended: false },
+            { id: 'w-7', name: '皮走升', dept: '研发中心', avatar: null, role: '开发工程师', recommended: false },
+            { id: 'w-8', name: '诸佳乐', dept: '采购部', avatar: null, role: '采购经理', recommended: false },
+            { id: 'w-9', name: '徐银涛', dept: 'IT系统部', avatar: null, role: '系统工程师', recommended: false },
+            { id: 'w-10', name: '李明', dept: '质量管理部', avatar: null, role: 'QA经理', recommended: false }
+        ];
+
+        // ========================================
+        // 状态变量
+        // ========================================
+        
+        const defaultFamily = profileOptions.families[0];
+        const defaultCategory = defaultFamily?.categories?.[0];
+        const defaultSubclass = defaultCategory?.subclasses?.[2]; // ITBP -v5.0
+        const defaultLevel = defaultSubclass?.levels?.[2]; // 3级
+
+        const currentProfile = {
+            family: defaultFamily?.name || '',
+            category: defaultCategory?.name || '',
+            subClass: defaultSubclass?.name || '',
+            level: defaultLevel || ''
+        };
+
+        let selectedBehaviorItems = new Set(['behavior-1']); // 默认选中第一个
+        let statusFilters = new Set(['进行中', '待处理']);
+        let roleFilters = new Set(['主导', '协助', '参与']);
+        let selectedProjectId = 'proj-1';
+        let selectedTaskIds = new Set(['task-a1', 'task-a2']);
+        let selectedIndicatorIds = new Set(['ind-1', 'ind-2']);
+        let selectedTechIds = new Set(['tech-1']);
+        let techDetailVisible = true;
+        let currentSheetKey = null;
+
+        // 见证人选择状态
+        let selectedBehaviorWitnessIds = new Set(['w-3', 'w-4']); // 默认选中吴军、余波
+        let selectedTechWitnessIds = new Set(['w-3', 'w-4']);
+        let currentWitnessType = 'behavior'; // 'behavior' 或 'tech'
+
+        // 文件和链接存储
+        const fileStore = { behavior: ['企业验收说明_1675285218649.png', '20260114-132605.jpg'], tech: ['性能测试报告_v2.pdf'] };
+        const linkStore = { behavior: [], tech: [] };
+
+        // ========================================
+        // 辅助函数
+        // ========================================
+
+        function getCategoriesByFamily(familyName) {
+            const family = profileOptions.families.find(item => item.name === familyName);
+            return family ? family.categories : [];
+        }
+
+        function getSubclassesByCategory(familyName, categoryName) {
+            const categories = getCategoriesByFamily(familyName);
+            const category = categories.find(item => item.name === categoryName);
+            return category ? category.subclasses : [];
+        }
+
+        function getLevelsBySubclass(familyName, categoryName, subClassName) {
+            const subclasses = getSubclassesByCategory(familyName, categoryName);
+            const item = subclasses.find(sub => sub.name === subClassName);
+            return item ? item.levels : [];
+        }
+
+        function findTaskBySelection(selectionId) {
+            if (!selectionId) return null;
+            for (const behavior of behaviorData) {
+                if (behavior.id === selectionId) return { behavior, type: 'behavior' };
+                const taskMatch = (behavior.tasks || []).find(task => task.id === selectionId);
+                if (taskMatch) return { behavior, task: taskMatch, type: 'task' };
+                for (const task of behavior.tasks || []) {
+                    const stepMatch = (task.steps || []).find(step => step.id === selectionId);
+                    if (stepMatch) return { behavior, task, step: stepMatch, type: 'step' };
+                }
+            }
+            return null;
+        }
+
+        function getSelectedProject() {
+            return projects.find(item => item.id === selectedProjectId) || null;
+        }
+
+        // ========================================
+        // Modal/Sheet 控制
+        // ========================================
+
+        function openModal(mask, modal) {
+            mask.style.display = 'block';
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(mask, modal) {
+            mask.style.display = 'none';
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function openSheet(key, title) {
+            currentSheetKey = key;
+            document.getElementById('sheetTitle').textContent = title;
+            document.getElementById('sheetBody').innerHTML = '';
+            if (key === 'behavior') {
+                renderBehaviorSheet();
+            } else {
+                renderSimpleSheet(key);
+            }
+            document.getElementById('sheetMask').style.display = 'block';
+            document.getElementById('sheet').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSheet() {
+            document.getElementById('sheetMask').style.display = 'none';
+            document.getElementById('sheet').classList.remove('show');
+            document.body.style.overflow = '';
+            currentSheetKey = null;
+        }
+
+        // ========================================
+        // 行为选择Sheet渲染
+        // ========================================
+
+        function buildFilterChips(list, activeSet, key) {
+            return list.map(item => {
+                const active = activeSet.has(item) ? 'active' : '';
+                return `<span class="filter-chip ${active}" data-filter="${key}" data-value="${item}">${item}</span>`;
+            }).join('');
+        }
+
+        function renderBehaviorTree() {
+            const statusList = Array.from(statusFilters);
+            const roleList = Array.from(roleFilters);
+
+            const renderCheckbox = (id, type) => {
+                const checked = selectedBehaviorItems.has(id);
+                return `<span class="checkbox ${checked ? 'checked' : ''}" data-type="${type}" data-id="${id}">${checked ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</span>`;
+            };
+
+            // 渲染选中项的详细信息（输入、输出、指标）
+            const renderSelectionDetail = () => {
+                const selectedId = Array.from(selectedBehaviorItems)[0];
+                if (!selectedId) return '';
+                
+                const selection = findTaskBySelection(selectedId);
+                if (!selection) return '';
+
+                let typeLabel = '', typeIcon = '', title = '', inputs = [], outputs = [], indicators = [];
+                let parentHtml = '';
+
+                if (selection.type === 'behavior') {
+                    typeLabel = '活动';
+                    typeIcon = 'fa-cubes';
+                    title = selection.behavior.title;
+                    inputs = selection.behavior.inputs || [];
+                    outputs = selection.behavior.outputs || [];
+                    indicators = selection.behavior.indicators || [];
+                } else if (selection.type === 'task') {
+                    typeLabel = '任务';
+                    typeIcon = 'fa-tasks';
+                    title = selection.task.title;
+                    inputs = selection.task.inputs || [];
+                    outputs = selection.task.outputs || [];
+                    indicators = selection.task.indicators || [];
+                    // 显示父级活动信息
+                    parentHtml = `
+                        <div class="selection-parent-info">
+                            <div class="parent-label"><i class="fa-solid fa-sitemap"></i> 所属活动</div>
+                            <div class="parent-title">${selection.behavior.title}</div>
+                        </div>
+                    `;
+                } else if (selection.type === 'step') {
+                    typeLabel = '步骤';
+                    typeIcon = 'fa-shoe-prints';
+                    title = selection.step.title;
+                    // 步骤一般没有独立的输入输出，继承任务的
+                    inputs = selection.task.inputs || [];
+                    outputs = selection.task.outputs || [];
+                    indicators = selection.task.indicators || [];
+                    // 显示父级活动和任务信息
+                    parentHtml = `
+                        <div class="selection-parent-info">
+                            <div class="parent-label"><i class="fa-solid fa-sitemap"></i> 所属活动</div>
+                            <div class="parent-title">${selection.behavior.title}</div>
+                        </div>
+                        <div class="selection-parent-info">
+                            <div class="parent-label"><i class="fa-solid fa-tasks"></i> 所属任务</div>
+                            <div class="parent-title">${selection.task.title}</div>
+                        </div>
+                    `;
+                }
+
+                const inputsHtml = inputs.length > 0 
+                    ? inputs.map(i => `<li>${i}</li>`).join('') 
+                    : '<li style="color:var(--text-light);">暂无</li>';
+                const outputsHtml = outputs.length > 0 
+                    ? outputs.map(o => `<li>${o}</li>`).join('') 
+                    : '<li style="color:var(--text-light);">暂无</li>';
+                const indicatorsHtml = indicators.length > 0 
+                    ? indicators.map(ind => `<li>${ind}</li>`).join('') 
+                    : '<li style="color:var(--text-light);">暂无</li>';
+
+                return `
+                    <div class="selection-detail">
+                        <div class="selection-detail-header">
+                            <div class="selection-detail-icon"><i class="fa-solid ${typeIcon}"></i></div>
+                            <div class="selection-detail-title">${title}</div>
+                            <span class="selection-detail-type">${typeLabel}</span>
+                        </div>
+                        ${parentHtml}
+                        <div class="selection-io-grid">
+                            <div class="selection-io-item">
+                                <div class="selection-io-label"><i class="fa-solid fa-arrow-right-to-bracket"></i> 输入</div>
+                                <ul class="selection-io-list">${inputsHtml}</ul>
+                            </div>
+                            <div class="selection-io-item">
+                                <div class="selection-io-label"><i class="fa-solid fa-arrow-right-from-bracket"></i> 输出</div>
+                                <ul class="selection-io-list">${outputsHtml}</ul>
+                            </div>
+                            <div class="selection-io-item">
+                                <div class="selection-io-label"><i class="fa-solid fa-bullseye"></i> 指标要求</div>
+                                <ul class="selection-io-list">${indicatorsHtml}</ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const treeItems = behaviorData
+                .filter(behavior => statusList.includes(behavior.status) && roleList.includes(behavior.role))
+                .map(behavior => {
+                    const isSelected = selectedBehaviorItems.has(behavior.id);
+                    
+                    const taskHtml = (behavior.tasks || [])
+                        .filter(task => statusList.includes(task.status) && roleList.includes(task.role))
+                        .map(task => {
+                            const isTaskSelected = selectedBehaviorItems.has(task.id);
+                            
+                            const stepHtml = (task.steps || [])
+                                .filter(step => statusList.includes(step.status))
+                                .map(step => {
+                                    const isStepSelected = selectedBehaviorItems.has(step.id);
+                                    return `
+                                        <div class="tree-item ${isStepSelected ? 'selected' : ''}">
+                                            <div class="tree-line">
+                                                <div class="tree-title">
+                                                    ${renderCheckbox(step.id, 'step')}
+                                                    <span class="tree-tag">步骤</span>
+                                                    <span>${step.title}</span>
+                                                </div>
+                                                <span class="tree-tag status-tag">${step.status}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('');
+
+                            return `
+                                <div class="tree-item ${isTaskSelected ? 'selected' : ''}">
+                                    <div class="tree-line">
+                                        <div class="tree-title">
+                                            ${renderCheckbox(task.id, 'task')}
+                                            <span class="tree-tag">任务</span>
+                                            <span>${task.title}</span>
+                                        </div>
+                                        <div>
+                                            <span class="tree-tag role-tag">${task.role}</span>
+                                            <span class="tree-tag ${task.status === '已完成' ? 'status-done' : 'status-tag'}">${task.status}</span>
+                                        </div>
+                                    </div>
+                                    ${stepHtml ? `<div class="tree-children">${stepHtml}</div>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+
+                    return `
+                        <div class="tree-item ${isSelected ? 'selected' : ''}">
+                            <div class="tree-line">
+                                <div class="tree-title">
+                                    ${renderCheckbox(behavior.id, 'behavior')}
+                                    <span class="tree-tag">活动</span>
+                                    <span>${behavior.title}</span>
+                                </div>
+                                <div>
+                                    <span class="tree-tag role-tag">${behavior.role}</span>
+                                    <span class="tree-tag ${behavior.status === '已完成' ? 'status-done' : 'status-tag'}">${behavior.status}</span>
+                                </div>
+                            </div>
+                            <div class="tree-meta">${behavior.desc}</div>
+                            ${taskHtml ? `<div class="tree-children">${taskHtml}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+            const detailHtml = renderSelectionDetail();
+            return (treeItems || '<div class="summary-badge">暂无符合条件的任职行为</div>') + detailHtml;
+        }
+
+        function renderBehaviorSheet() {
+            const categories = getCategoriesByFamily(currentProfile.family);
+            if (!categories.find(item => item.name === currentProfile.category)) {
+                currentProfile.category = categories[0]?.name || '';
+            }
+            const subclasses = getSubclassesByCategory(currentProfile.family, currentProfile.category);
+            if (!subclasses.find(item => item.name === currentProfile.subClass)) {
+                currentProfile.subClass = subclasses[0]?.name || '';
+            }
+            const levels = getLevelsBySubclass(currentProfile.family, currentProfile.category, currentProfile.subClass);
+            if (!levels.includes(currentProfile.level)) {
+                currentProfile.level = levels[0] || '';
+            }
+
+            const familyOptions = profileOptions.families.map(item => `<option value="${item.name}" ${item.name === currentProfile.family ? 'selected' : ''}>${item.name}</option>`).join('');
+            const categoryOptions = categories.map(item => `<option value="${item.name}" ${item.name === currentProfile.category ? 'selected' : ''}>${item.name}</option>`).join('');
+            const subclassOptions = subclasses.map(item => `<option value="${item.name}" ${item.name === currentProfile.subClass ? 'selected' : ''}>${item.name}</option>`).join('');
+            const levelOptions = levels.map(item => `<option value="${item}" ${item === currentProfile.level ? 'selected' : ''}>${item}</option>`).join('');
+
+            document.getElementById('sheetBody').innerHTML = `
+                <div class="label required"><i class="fa-solid fa-sitemap"></i> 职族职类职级</div>
+                <div class="select-row">
+                    <select class="select" id="familySelect">${familyOptions}</select>
+                    <select class="select" id="categorySelect">${categoryOptions}</select>
+                </div>
+                <div class="select-row">
+                    <select class="select" id="subclassSelect">${subclassOptions}</select>
+                    <select class="select" id="levelSelect">${levelOptions}</select>
+                </div>
+                <div class="label"><i class="fa-solid fa-filter"></i> 状态筛选</div>
+                <div class="filter-group" id="statusFiltersGroup">
+                    ${buildFilterChips(['已完成', '进行中', '待处理'], statusFilters, 'status')}
+                </div>
+                <div class="label"><i class="fa-solid fa-user-tag"></i> 角色要求筛选</div>
+                <div class="filter-group" id="roleFiltersGroup">
+                    ${buildFilterChips(['主导', '协助', '参与'], roleFilters, 'role')}
+                </div>
+                <div class="label required"><i class="fa-solid fa-list-tree"></i> 可选任职行为/任务/步骤</div>
+                <div class="tree" id="behaviorTree">${renderBehaviorTree()}</div>
+                
+                <!-- 底部按钮 -->
+                <div class="sheet-actions-wrapper">
+                    <div class="sheet-actions">
+                        <button class="btn cancel-btn" id="sheetCancelBtn"><i class="fa-solid fa-xmark"></i> 取消</button>
+                        <button class="btn confirm-btn" id="sheetConfirmBtn"><i class="fa-solid fa-check"></i> 确定</button>
+                    </div>
+                </div>
+            `;
+            
+            // 绑定底部按钮事件
+            document.getElementById('sheetCancelBtn')?.addEventListener('click', closeSheet);
+            document.getElementById('sheetConfirmBtn')?.addEventListener('click', function() {
+                updateMainBehaviorView();
+                closeSheet();
+            });
+
+            // 绑定选择器事件
+            document.getElementById('familySelect')?.addEventListener('change', function() {
+                currentProfile.family = this.value;
+                renderBehaviorSheet();
+            });
+            document.getElementById('categorySelect')?.addEventListener('change', function() {
+                currentProfile.category = this.value;
+                renderBehaviorSheet();
+            });
+            document.getElementById('subclassSelect')?.addEventListener('change', function() {
+                currentProfile.subClass = this.value;
+                renderBehaviorSheet();
+            });
+            document.getElementById('levelSelect')?.addEventListener('change', function() {
+                currentProfile.level = this.value;
+            });
+
+            // 绑定筛选器事件
+            document.querySelectorAll('#sheetBody .filter-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const filterKey = this.dataset.filter;
+                    const value = this.dataset.value;
+                    const filterSet = filterKey === 'status' ? statusFilters : roleFilters;
+                    if (filterSet.has(value)) {
+                        filterSet.delete(value);
+                    } else {
+                        filterSet.add(value);
+                    }
+                    this.classList.toggle('active');
+                    document.getElementById('behaviorTree').innerHTML = renderBehaviorTree();
+                    bindBehaviorTreeEvents();
+                });
+            });
+
+            bindBehaviorTreeEvents();
+        }
+
+        function bindBehaviorTreeEvents() {
+            // 点击checkbox选择
+            document.querySelectorAll('#behaviorTree .checkbox').forEach(checkbox => {
+                checkbox.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    selectBehaviorItem(this.dataset.id);
+                });
+            });
+            
+            // 点击整行也可以选择
+            document.querySelectorAll('#behaviorTree .tree-line').forEach(line => {
+                line.addEventListener('click', function(e) {
+                    const checkbox = this.querySelector('.checkbox');
+                    if (checkbox) {
+                        selectBehaviorItem(checkbox.dataset.id);
+                    }
+                });
+            });
+        }
+        
+        function selectBehaviorItem(id) {
+            if (!id) return;
+            console.log('Selecting item - ID:', id);
+            // 单选模式
+            selectedBehaviorItems.clear();
+            selectedBehaviorItems.add(id);
+            console.log('After selection - selectedBehaviorItems:', Array.from(selectedBehaviorItems));
+            // 验证选择结果
+            const selection = findTaskBySelection(id);
+            console.log('Selection type:', selection?.type);
+            document.getElementById('behaviorTree').innerHTML = renderBehaviorTree();
+            bindBehaviorTreeEvents();
+        }
+
+        function updateMainBehaviorView() {
+            const profileText = `${currentProfile.family} / ${currentProfile.category} / ${currentProfile.subClass} / ${currentProfile.level}`;
+            const profileEl = document.getElementById('behaviorProfile');
+            if (profileEl) {
+                profileEl.innerHTML = `<i class="fa-solid fa-sitemap"></i> ${profileText}`;
+            }
+
+            const selectedId = Array.from(selectedBehaviorItems)[0];
+            const selection = findTaskBySelection(selectedId);
+            
+            const countEl = document.getElementById('behaviorSelectedCount');
+            if (countEl) {
+                const typeText = selection ? (selection.type === 'behavior' ? '活动' : selection.type === 'task' ? '任务' : '步骤') : '';
+                countEl.innerHTML = `<i class="fa-solid fa-check-circle"></i> 已选择 ${selectedBehaviorItems.size} 项${typeText ? ` (${typeText})` : ''}`;
+            }
+            
+            // 调试输出
+            console.log('Selected ID:', selectedId);
+            console.log('Selection result:', selection);
+
+            // 更新行为卡片 - 根据选择类型展示不同内容
+            const behaviorCard = document.querySelector('#section-behavior .mini-card');
+            if (behaviorCard && selection) {
+                let cardHtml = '';
+                
+                if (selection.type === 'behavior') {
+                    // 选择的是活动
+                    const b = selection.behavior;
+                    cardHtml = `
+                        <div class="mini-title">${b.title}<span class="mini-tag role">${b.role}</span><span class="mini-tag type">活动</span></div>
+                        <div class="mini-desc">${b.desc}</div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-to-bracket"></i> 活动输入</strong>
+                            <ul>${(b.inputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-from-bracket"></i> 活动输出</strong>
+                            <ul>${(b.outputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-bullseye"></i> 活动指标要求</strong>
+                            <ul>${(b.indicators || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                    `;
+                } else if (selection.type === 'task') {
+                    // 选择的是任务 - 显示父级活动和任务信息
+                    const b = selection.behavior;
+                    const t = selection.task;
+                    cardHtml = `
+                        <div class="parent-info-bar">
+                            <i class="fa-solid fa-sitemap"></i> 所属活动：${b.title}
+                        </div>
+                        <div class="mini-title">${t.title}<span class="mini-tag role">${t.role}</span><span class="mini-tag type">任务</span></div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-to-bracket"></i> 任务输入</strong>
+                            <ul>${(t.inputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-from-bracket"></i> 任务输出</strong>
+                            <ul>${(t.outputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-bullseye"></i> 任务指标要求</strong>
+                            <ul>${(t.indicators || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                    `;
+                } else if (selection.type === 'step') {
+                    // 选择的是步骤 - 显示父级活动、任务和步骤信息
+                    const b = selection.behavior;
+                    const t = selection.task;
+                    const s = selection.step;
+                    cardHtml = `
+                        <div class="parent-info-bar">
+                            <i class="fa-solid fa-sitemap"></i> 所属活动：${b.title}
+                        </div>
+                        <div class="parent-info-bar" style="margin-top:4px;">
+                            <i class="fa-solid fa-tasks"></i> 所属任务：${t.title}
+                        </div>
+                        <div class="mini-title" style="margin-top:10px;">${s.title}<span class="mini-tag type">步骤</span></div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-to-bracket"></i> 任务输入</strong>
+                            <ul>${(t.inputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-arrow-right-from-bracket"></i> 任务输出</strong>
+                            <ul>${(t.outputs || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                        <div class="output-list">
+                            <strong><i class="fa-solid fa-bullseye"></i> 任务指标要求</strong>
+                            <ul>${(t.indicators || []).map(i => `<li>${i}</li>`).join('') || '<li>暂无</li>'}</ul>
+                        </div>
+                    `;
+                }
+                
+                behaviorCard.innerHTML = cardHtml;
+            }
+        }
+
+        // ========================================
+        // 指标选择Sheet渲染
+        // ========================================
+
+        function renderSimpleSheet(key) {
+            if (key === 'indicator') {
+                const items = indicatorData;
+                document.getElementById('sheetBody').innerHTML = items.map(item => {
+                    const checked = selectedIndicatorIds.has(item.id);
+                    return `
+                        <div class="sheet-item" data-id="${item.id}">
+                            <span class="checkbox ${checked ? 'checked' : ''}">${checked ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</span>
+                            <span>${item.title} ${item.standard.replace('判断标准：', '')}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function syncIndicatorList() {
+            const list = document.getElementById('indicatorList');
+            const count = document.getElementById('indicatorCount');
+            const selectedIndicators = indicatorData.filter(item => selectedIndicatorIds.has(item.id));
+            
+            list.innerHTML = '';
+            if (!selectedIndicators.length) {
+                list.innerHTML = `<div class="summary-badge">暂未选择指标</div>`;
+            } else {
+                selectedIndicators.forEach(item => {
+                    list.innerHTML += `
+                        <div class="indicator-card">
+                            <div class="indicator-title">${item.title}<span class="mini-tag">${item.tag}</span></div>
+                            <div class="indicator-meta">${item.standard}</div>
+                            <div class="indicator-meta">${item.progress}</div>
+                            <div class="progress"><span style="width: ${item.percent}%;"></span></div>
+                        </div>
+                    `;
+                });
+            }
+            count.innerHTML = `<i class="fa-solid fa-chart-line"></i> 已选择 ${selectedIndicators.length} 项指标`;
+        }
+
+        // ========================================
+        // 项目选择Modal渲染
+        // ========================================
+
+        function renderProjectModal() {
+            const keyword = (document.getElementById('projectSearch')?.value || '').trim().toLowerCase();
+            const filteredProjects = projects.filter(project => {
+                if (!keyword) return true;
+                return project.name.toLowerCase().includes(keyword) || project.code.toLowerCase().includes(keyword) || project.number.toLowerCase().includes(keyword);
+            });
+
+            // 快捷选择
+            const quickList = document.getElementById('projectQuickList');
+            quickList.innerHTML = '';
+            filteredProjects.slice(0, 4).forEach(project => {
+                const card = document.createElement('div');
+                card.className = `chip-card ${project.id === selectedProjectId ? 'active' : ''}`;
+                card.dataset.projectId = project.id;
+                card.textContent = project.name;
+                quickList.appendChild(card);
+            });
+
+            // 全部项目
+            const projectList = document.getElementById('projectList');
+            projectList.innerHTML = '';
+            filteredProjects.forEach(project => {
+                const statusIcon = project.status === '已完成' ? '<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>' : '<i class="fa-solid fa-spinner" style="color:#1890ff;"></i>';
+                const row = document.createElement('div');
+                row.className = `list-card ${project.id === selectedProjectId ? 'selected' : ''}`;
+                row.dataset.projectId = project.id;
+                row.innerHTML = `
+                    <div class="list-row">
+                        <div>
+                            <div class="list-title">${project.name}</div>
+                            <div class="summary-badge" style="margin-top:4px;">${project.code}</div>
+                        </div>
+                        <div class="checkbox ${project.id === selectedProjectId ? 'checked' : ''}">${project.id === selectedProjectId ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</div>
+                    </div>
+                    <div class="list-meta" style="margin-top:10px;">
+                        <span>${statusIcon} ${project.status}</span>
+                        <span><i class="fa-solid fa-building"></i> ${project.dept}</span>
+                        <span><i class="fa-solid fa-user"></i> ${project.manager}</span>
+                        <span><i class="fa-solid fa-calendar"></i> ${project.start} ~ ${project.end}</span>
+                    </div>
+                `;
+                projectList.appendChild(row);
+            });
+        }
+
+        function syncProjectInfo() {
+            const project = getSelectedProject();
+            const projectInfo = document.getElementById('projectInfo');
+            if (projectInfo) {
+                projectInfo.value = project ? `${project.name}（${project.code}）` : '';
+            }
+        }
+
+        // ========================================
+        // 任务选择Modal渲染
+        // ========================================
+
+        function renderTaskModal() {
+            const project = getSelectedProject();
+            document.getElementById('taskProjectName').textContent = project ? project.name : '未选择项目';
+            const tasks = project ? (projectTasks[selectedProjectId] || []) : [];
+            const taskListModal = document.getElementById('taskListModal');
+            taskListModal.innerHTML = '';
+
+            if (!tasks.length) {
+                document.getElementById('taskEmptyHint').style.display = 'block';
+                return;
+            }
+            document.getElementById('taskEmptyHint').style.display = 'none';
+
+            tasks.forEach(task => {
+                const checked = selectedTaskIds.has(task.id);
+                const statusIcon = task.status === '已完成' ? '<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>' : '<i class="fa-solid fa-spinner" style="color:#1890ff;"></i>';
+                const item = document.createElement('div');
+                item.className = `list-card ${checked ? 'selected' : ''}`;
+                item.dataset.taskId = task.id;
+                item.innerHTML = `
+                    <div class="list-row">
+                        <div>
+                            <div class="list-title">${task.name}</div>
+                            <div class="summary-badge" style="margin-top:4px;">${task.owner} · ${task.role}</div>
+                        </div>
+                        <div class="checkbox ${checked ? 'checked' : ''}">${checked ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</div>
+                    </div>
+                    <div class="list-meta" style="margin-top:10px;">
+                        <span>${statusIcon} ${task.status}</span>
+                        <span><i class="fa-solid fa-clock"></i> ${task.hours}</span>
+                        <span><i class="fa-solid fa-calendar"></i> ${task.start}</span>
+                        <span><i class="fa-solid fa-calendar-check"></i> ${task.end}</span>
+                    </div>
+                `;
+                taskListModal.appendChild(item);
+            });
+        }
+
+        function syncTaskList() {
+            const list = document.getElementById('taskList');
+            const count = document.getElementById('taskCount');
+            if (!selectedProjectId) {
+                list.innerHTML = `<div class="summary-badge">请先选择项目，再选择任务</div>`;
+                count.innerHTML = '<i class="fa-solid fa-tasks"></i> 已选择 0 个任务';
+                return;
+            }
+            const tasks = projectTasks[selectedProjectId] || [];
+            const selectedTasks = tasks.filter(task => selectedTaskIds.has(task.id));
+            list.innerHTML = '';
+            if (!selectedTasks.length) {
+                list.innerHTML = `<div class="summary-badge">暂未选择任务</div>`;
+            } else {
+                selectedTasks.forEach(task => {
+                    const varianceColor = task.variance.startsWith('-') ? '#ff4d4f' : (task.variance === '0小时' ? '#52c41a' : '#faad14');
+                    const varianceIcon = task.variance.startsWith('-') ? 'fa-arrow-trend-down' : (task.variance === '0小时' ? 'fa-equals' : 'fa-arrow-trend-up');
+                    list.innerHTML += `
+                        <div class="mini-card" style="margin-bottom:8px;">
+                            <div class="mini-title">${task.name}<span class="mini-tag ${task.role === '主导' ? 'role' : ''}">${task.role}</span></div>
+                            <div class="meta-grid">
+                                <span><i class="fa-regular fa-calendar"></i> ${task.start}</span>
+                                <span><i class="fa-regular fa-calendar-check"></i> ${task.end}</span>
+                                <span><i class="fa-regular fa-clock"></i> ${task.hours}</span>
+                                <span style="color:${varianceColor};"><i class="fa-solid ${varianceIcon}"></i> ${task.variance}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            count.innerHTML = `<i class="fa-solid fa-tasks"></i> 已选择 ${selectedTasks.length} 个任务`;
+        }
+
+        // ========================================
+        // 技术选择Modal渲染
+        // ========================================
+
+        function renderTechModal(activeCategory = techCategories[0]) {
+            const techCategoryTabs = document.getElementById('techCategoryTabs');
+            techCategoryTabs.innerHTML = '';
+            techCategories.forEach(category => {
+                const pill = document.createElement('span');
+                pill.className = `modal-pill ${category === activeCategory ? 'active' : ''}`;
+                pill.textContent = category;
+                pill.dataset.category = category;
+                techCategoryTabs.appendChild(pill);
+            });
+
+            const keyword = (document.getElementById('techSearch').value || '').trim().toLowerCase();
+            const list = techOptions.filter(item => {
+                const matchCategory = item.category === activeCategory;
+                const matchKeyword = !keyword || item.name.toLowerCase().includes(keyword) || item.subName.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword);
+                return matchCategory && matchKeyword;
+            });
+
+            const techList = document.getElementById('techList');
+            techList.innerHTML = '';
+            list.forEach(item => {
+                const checked = selectedTechIds.has(item.id);
+                const metricsHtml = techDetailVisible ? `<div class="tech-metrics"><i class="fa-solid fa-chart-simple"></i> ${item.metrics.map(m => `${m.name}：${m.value}${m.unit}`).join('；')}</div>` : '';
+                const row = document.createElement('div');
+                row.className = `tech-row ${checked ? 'selected' : ''}`;
+                row.dataset.techId = item.id;
+                row.innerHTML = `
+                    <div class="checkbox ${checked ? 'checked' : ''}">${checked ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</div>
+                    <div>
+                        <div class="tech-name">${item.name}</div>
+                        <div class="tech-sub">${item.subName} · ${item.desc}</div>
+                        ${metricsHtml}
+                    </div>
+                    <div class="tech-level">${'◆'.repeat(item.level)}${'◇'.repeat(5-item.level)}</div>
+                `;
+                techList.appendChild(row);
+            });
+
+            document.getElementById('techSelectedCount').innerHTML = `<i class="fa-solid fa-check-double"></i> 已选择：${selectedTechIds.size} 门技术`;
+        }
+
+        function syncTechSelection() {
+            const selected = techOptions.find(item => selectedTechIds.has(item.id));
+            const techTitle = document.getElementById('techTitle');
+            const helper = document.querySelector('#section-tech .helper span');
+            const metricBlock = document.getElementById('techMetricBlock');
+
+            if (!selected) {
+                if (techTitle) techTitle.value = '';
+                if (helper) helper.innerHTML = `难度等级：<span style="color:#ccc;">◇◇◇◇◇</span>`;
+                if (metricBlock) metricBlock.style.display = 'none';
+                return;
+            }
+            if (techTitle) techTitle.value = `${selected.name} · ${selected.subName}`;
+            if (helper) helper.innerHTML = `难度等级：<span class="diamond">${'◆'.repeat(selected.level)}</span><span style="color:#ccc;">${'◇'.repeat(5-selected.level)}</span>`;
+            if (metricBlock) metricBlock.style.display = 'block';
+        }
+
+        // ========================================
+        // 见证人选择Modal渲染
+        // ========================================
+
+        function renderWitnessModal() {
+            const keyword = (document.getElementById('witnessSearch')?.value || '').trim().toLowerCase();
+            const selectedSet = currentWitnessType === 'behavior' ? selectedBehaviorWitnessIds : selectedTechWitnessIds;
+            
+            // 筛选见证人
+            let filteredWitness = witnessData.filter(w => {
+                if (!keyword) return true;
+                return w.name.toLowerCase().includes(keyword) || w.dept.toLowerCase().includes(keyword);
+            });
+
+            // 推荐的排在前面
+            filteredWitness.sort((a, b) => {
+                if (a.recommended && !b.recommended) return -1;
+                if (!a.recommended && b.recommended) return 1;
+                return 0;
+            });
+
+            const witnessList = document.getElementById('witnessList');
+            witnessList.innerHTML = '';
+
+            filteredWitness.forEach(w => {
+                const checked = selectedSet.has(w.id);
+                const initials = w.name.slice(0, 1);
+                const avatarColors = [
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+                ];
+                const colorIndex = w.name.charCodeAt(0) % avatarColors.length;
+                
+                const card = document.createElement('div');
+                card.className = `witness-card ${checked ? 'selected' : ''}`;
+                card.dataset.witnessId = w.id;
+                card.innerHTML = `
+                    <div class="witness-avatar" style="background: ${avatarColors[colorIndex]};">
+                        ${w.avatar ? `<img src="${w.avatar}" alt="${w.name}">` : initials}
+                    </div>
+                    <div class="witness-info">
+                        <div class="witness-name">${w.name}</div>
+                        <div class="witness-dept">${w.dept}</div>
+                        ${w.recommended ? '<span class="witness-role"><i class="fa-solid fa-star" style="font-size:10px;margin-right:4px;"></i>推荐</span>' : ''}
+                    </div>
+                    <div class="checkbox ${checked ? 'checked' : ''}">${checked ? '<i class="fa-solid fa-check" style="font-size:10px;"></i>' : ''}</div>
+                `;
+                witnessList.appendChild(card);
+            });
+
+            document.getElementById('witnessSelectedCount').innerHTML = `<i class="fa-solid fa-user-check"></i> 已选择：${selectedSet.size} 位见证人`;
+        }
+
+        function syncWitnessChips(type) {
+            const selectedSet = type === 'behavior' ? selectedBehaviorWitnessIds : selectedTechWitnessIds;
+            const containerId = type === 'behavior' ? 'behaviorWitness' : 'techWitness';
+            const addBtnId = type === 'behavior' ? 'addBehaviorWitness' : 'addTechWitness';
+            const container = document.getElementById(containerId);
+            
+            if (!container) return;
+
+            // 清空现有chips（保留添加按钮）
+            container.innerHTML = '';
+
+            // 添加已选择的见证人chips
+            selectedSet.forEach(id => {
+                const witness = witnessData.find(w => w.id === id);
+                if (witness) {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip selected';
+                    chip.dataset.name = witness.name;
+                    chip.dataset.witnessId = id;
+                    chip.innerHTML = `
+                        <i class="fa-solid fa-user"></i> ${witness.name}
+                        <span class="chip-remove" data-type="${type}" data-id="${id}">×</span>
+                    `;
+                    container.appendChild(chip);
+                }
+            });
+
+            // 添加"添加"按钮
+            const addBtn = document.createElement('span');
+            addBtn.className = 'chip chip-add';
+            addBtn.id = addBtnId;
+            addBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> 添加';
+            container.appendChild(addBtn);
+
+            // 重新绑定添加按钮事件
+            addBtn.addEventListener('click', () => {
+                currentWitnessType = type;
+                document.getElementById('witnessModalTitle').textContent = type === 'behavior' ? '选择行为见证人' : '选择技术见证人';
+                renderWitnessModal();
+                openModal(document.getElementById('witnessMask'), document.getElementById('witnessModal'));
+            });
+        }
+
+        // ========================================
+        // 事件绑定
+        // ========================================
+
+        // 折叠/展开卡片
+        document.querySelectorAll('.sec-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const targetId = toggle.dataset.toggle;
+                const target = document.getElementById(targetId);
+                const icon = toggle.querySelector('i');
+                const text = toggle.querySelector('span');
+                const isHidden = target.style.display === 'none';
+                target.style.display = isHidden ? 'flex' : 'none';
+                text.textContent = isHidden ? '收起' : '展开';
+                icon.className = isHidden ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+            });
+        });
+
+        // Chip 选择切换
+        document.querySelectorAll('#evidenceType .chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('#evidenceType .chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+            });
+        });
+
+        // Sheet控制
+        document.getElementById('sheetClose').addEventListener('click', closeSheet);
+        document.getElementById('sheetMask').addEventListener('click', closeSheet);
+        document.getElementById('sheetCancel')?.addEventListener('click', closeSheet);
+        document.getElementById('sheetConfirm')?.addEventListener('click', function() {
+            if (currentSheetKey === 'behavior') {
+                updateMainBehaviorView();
+            } else if (currentSheetKey === 'indicator') {
+                syncIndicatorList();
+            }
+            closeSheet();
+        });
+
+        // Sheet内checkbox切换
+        document.getElementById('sheetBody').addEventListener('click', function(e) {
+            const sheetItem = e.target.closest('.sheet-item');
+            if (sheetItem && currentSheetKey === 'indicator') {
+                const id = sheetItem.dataset.id;
+                const checkbox = sheetItem.querySelector('.checkbox');
+                if (selectedIndicatorIds.has(id)) {
+                    selectedIndicatorIds.delete(id);
+                    checkbox.classList.remove('checked');
+                    checkbox.innerHTML = '';
+                } else {
+                    selectedIndicatorIds.add(id);
+                    checkbox.classList.add('checked');
+                    checkbox.innerHTML = '<i class="fa-solid fa-check" style="font-size:10px;"></i>';
+                }
+            }
+        });
+
+        // 行为选择按钮
+        document.querySelector('[data-open-sheet="behavior"]')?.addEventListener('click', function() {
+            openSheet('behavior', '选择任职行为');
+        });
+
+        // 指标选择按钮
+        document.querySelector('[data-open-sheet="indicator"]')?.addEventListener('click', function() {
+            openSheet('indicator', '选择指标要求');
+        });
+
+        // 项目选择Modal
+        const projectMask = document.getElementById('projectMask');
+        const projectModal = document.getElementById('projectModal');
+
+        document.getElementById('openProjectModal').addEventListener('click', () => {
+            renderProjectModal();
+            openModal(projectMask, projectModal);
+        });
+        document.getElementById('closeProjectModal').addEventListener('click', () => closeModal(projectMask, projectModal));
+        document.getElementById('projectCancel')?.addEventListener('click', () => closeModal(projectMask, projectModal));
+        projectMask.addEventListener('click', () => closeModal(projectMask, projectModal));
+
+        document.getElementById('projectSearch')?.addEventListener('input', renderProjectModal);
+        document.getElementById('projectSearchClear')?.addEventListener('click', () => {
+            document.getElementById('projectSearch').value = '';
+            renderProjectModal();
+        });
+
+        document.getElementById('projectQuickList').addEventListener('click', e => {
+            const card = e.target.closest('.chip-card');
+            if (!card) return;
+            selectedProjectId = card.dataset.projectId;
+            selectedTaskIds.clear();
+            renderProjectModal();
+        });
+
+        document.getElementById('projectList').addEventListener('click', e => {
+            const row = e.target.closest('.list-card');
+            if (!row) return;
+            selectedProjectId = row.dataset.projectId;
+            selectedTaskIds.clear();
+            renderProjectModal();
+        });
+
+        document.getElementById('projectConfirm').addEventListener('click', () => {
+            syncProjectInfo();
+            syncTaskList();
+            closeModal(projectMask, projectModal);
+        });
+
+        // 任务选择Modal
+        const taskMask = document.getElementById('taskMask');
+        const taskModal = document.getElementById('taskModal');
+
+        document.getElementById('openTaskModal').addEventListener('click', () => {
+            if (!selectedProjectId) {
+                alert('请先选择项目');
+                return;
+            }
+            renderTaskModal();
+            openModal(taskMask, taskModal);
+        });
+        document.getElementById('closeTaskModal').addEventListener('click', () => closeModal(taskMask, taskModal));
+        taskMask.addEventListener('click', () => closeModal(taskMask, taskModal));
+
+        document.getElementById('taskListModal').addEventListener('click', e => {
+            const row = e.target.closest('.list-card');
+            if (!row) return;
+            const taskId = row.dataset.taskId;
+            if (!taskId) return;
+            if (selectedTaskIds.has(taskId)) {
+                selectedTaskIds.delete(taskId);
+            } else {
+                selectedTaskIds.add(taskId);
+            }
+            renderTaskModal();
+        });
+
+        document.getElementById('taskConfirm').addEventListener('click', () => {
+            syncTaskList();
+            closeModal(taskMask, taskModal);
+        });
+
+        // 自定义任务Modal
+        const customTaskMask = document.getElementById('customTaskMask');
+        const customTaskModal = document.getElementById('customTaskModal');
+
+        document.getElementById('openCustomTask').addEventListener('click', () => {
+            openModal(customTaskMask, customTaskModal);
+        });
+        document.getElementById('closeCustomTask').addEventListener('click', () => closeModal(customTaskMask, customTaskModal));
+        document.getElementById('customTaskCancel').addEventListener('click', () => closeModal(customTaskMask, customTaskModal));
+        customTaskMask.addEventListener('click', () => closeModal(customTaskMask, customTaskModal));
+
+        document.getElementById('customTaskConfirm').addEventListener('click', () => {
+            const name = document.getElementById('customTaskName').value.trim();
+            const desc = document.getElementById('customTaskDesc').value.trim();
+            const start = document.getElementById('customTaskStart').value.trim();
+            const end = document.getElementById('customTaskEnd').value.trim();
+            if (!name || !start || !end) {
+                alert('请填写任务名称与时间');
+                return;
+            }
+            const id = `custom-${Date.now()}`;
+            const newTask = { id, name, status: '待处理', owner: '我', start, end, role: '自定义', hours: '--', variance: '--' };
+            if (!projectTasks[selectedProjectId]) {
+                projectTasks[selectedProjectId] = [];
+            }
+            projectTasks[selectedProjectId].unshift(newTask);
+            selectedTaskIds.add(id);
+            renderTaskModal();
+            syncTaskList();
+            closeModal(customTaskMask, customTaskModal);
+            // 清空表单
+            document.getElementById('customTaskName').value = '';
+            document.getElementById('customTaskDesc').value = '';
+            document.getElementById('customTaskStart').value = '';
+            document.getElementById('customTaskEnd').value = '';
+        });
+
+        // 技术选择Modal
+        const techMask = document.getElementById('techMask');
+        const techModal = document.getElementById('techModal');
+
+        document.getElementById('openTechModal').addEventListener('click', () => {
+            renderTechModal();
+            openModal(techMask, techModal);
+        });
+        document.getElementById('closeTechModal').addEventListener('click', () => closeModal(techMask, techModal));
+        document.getElementById('techCancel').addEventListener('click', () => closeModal(techMask, techModal));
+        techMask.addEventListener('click', () => closeModal(techMask, techModal));
+
+        document.getElementById('techSearch').addEventListener('input', () => {
+            const activeTab = document.querySelector('#techCategoryTabs .modal-pill.active');
+            renderTechModal(activeTab?.dataset.category || techCategories[0]);
+        });
+
+        document.getElementById('techDetailSwitch').addEventListener('click', function() {
+            this.classList.toggle('active');
+            techDetailVisible = this.classList.contains('active');
+            const activeTab = document.querySelector('#techCategoryTabs .modal-pill.active');
+            renderTechModal(activeTab?.dataset.category || techCategories[0]);
+        });
+
+        document.getElementById('techCategoryTabs').addEventListener('click', e => {
+            const pill = e.target.closest('.modal-pill');
+            if (!pill) return;
+            renderTechModal(pill.dataset.category);
+        });
+
+        document.getElementById('techList').addEventListener('click', e => {
+            const row = e.target.closest('.tech-row');
+            if (!row) return;
+            const techId = row.dataset.techId;
+            // 单选模式
+            selectedTechIds.clear();
+            selectedTechIds.add(techId);
+            const activeTab = document.querySelector('#techCategoryTabs .modal-pill.active');
+            renderTechModal(activeTab?.dataset.category || techCategories[0]);
+        });
+
+        document.getElementById('techConfirm').addEventListener('click', () => {
+            syncTechSelection();
+            closeModal(techMask, techModal);
+        });
+
+        // 见证人选择Modal
+        const witnessMask = document.getElementById('witnessMask');
+        const witnessModal = document.getElementById('witnessModal');
+
+        // 初始化添加按钮事件
+        document.getElementById('addBehaviorWitness')?.addEventListener('click', () => {
+            currentWitnessType = 'behavior';
+            document.getElementById('witnessModalTitle').textContent = '选择行为见证人';
+            renderWitnessModal();
+            openModal(witnessMask, witnessModal);
+        });
+
+        document.getElementById('addTechWitness')?.addEventListener('click', () => {
+            currentWitnessType = 'tech';
+            document.getElementById('witnessModalTitle').textContent = '选择技术见证人';
+            renderWitnessModal();
+            openModal(witnessMask, witnessModal);
+        });
+
+        document.getElementById('closeWitnessModal').addEventListener('click', () => closeModal(witnessMask, witnessModal));
+        document.getElementById('witnessCancel').addEventListener('click', () => closeModal(witnessMask, witnessModal));
+        witnessMask.addEventListener('click', () => closeModal(witnessMask, witnessModal));
+
+        document.getElementById('witnessSearch')?.addEventListener('input', renderWitnessModal);
+        document.getElementById('witnessSearchClear')?.addEventListener('click', () => {
+            document.getElementById('witnessSearch').value = '';
+            renderWitnessModal();
+        });
+
+        document.getElementById('witnessList').addEventListener('click', e => {
+            const card = e.target.closest('.witness-card');
+            if (!card) return;
+            const witnessId = card.dataset.witnessId;
+            const selectedSet = currentWitnessType === 'behavior' ? selectedBehaviorWitnessIds : selectedTechWitnessIds;
+            
+            if (selectedSet.has(witnessId)) {
+                selectedSet.delete(witnessId);
+            } else {
+                selectedSet.add(witnessId);
+            }
+            renderWitnessModal();
+        });
+
+        document.getElementById('witnessConfirm').addEventListener('click', () => {
+            syncWitnessChips(currentWitnessType);
+            closeModal(witnessMask, witnessModal);
+        });
+
+        // 见证人chip移除事件（使用事件委托）
+        document.addEventListener('click', e => {
+            const removeBtn = e.target.closest('.chip-remove');
+            if (!removeBtn) return;
+            const type = removeBtn.dataset.type;
+            const id = removeBtn.dataset.id;
+            if (type && id) {
+                const selectedSet = type === 'behavior' ? selectedBehaviorWitnessIds : selectedTechWitnessIds;
+                selectedSet.delete(id);
+                syncWitnessChips(type);
+            }
+        });
+
+        // 清空任务按钮
+        document.querySelector('[data-clear="task"]')?.addEventListener('click', function() {
+            selectedTaskIds.clear();
+            syncTaskList();
+        });
+
+        // 提交按钮
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            alert('✅ 提交成功！\n\n您的举证申请已提交，等待审批中...');
+        });
+
+        // 步骤导航点击滚动
+        document.querySelectorAll('.step-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const step = this.dataset.step;
+                const target = document.getElementById('section-' + step);
+                if (target) {
+                    const card = target.closest('.card');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // 滚动监听更新步骤状态
+        const sections = ['behavior', 'evidence', 'tech', 'preview'];
+        const stepItems = document.querySelectorAll('.step-item');
+
+        function updateStepperOnScroll() {
+            const scrollPos = window.scrollY + 150;
+            sections.forEach((section, index) => {
+                const el = document.getElementById('section-' + section);
+                if (el) {
+                    const card = el.closest('.card');
+                    const top = card.offsetTop;
+                    const bottom = top + card.offsetHeight;
+                    if (scrollPos >= top && scrollPos < bottom) {
+                        stepItems.forEach((item, i) => {
+                            item.classList.remove('active');
+                            if (i < index) {
+                                item.classList.add('done');
+                                item.querySelector('.step-dot').innerHTML = '<i class="fa-solid fa-check" style="font-size:10px;"></i>';
+                            } else if (i === index) {
+                                item.classList.add('active');
+                                item.classList.remove('done');
+                                item.querySelector('.step-dot').textContent = i + 1;
+                            } else {
+                                item.classList.remove('done');
+                                item.querySelector('.step-dot').textContent = i + 1;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateStepperOnScroll);
+
+        // 初始化渲染
+        renderTechModal();
+        syncTechSelection();
+        syncWitnessChips('behavior');
+        syncWitnessChips('tech');
+    </script>
+</body>
+</html>

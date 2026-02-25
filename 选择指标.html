@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择指标</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 弹窗容器 */
+        .modal-container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 弹窗头部 */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-close {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        /* 搜索区域 */
+        .search-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 40px;
+            padding: 0 40px 0 40px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            font-size: 14px;
+            background: #d9d9d9;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .search-clear:hover {
+            background: #bfbfbf;
+        }
+
+        /* 主体内容 */
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 左侧分类 */
+        .category-sidebar {
+            width: 260px;
+            background: #fafafa;
+            border-right: 1px solid #f0f0f0;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 16px 0;
+        }
+
+        .sidebar-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        .category-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .category-item.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .category-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            background: #ffffff;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .category-item.active .category-count {
+            background: #1890ff;
+            color: #ffffff;
+        }
+
+        /* 右侧指标列表 */
+        .indicator-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            font-size: 14px;
+            color: #1890ff;
+            margin-bottom: 24px;
+            padding-left: 16px;
+            border-left: 3px solid #1890ff;
+        }
+
+        /* 指标卡片网格 */
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        /* 指标卡片 */
+        .indicator-card {
+            background: #ffffff;
+            border: 1px solid #f0f0f0;
+            border-radius: 2px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .indicator-card:hover {
+            border-color: #40a9ff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .indicator-card.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        /* 预设指标卡片 */
+        .indicator-card.preset-indicator {
+            border-color: #b7eb8f;
+            background: #f6ffed;
+        }
+
+        .indicator-card.preset-indicator:hover {
+            border-color: #52c41a;
+            box-shadow: 0 2px 8px rgba(82, 196, 26, 0.15);
+        }
+
+        .indicator-card.preset-indicator.selected {
+            border-color: #52c41a;
+            background: #f6ffed;
+        }
+
+        /* 卡片头部 */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 12px;
+            background: #1890ff;
+            color: #ffffff;
+            border-radius: 2px;
+        }
+
+        .card-badge.preset {
+            background: #52c41a;
+        }
+
+        .card-number {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        /* 卡片信息行 */
+        .card-info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .info-label {
+            color: rgba(0, 0, 0, 0.45);
+            margin-right: 8px;
+        }
+
+        /* 计算公式 */
+        .formula-row {
+            margin: 12px 0;
+            padding: 8px 12px;
+            background: #fafafa;
+            border-radius: 2px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .formula-label {
+            color: rgba(0, 0, 0, 0.45);
+            margin-right: 8px;
+        }
+
+        .formula-content {
+            color: #1890ff;
+        }
+
+        /* 关联指标 */
+        .related-indicators {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 8px;
+            margin-top: 8px;
+            border-top: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .related-text {
+            font-size: 13px;
+            color: #1890ff;
+        }
+
+        /* 查看详情按钮 */
+        .view-detail-btn {
+            margin-top: 12px;
+            width: 100%;
+            height: 32px;
+            border: 1px solid #52c41a;
+            background: #ffffff;
+            color: #52c41a;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .view-detail-btn:hover {
+            background: #f6ffed;
+            border-color: #52c41a;
+        }
+
+        .view-detail-btn:active {
+            background: #d9f7be;
+        }
+
+        .related-arrow {
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 12px;
+        }
+
+        /* 底部操作栏 */
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            background: #ffffff;
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            background: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #ffffff;
+        }
+
+        /* 自定义滚动条 */
+        .category-sidebar::-webkit-scrollbar,
+        .indicator-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-track,
+        .indicator-content::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+
+        .category-sidebar::-webkit-scrollbar-thumb,
+        .indicator-content::-webkit-scrollbar-thumb {
+            background: #bfbfbf;
+            border-radius: 4px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-thumb:hover,
+        .indicator-content::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-container">
+        <!-- 弹窗头部 -->
+        <div class="modal-header">
+            <div class="modal-title">选择指标</div>
+            <button class="modal-close" onclick="window.close()">✕</button>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-section">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="搜索指标..." value="项目难度系数">
+                <span class="search-clear">✕</span>
+            </div>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="modal-body">
+            <!-- 左侧分类 -->
+            <div class="category-sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">指标分类</div>
+                    <div class="category-item">
+                        <span>最近使用</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>常用指标</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>预设指标</span>
+                        <span class="category-count">1</span>
+                    </div>
+                    <div class="category-item active">
+                        <span>全部</span>
+                        <span class="category-count">5</span>
+                    </div>
+                    <div class="category-item">
+                        <span>战略管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>产品设计与研发</span>
+                        <span class="category-count">5</span>
+                    </div>
+                    <div class="category-item">
+                        <span>市场营销与销售</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>供应链管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>用户支持与服务</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>人力资源管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>信息技术管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>财务管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                    <div class="category-item">
+                        <span>行政与资产管理</span>
+                        <span class="category-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧指标列表 -->
+            <div class="indicator-content">
+                <div class="content-header">全部</div>
+                <div class="content-subtitle">全部指标</div>
+
+                <div class="indicator-grid">
+                    <!-- 预设指标卡片 -->
+                    <div class="indicator-card preset-indicator">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                <span class="card-title">累计项目难度总和</span>
+                                <span class="card-badge preset">预设</span>
+                            </div>
+                            <span class="card-number">#0</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">指标类型:</span>
+                            <span>预设指标</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">类别:</span>
+                            <span>产品设计与研发</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">计量单位:</span>
+                            <span>级</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">统计方式:</span>
+                            <span>职级内累加</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">判断标准:</span>
+                            <span> > =指标值</span>
+                        </div>
+                        <div class="formula-row">
+                            <span class="formula-label">计算公式:</span>
+                            <span class="formula-content">累计项目难度总和 = Σ完成【项目模板】的项目数量×【项目模板】难度系数×参与深度系数</span>
+                        </div>
+                        <button class="view-detail-btn" onclick="viewIndicatorDetail()">
+                            <span>📋</span>
+                            <span>查看指标详情</span>
+                        </button>
+                    </div>
+
+                    <!-- 指标卡片1 -->
+                    <div class="indicator-card">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                <span class="card-title">项目难度系数</span>
+                            </div>
+                            <span class="card-number">#1</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">计量单位:</span>
+                            <span>级别</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">统计方式:</span>
+                            <span>职级内累加</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">判断标准:</span>
+                            <span> > =指标值</span>
+                        </div>
+                    </div>
+
+                    <!-- 指标卡片2 -->
+                    <div class="indicator-card">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                <span class="card-title">项目难度系数</span>
+                            </div>
+                            <span class="card-number">#2</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">计量单位:</span>
+                            <span>等级</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">统计方式:</span>
+                            <span>职级内累加</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">判断标准:</span>
+                            <span> > =指标值</span>
+                        </div>
+                    </div>
+
+                    <!-- 指标卡片3（带公式和关联） -->
+                    <div class="indicator-card">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                <span class="card-title">项目难度系数</span>
+                                <span class="card-badge">图</span>
+                            </div>
+                            <span class="card-number">#3</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">计量单位:</span>
+                            <span>分</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">统计方式:</span>
+                            <span>职级内累加</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">判断标准:</span>
+                            <span> > =指标值</span>
+                        </div>
+                        <div class="formula-row">
+                            <span class="info-label">计算公式:</span>
+                            <span class="formula-content">5 × C级项目数量要求 + 8 × M级项目数量要求 + 13 × C级项目数量要求 + 21 × HC级项目数量要求</span>
+                        </div>
+                        <div class="related-indicators">
+                            <span class="related-text">关联 4 个指标</span>
+                            <span class="related-arrow">展开 ›</span>
+                        </div>
+                    </div>
+
+                    <!-- 指标卡片4 -->
+                    <div class="indicator-card">
+                        <div class="card-header">
+                            <div class="card-title-wrapper">
+                                <span class="card-title">项目难度系数</span>
+                            </div>
+                            <span class="card-number">#4</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">计量单位:</span>
+                            <span>点</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">统计方式:</span>
+                            <span>职级内累加</span>
+                        </div>
+                        <div class="card-info-row">
+                            <span class="info-label">判断标准:</span>
+                            <span> > =指标值</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="modal-footer">
+            <button class="btn">取消</button>
+            <button class="btn btn-primary">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 分类切换
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 指标卡片选择
+        document.querySelectorAll('.indicator-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // 如果点击的是关联指标区域，不处理卡片选择
+                if (e.target.closest('.related-indicators')) {
+                    return;
+                }
+                this.classList.toggle('selected');
+            });
+        });
+
+        // 关联指标展开
+        document.querySelectorAll('.related-indicators').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const arrow = this.querySelector('.related-arrow');
+                if (arrow.textContent.includes('展开')) {
+                    arrow.textContent = '收起 ›';
+                } else {
+                    arrow.textContent = '展开 ›';
+                }
+            });
+        });
+
+        // 搜索框清除
+        document.querySelector('.search-clear').addEventListener('click', function() {
+            document.querySelector('.search-input').value = '';
+        });
+
+        // 确定按钮
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            const selectedCards = document.querySelectorAll('.indicator-card.selected');
+            console.log('已选择', selectedCards.length, '个指标');
+            alert('已选择 ' + selectedCards.length + ' 个指标');
+        });
+
+        // 查看指标详情
+        function viewIndicatorDetail() {
+            // 打开指标详情页面
+            window.open('指标详情.html', '_blank');
+        }
+    </script>
+</body>
+</html>
+

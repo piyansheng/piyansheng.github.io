@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格 - 绿色晋升配置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航模拟 */
+        .nav-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .nav-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-breadcrumb span.active {
+            color: #1a1a2e;
+            font-weight: 500;
+        }
+
+        /* 主容器 */
+        .main-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            min-height: 80vh;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            position: relative;
+            padding-left: 14px;
+        }
+
+        .page-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 22px;
+            width: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: #fff;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+
+        .btn-default {
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: #666;
+        }
+
+        .btn-default:hover {
+            color: #667eea;
+            border-color: #667eea;
+        }
+
+        .btn-text {
+            color: #667eea;
+            background: transparent;
+            padding: 0 8px;
+        }
+
+        .btn-text:hover {
+            color: #5a6fd6;
+            background: #f0f5ff;
+        }
+
+        .btn-text.danger {
+            color: #ff4d4f;
+        }
+
+        .btn-text.danger:hover {
+            background: #fff1f0;
+        }
+
+        /* 表格样式 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .config-table th {
+            text-align: left;
+            padding: 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+            color: #1a1a2e;
+            font-size: 14px;
+        }
+
+        .config-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .config-table tr:hover {
+            background: #fafafa;
+        }
+
+        /* 复选框样式 */
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: #667eea;
+        }
+
+        /* 用户信息列 */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #1a1a2e;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.pending {
+            background: #faad14;
+        }
+
+        .status-dot.active {
+            background: #52c41a;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-container {
+            background: #fff;
+            border-radius: 8px;
+            width: 800px; /* 大模态框 */
+            max-width: 90vw;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单样式 - 优化版 */
+        .form-item {
+            display: flex;
+            margin-bottom: 24px;
+            align-items: flex-start; /* 对齐顶部，适应多行内容 */
+        }
+
+        .form-label {
+            width: 140px;
+            padding-top: 6px; /* 与输入框文字对齐 */
+            font-size: 14px;
+            color: #1a1a2e;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .form-label.required::before {
+            content: '*';
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .form-content {
+            flex: 1;
+            max-width: 400px; /* 限制输入框宽度，接近截图 */
+        }
+
+        .form-text-value {
+            padding-top: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            height: 32px;
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+            outline: none;
+        }
+
+        /* 薪酬详情块 */
+        .salary-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 6px;
+        }
+
+        .salary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
+            width: 200px; /* 控制薪酬显示的宽度 */
+        }
+        
+        .preview-link {
+            color: #1890ff;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+            line-height: 32px;
+            white-space: nowrap; /* 防止换行 */
+        }
+
+        /* 自定义级联选择器样式 */
+        .cascader-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .cascader-input {
+            width: 100%;
+            height: 32px;
+            padding: 4px 11px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cascader-input.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .cascader-input .placeholder {
+            color: #bfbfbf;
+        }
+
+        .cascader-input .value {
+            color: #333;
+        }
+
+        .cascader-input .arrow {
+            font-size: 12px;
+            color: #bfbfbf;
+            transition: transform 0.3s;
+        }
+
+        .cascader-input.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .cascader-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            display: none;
+            flex-direction: row;
+            border: 1px solid #f0f0f0;
+        }
+
+        .cascader-dropdown.show {
+            display: flex;
+        }
+
+        .cascader-menu {
+            min-width: 120px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-right: 1px solid #f0f0f0;
+            padding: 4px 0;
+        }
+
+        .cascader-menu:last-child {
+            border-right: none;
+        }
+
+        .cascader-menu-item {
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cascader-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .cascader-menu-item.active {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .cascader-menu-item .expand-icon {
+            font-size: 10px;
+            color: #bfbfbf;
+        }
+
+        /* 选人弹窗特有样式 */
+        .selector-layout {
+            display: flex;
+            height: 400px;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .selector-left {
+            width: 300px;
+            border-right: 1px solid #f0f0f0;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .selector-right {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .search-input {
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+        }
+
+        .tree-node {
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+
+        .tree-node:hover {
+            background: #e6f7ff;
+        }
+
+        .tree-node.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .selected-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+        }
+
+        .remove-icon {
+            cursor: pointer;
+            color: #999;
+        }
+        .remove-icon:hover {
+            color: #ff4d4f;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 导航面包屑 -->
+    <div class="nav-header">
+        <div class="nav-breadcrumb">
+            <span>首页</span>
+            <span style="color: #ccc;">/</span>
+            <span>调整配置</span>
+            <span style="color: #ccc;">/</span>
+            <span class="active">绿色晋升配置</span>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-card">
+        <div class="toolbar">
+            <h1 class="page-title">绿色晋升配置</h1>
+            <div class="toolbar-actions">
+                <button class="btn btn-default" onclick="batchDelete()">批量删除</button>
+                <button class="btn btn-primary" onclick="batchSubmit()">批量提交</button>
+                <button class="btn btn-primary" onclick="openSelectorModal()">+ 添加</button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <table class="config-table" id="mainTable">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" onchange="toggleSelectAll(this)"></th>
+                    <th>人员信息</th>
+                    <th>调整类型</th>
+                    <th>子类</th>
+                    <th>调整后子类</th>
+                    <th>专业职级等</th>
+                    <th>调整后专业职级等</th>
+                    <th>公示模板</th>
+                    <th>公示范围</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 示例数据 1 -->
+                <tr>
+                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <td>
+                        <div class="user-cell">
+                            <img src="https://ui-avatars.com/api/?name=Hao&background=667eea&color=fff" alt="Avatar" class="avatar">
+                            <div class="user-info">
+                                <span class="user-name">郝虎虎</span>
+                                <span class="user-id">02320</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>特殊_子类调整</td>
+                    <td>软件开发子类</td>
+                    <td>-</td>
+                    <td>P4-B等</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>
+                        <div class="status-badge">
+                            <span class="status-dot pending"></span>
+                            <span>待提交</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-text" onclick="openConfigModal('郝虎虎')">编辑</button>
+                        <button class="btn btn-text danger" onclick="deleteRow(this)">删除</button>
+                    </td>
+                </tr>
+                <!-- 示例数据 2 -->
+                <tr>
+                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <td>
+                        <div class="user-cell">
+                            <img src="https://ui-avatars.com/api/?name=Wu&background=722ed1&color=fff" alt="Avatar" class="avatar">
+                            <div class="user-info">
+                                <span class="user-name">吴闯</span>
+                                <span class="user-id">06152</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>特殊_价值贡献</td>
+                    <td>硬件开发子类</td>
+                    <td>-</td>
+                    <td>P3-A等</td>
+                    <td>P4-A等</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>
+                        <div class="status-badge">
+                            <span class="status-dot pending"></span>
+                            <span>待提交</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-text" onclick="openConfigModal('吴闯')">编辑</button>
+                        <button class="btn btn-text danger" onclick="deleteRow(this)">删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- 空状态提示 (如果有) -->
+        <!-- <div style="text-align: center; padding: 40px; color: #999;">暂无数据</div> -->
+    </div>
+
+    <!-- 弹窗1：选择人员 -->
+    <div id="selectorModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span>添加人员</span>
+                <span style="cursor: pointer;" onclick="closeSelectorModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="selector-layout">
+                    <!-- 左侧树 -->
+                    <div class="selector-left">
+                        <input type="text" class="search-input" placeholder="请输入关键字进行搜索">
+                        <div style="font-weight: 500; margin-bottom: 8px;">RIGOL</div>
+                        <div style="padding-left: 12px;">
+                            <div class="tree-node">▶ SCOPE & VERIFICATION</div>
+                            <div style="padding-left: 16px;">
+                                <div class="tree-node">▼ 产品项目管理部</div>
+                                <div style="padding-left: 16px;">
+                                    <div class="tree-node active">
+                                        <input type="checkbox" checked> 郝虎虎 (02320)
+                                    </div>
+                                    <div class="tree-node">
+                                        <input type="checkbox"> 温冠军
+                                    </div>
+                                </div>
+                                <div class="tree-node">▼ 硬件开发部</div>
+                                <div style="padding-left: 16px;">
+                                    <div class="tree-node active">
+                                        <input type="checkbox" checked> 吴闯 (06152)
+                                    </div>
+                                    <div class="tree-node">
+                                        <input type="checkbox"> 王高远
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧已选 -->
+                    <div class="selector-right">
+                        <div style="margin-bottom: 12px; color: #666;">已选 (2)</div>
+                        <div class="selected-list">
+                            <div class="selected-item">
+                                <div class="user-cell" style="gap: 8px;">
+                                    <img src="https://ui-avatars.com/api/?name=Hao&background=667eea&color=fff" class="avatar" style="width: 24px; height: 24px;">
+                                    <span style="font-size: 13px;">郝虎虎 02320</span>
+                                </div>
+                                <span class="remove-icon">×</span>
+                            </div>
+                            <div class="selected-item">
+                                <div class="user-cell" style="gap: 8px;">
+                                    <img src="https://ui-avatars.com/api/?name=Wu&background=722ed1&color=fff" class="avatar" style="width: 24px; height: 24px;">
+                                    <span style="font-size: 13px;">吴闯 06152</span>
+                                </div>
+                                <span class="remove-icon">×</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeSelectorModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmAddUser()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗2：配置详情 -->
+    <div id="configModal" class="modal-overlay">
+        <div class="modal-container" style="width: 600px;">
+            <div class="modal-header">
+                <span>调整配置</span>
+                <span style="cursor: pointer;" onclick="closeConfigModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <!-- 姓名 -->
+                <div class="form-item">
+                    <div class="form-label">姓名</div>
+                    <div class="form-content">
+                        <div class="form-text-value" id="config-name">郝虎虎</div>
+                    </div>
+                </div>
+
+                <!-- 部门 -->
+                <div class="form-item">
+                    <div class="form-label">部门</div>
+                    <div class="form-content">
+                        <div class="form-text-value">产品项目管理部</div>
+                    </div>
+                </div>
+
+                <!-- 工号 -->
+                <div class="form-item">
+                    <div class="form-label">工号</div>
+                    <div class="form-content">
+                        <div class="form-text-value">02320</div>
+                    </div>
+                </div>
+
+                <!-- 岗位名称 -->
+                <div class="form-item">
+                    <div class="form-label">岗位名称</div>
+                    <div class="form-content">
+                        <div class="form-text-value">项目经理</div>
+                    </div>
+                </div>
+
+                <!-- 子类 -->
+                <div class="form-item">
+                    <div class="form-label">子类</div>
+                    <div class="form-content">
+                        <div class="form-text-value" id="current-subcategory">软件开发子类</div>
+                    </div>
+                </div>
+
+                <!-- 专业职级等 -->
+                <div class="form-item">
+                    <div class="form-label">专业职级等</div>
+                    <div class="form-content">
+                        <div class="form-text-value" id="current-rank">P3-B等</div>
+                    </div>
+                </div>
+
+                <!-- 调整原因 -->
+                <div class="form-item">
+                    <div class="form-label required">调整原因</div>
+                    <div class="form-content">
+                        <select class="form-select" id="adjustment-reason" onchange="handleReasonChange()">
+                            <option value="2" selected>特殊_价值贡献</option>
+                            <option value="1">特殊_子类调整</option>
+                            <option value="3">特殊_应届生调薪</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 调整后子类 -->
+                <div class="form-item">
+                    <div class="form-label required">调整后子类</div>
+                    <div class="form-content">
+                        <!-- 自定义级联选择器 -->
+                        <div class="cascader-wrapper" id="subCategoryCascader">
+                            <div class="cascader-input" id="cascader-input" onclick="toggleCascader()">
+                                <span class="value" id="cascader-display-value">软件开发子类</span>
+                                <span class="arrow">▼</span>
+                            </div>
+                            <div class="cascader-dropdown" id="cascader-dropdown">
+                                <!-- 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 调整后专业职级等 -->
+                <div class="form-item">
+                    <div class="form-label required">调整后专业职级等</div>
+                    <div class="form-content">
+                        <select class="form-select" id="rank-select">
+                            <option value="1" selected>P4-A等</option>
+                            <option value="2">P4-B等</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 调整后薪酬 -->
+                <div class="form-item">
+                    <div class="form-label">调整后薪酬</div>
+                    <div class="form-content">
+                        <div class="salary-details">
+                            <div class="salary-row">
+                                <span>月薪</span>
+                                <span>500.00</span>
+                            </div>
+                            <div class="salary-row">
+                                <span>补贴</span>
+                                <span>5000.00</span>
+                            </div>
+                            <div class="salary-row">
+                                <span>总包</span>
+                                <span>68000.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 公示模板 -->
+                <div class="form-item">
+                    <div class="form-label">公示模板</div>
+                    <div class="form-content" style="display: flex; align-items: center;">
+                        <select class="form-select">
+                            <option value="1" selected>标准流程的公示模板_升级</option>
+                            <option value="2">其他模板</option>
+                        </select>
+                        <span class="preview-link">预览</span>
+                    </div>
+                </div>
+
+                <!-- 公示范围 -->
+                <div class="form-item">
+                    <div class="form-label">公示范围</div>
+                    <div class="form-content">
+                        <select class="form-select">
+                            <option value="1" selected>最小范围</option>
+                            <option value="2">全员</option>
+                            <option value="3">部门内部</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeConfigModal()">取消</button>
+                <button class="btn btn-primary" onclick="closeConfigModal()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 弹窗控制
+        function openSelectorModal() {
+            document.getElementById('selectorModal').classList.add('show');
+            // 同步表格中的人员到左侧树的勾选状态
+            syncTreeCheckboxes();
+            // 初始化右侧列表
+            updateSelectedList();
+        }
+
+        // 同步树的勾选状态（核心逻辑修复）
+        function syncTreeCheckboxes() {
+            // 获取当前表格中已存在的所有工号
+            const existingIds = Array.from(document.querySelectorAll('#mainTable tbody .user-id')).map(el => el.innerText.trim());
+            
+            // 遍历所有树节点Checkbox
+            const treeCheckboxes = document.querySelectorAll('.tree-node input[type="checkbox"]');
+            treeCheckboxes.forEach(cb => {
+                // 解析Checkbox对应的人员ID
+                const text = cb.parentElement.innerText.trim();
+                let id = '';
+                const match = text.match(/^(.+?)\s*\((.+?)\)$/);
+                if(match) {
+                    id = match[2];
+                } else {
+                    // 尝试另一种格式或者非人员节点（如部门）
+                    // 简单逻辑：如果文本中包含已存在的ID，则勾选
+                    // 但更好的方式是只针对人员节点判断
+                }
+
+                // 如果ID存在于表格中，则勾选；否则取消勾选
+                // 注意：这里只针对有ID的人员节点。部门节点暂不处理或根据子节点联动（简化处理）
+                if (id) {
+                    if (existingIds.includes(id)) {
+                        cb.checked = true;
+                    } else {
+                        cb.checked = false;
+                    }
+                }
+            });
+        }
+
+        function closeSelectorModal() {
+            document.getElementById('selectorModal').classList.remove('show');
+        }
+
+        function openConfigModal(name) {
+            // 这里只是简单模拟，实际情况应该根据传入的 name 或 id 去获取对应数据填充表单
+            if(name) {
+                document.getElementById('config-name').innerText = name;
+            }
+            document.getElementById('configModal').classList.add('show');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('show');
+        }
+
+        // 全选功能
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            for(let i=0; i<checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+
+        // 监听左侧树 Checkbox 变化
+        document.addEventListener('DOMContentLoaded', function() {
+            const treeCheckboxes = document.querySelectorAll('.tree-node input[type="checkbox"]');
+            treeCheckboxes.forEach(cb => {
+                cb.addEventListener('change', updateSelectedList);
+            });
+            // 初始化时也绑定右侧移除按钮（如果是静态HTML已存在的话，或者直接重新渲染）
+            // 这里我们选择重新渲染一次以匹配初始勾选状态
+            // updateSelectedList(); // 暂不自动执行，等打开弹窗或用户操作
+        });
+
+        // 更新右侧列表逻辑
+        function updateSelectedList() {
+            const checkedBoxes = document.querySelectorAll('.tree-node input[type="checkbox"]:checked');
+            const container = document.querySelector('.selected-list');
+            const countLabel = document.querySelector('.selector-right > div:first-child');
+            
+            container.innerHTML = ''; // 清空
+            countLabel.innerText = `已选 (${checkedBoxes.length})`;
+
+            checkedBoxes.forEach(cb => {
+                // 获取文本，例如 "郝虎虎 (02320)"
+                const text = cb.parentElement.innerText.trim();
+                // 简单解析姓名和工号
+                let name = text, id = '';
+                const match = text.match(/^(.+?)\s*\((.+?)\)$/);
+                if(match) {
+                    name = match[1];
+                    id = match[2];
+                } else {
+                    // 处理可能没有括号的情况
+                    const parts = text.split(/\s+/);
+                    name = parts[0];
+                    if(parts.length > 1) id = parts[1];
+                }
+                
+                const itemHtml = `
+                    <div class="selected-item" data-name="${name}" data-id="${id}">
+                        <div class="user-cell" style="gap: 8px;">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff" class="avatar" style="width: 24px; height: 24px;">
+                            <span style="font-size: 13px;">${name} ${id}</span>
+                        </div>
+                        <span class="remove-icon" onclick="removeSelection('${name}')">×</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        // 移除选中（右侧点击X）
+        function removeSelection(name) {
+            const checkboxes = document.querySelectorAll('.tree-node input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const text = cb.parentElement.innerText;
+                if(text.includes(name)) {
+                    cb.checked = false;
+                }
+            });
+            updateSelectedList();
+        }
+
+        // 确认添加人员（真正的动态添加）
+        function confirmAddUser() {
+            closeSelectorModal();
+            
+            const selectedItems = document.querySelectorAll('.selected-list .selected-item');
+            const tableBody = document.querySelector('#mainTable tbody');
+
+            selectedItems.forEach(item => {
+                const name = item.dataset.name;
+                const id = item.dataset.id;
+                
+                // 去重检查
+                const existingIds = Array.from(tableBody.querySelectorAll('.user-id')).map(el => el.innerText);
+                if(existingIds.includes(id)) {
+                    return; // 已存在则跳过
+                }
+
+                const newRow = `
+                <tr>
+                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <td>
+                        <div class="user-cell">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff" alt="Avatar" class="avatar">
+                            <div class="user-info">
+                                <span class="user-name">${name}</span>
+                                <span class="user-id">${id}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>
+                        <div class="status-badge">
+                            <span class="status-dot pending"></span>
+                            <span>待配置</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-text" onclick="openConfigModal('${name}')">编辑</button>
+                        <button class="btn btn-text danger" onclick="deleteRow(this)">删除</button>
+                    </td>
+                </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', newRow);
+            });
+        }
+
+        // 删除单行
+        function deleteRow(btn) {
+            const row = btn.closest('tr');
+            if(confirm('确定要删除这条记录吗？')) {
+                row.remove();
+            }
+        }
+
+        // 批量删除
+        function batchDelete() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            if(checkboxes.length === 0) {
+                alert('请先选择要删除的记录');
+                return;
+            }
+            if(confirm('确定要删除选中的 ' + checkboxes.length + ' 条记录吗？')) {
+                checkboxes.forEach(cb => {
+                    cb.closest('tr').remove();
+                });
+                // 如果全选被勾选，需要取消
+                const selectAll = document.querySelector('thead input[type="checkbox"]');
+                if(selectAll) selectAll.checked = false;
+            }
+        }
+
+        // 批量提交
+        function batchSubmit() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            if(checkboxes.length === 0) {
+                alert('请先选择要提交的记录');
+                return;
+            }
+            if(confirm('确定要提交选中的 ' + checkboxes.length + ' 条记录吗？')) {
+                checkboxes.forEach(cb => {
+                    const row = cb.closest('tr');
+                    const badge = row.querySelector('.status-badge');
+                    if(badge) {
+                        badge.innerHTML = '<span class="status-dot active"></span><span>已提交</span>';
+                    }
+                    // 提交后通常取消勾选
+                    cb.checked = false;
+                });
+                const selectAll = document.querySelector('thead input[type="checkbox"]');
+                if(selectAll) selectAll.checked = false;
+                
+                alert('提交成功！');
+            }
+        }
+
+        // =======================
+        // 级联选择器逻辑
+        // =======================
+        
+        // 模拟数据：族 -> 类 -> 子类
+        const subCategoryData = [
+            {
+                label: '技术族',
+                children: [
+                    {
+                        label: '软件类',
+                        children: [
+                            { label: '软件开发子类', value: 'software_dev', maxRank: 6 }, // P6
+                            { label: '软件测试子类', value: 'software_test', maxRank: 5 } // P5
+                        ]
+                    },
+                    {
+                        label: '硬件类',
+                        children: [
+                            { label: '硬件开发子类', value: 'hardware_dev', maxRank: 5 }, // P5
+                            { label: '结构设计子类', value: 'structure_design', maxRank: 5 } // P5
+                        ]
+                    }
+                ]
+            },
+            {
+                label: '管理族',
+                children: [
+                    {
+                        label: '项目管理类',
+                        children: [
+                            { label: '项目经理子类', value: 'pm', maxRank: 4 } // M4 (模拟)
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // 职等后缀
+        const grades = ['A等', 'B等', 'C等', 'D等', 'E等'];
+        const gradeWeights = { 'A等': 5, 'B等': 4, 'C等': 3, 'D等': 2, 'E等': 1 };
+
+        // 模拟用户详细数据
+        const usersData = {
+            '郝虎虎': {
+                dept: '产品项目管理部', id: '02320', post: '项目经理',
+                subCategory: '软件开发子类', rank: 'P3-B等',
+                maxRank: 6, prefix: 'P' // 假设已知的该子类属性
+            },
+            '吴闯': {
+                dept: '硬件开发部', id: '06152', post: '硬件工程师',
+                subCategory: '硬件开发子类', rank: 'P3-A等',
+                maxRank: 5, prefix: 'P'
+            }
+        };
+
+        // 当前正在编辑的用户数据
+        let currentUser = null;
+
+        function openConfigModal(name) {
+            if(name && usersData[name]) {
+                currentUser = usersData[name];
+                document.getElementById('config-name').innerText = name;
+                // 填充其他信息（部门、工号等在实际代码中应有对应ID，此处简化未全部加ID，仅做逻辑演示）
+                // 填充当前子类和职级
+                document.getElementById('current-subcategory').innerText = currentUser.subCategory;
+                document.getElementById('current-rank').innerText = currentUser.rank;
+                
+                // 重置表单状态
+                const reasonSelect = document.getElementById('adjustment-reason');
+                reasonSelect.value = "2"; // 默认 特殊_价值贡献
+                handleReasonChange(); // 触发联动
+            }
+            document.getElementById('configModal').classList.add('show');
+        }
+
+        // 调整原因变更联动
+        function handleReasonChange() {
+            const reason = document.getElementById('adjustment-reason').value;
+            const cascaderInput = document.getElementById('cascader-input');
+            const displayValue = document.getElementById('cascader-display-value');
+            
+            // 1: 特殊_子类调整
+            if (reason === '1') {
+                // 允许调整子类
+                cascaderInput.style.backgroundColor = '#fff';
+                cascaderInput.style.pointerEvents = 'auto';
+                cascaderInput.classList.remove('disabled');
+                // 保持当前值或重置？通常保持当前显示的值，用户可点击修改
+            } else {
+                // 不允许调整子类，强制回填当前子类
+                cascaderInput.style.backgroundColor = '#f5f5f5';
+                cascaderInput.style.pointerEvents = 'none';
+                cascaderInput.classList.add('disabled');
+                
+                // 回填
+                if (currentUser) {
+                    displayValue.innerText = currentUser.subCategory;
+                    // 同时更新职级列表为当前子类的规则
+                    updateRankOptions(currentUser.maxRank, currentUser.prefix);
+                }
+            }
+        }
+
+        let currentCascaderPath = []; // 存储当前选中的路径索引 [i, j, k]
+
+        function toggleCascader() {
+            // 如果禁用则不响应
+            if (document.getElementById('cascader-input').classList.contains('disabled')) return;
+
+            const dropdown = document.getElementById('cascader-dropdown');
+            const input = document.querySelector('.cascader-input');
+            const isShow = dropdown.classList.contains('show');
+            
+            if (isShow) {
+                dropdown.classList.remove('show');
+                input.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                input.classList.add('active');
+                if (dropdown.children.length === 0) {
+                    renderCascaderColumn(subCategoryData, 0);
+                }
+            }
+        }
+
+        // 渲染第 level 列
+        function renderCascaderColumn(list, level) {
+            const dropdown = document.getElementById('cascader-dropdown');
+            
+            // 清除当前层级及之后的列
+            while (dropdown.children.length > level) {
+                dropdown.removeChild(dropdown.lastChild);
+            }
+
+            const menu = document.createElement('div');
+            menu.className = 'cascader-menu';
+
+            list.forEach((item, index) => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'cascader-menu-item';
+                // 检查是否包含子节点来决定是否显示箭头
+                const hasChildren = item.children && item.children.length > 0;
+                menuItem.innerHTML = `<span>${item.label}</span>${hasChildren ? '<span class="expand-icon">›</span>' : ''}`;
+                
+                menuItem.onclick = (e) => {
+                    e.stopPropagation(); // 防止冒泡关闭下拉框
+                    
+                    // 移除同级高亮
+                    Array.from(menu.children).forEach(child => child.classList.remove('active'));
+                    menuItem.classList.add('active');
+
+                    if (hasChildren) {
+                        renderCascaderColumn(item.children, level + 1);
+                    } else {
+                        // 选中叶子节点
+                        selectSubCategory(item);
+                        toggleCascader(); // 关闭下拉框
+                    }
+                };
+                menu.appendChild(menuItem);
+            });
+
+            dropdown.appendChild(menu);
+        }
+
+        function selectSubCategory(item) {
+            // 更新显示
+            document.getElementById('cascader-display-value').innerText = item.label;
+            
+            // 联动更新职级职等下拉框
+            // 简单判断前缀：如果 value 包含 pm 则是 M 序列，否则 P 序列
+            const prefix = item.value.startsWith('pm') ? 'M' : 'P';
+            updateRankOptions(item.maxRank, prefix);
+        }
+
+        // 计算职级分值用于比较
+        function getRankScore(rankStr) {
+            // 格式 P3-B等 或 M4-A等
+            const match = rankStr.match(/([PM])(\d+)-([ABCDE])等/);
+            if (!match) return 0;
+            const level = parseInt(match[2]);
+            const grade = match[3];
+            // 分值 = 层级 * 10 + 等级权重 (A=5)
+            // 例: P3-A = 35, P3-B = 34, P4-B = 44
+            return level * 10 + gradeWeights[`${grade}等`];
+        }
+
+        function updateRankOptions(maxRank, prefix) {
+            const select = document.getElementById('rank-select');
+            select.innerHTML = ''; // 清空现有选项
+
+            let currentScore = 0;
+            if (currentUser) {
+                currentScore = getRankScore(currentUser.rank);
+            }
+
+            for (let r = 1; r <= maxRank; r++) {
+                grades.forEach(g => {
+                    const rankStr = `${prefix}${r}-${g}`;
+                    const score = getRankScore(rankStr);
+                    
+                    // 核心逻辑：只能往更高级调整
+                    // 如果 score > currentScore，则显示
+                    // 注意：如果是同子类调整，必须严格大于；如果是不同子类，通常也要求对应职级不低于当前（根据业务规则），这里统一应用“更高级”
+                    // 如果调整原因不是“特殊_子类调整”，则必须大于
+                    // 如果是“特殊_子类调整”（换赛道），通常允许平级或升级，用户需求“只能往更高级调整”可能特指职级晋升场景
+                    // 这里严格执行 > currentScore
+                    if (score > currentScore) {
+                        const option = document.createElement('option');
+                        option.value = rankStr;
+                        option.text = rankStr;
+                        select.appendChild(option);
+                    }
+                });
+            }
+            
+            // 如果没有更高的可选（例如已经是最高级），提示
+            if (select.options.length === 0) {
+                const option = document.createElement('option');
+                option.text = "无更高职级可选";
+                select.appendChild(option);
+                select.disabled = true;
+            } else {
+                select.disabled = false;
+                select.selectedIndex = 0;
+            }
+        }
+
+        // 点击外部关闭级联选择器
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.cascader-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const dropdown = document.getElementById('cascader-dropdown');
+                const input = document.querySelector('.cascader-input');
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    input.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

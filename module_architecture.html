@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任职资格系统 - 模块架构图</title>
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --border-color: #e0e0e0;
+            --success: #52c41a;
+            --processing: #1890ff;
+            --warning: #faad14;
+            --danger: #ff4d4f;
+            --plan: #d9d9d9;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-color);
+            padding: 30px;
+            min-width: 1600px;
+            color: var(--text-primary);
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .update-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Legend */
+        .legend-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: #fff;
+        }
+
+        .legend-dot.done { background: var(--success); }
+        .legend-dot.doing { background: var(--processing); }
+        .legend-dot.todo { background: var(--warning); }
+        .legend-dot.plan { background: var(--plan); }
+
+        /* Stage Headers Reference */
+        .stage-ref {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .stage-ref-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .stage-ref-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Canvas */
+        .canvas {
+            position: relative;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        /* Module Groups */
+        .module-group {
+            border: 2px dashed #e8e8e8;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .group-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #fff;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Module Row */
+        .module-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Flow Arrow */
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bfbfbf;
+            font-size: 18px;
+            align-self: center;
+            padding: 0 5px;
+        }
+
+        /* Module Card */
+        .module {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-width: 140px;
+            max-width: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .module.highlight {
+            border-color: var(--warning);
+            border-width: 2px;
+        }
+
+        .module.danger {
+            border-color: var(--danger);
+            border-width: 2px;
+        }
+
+        /* Module Header */
+        .module-header {
+            background: #fafafa;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .module-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .module-owner {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .owner-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--processing);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .owner-name {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Module Body - Stage Grid */
+        .module-body {
+            padding: 8px;
+        }
+
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 3px;
+        }
+
+        .stage-header {
+            font-size: 9px;
+            color: #bfbfbf;
+            text-align: center;
+            padding: 2px 0;
+        }
+
+        .stage-cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .stage-cell.done { background: #f6ffed; color: var(--success); }
+        .stage-cell.doing { background: #e6f7ff; color: var(--processing); }
+        .stage-cell.todo { background: #fff7e6; color: var(--warning); }
+        .stage-cell.plan { background: #f5f5f5; color: #bfbfbf; }
+
+        /* Module Footer - Note */
+        .module-footer {
+            background: #fffbe6;
+            padding: 5px 8px;
+            font-size: 10px;
+            color: #ad8b00;
+            border-top: 1px solid #fff1b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .module-footer.danger {
+            background: #fff1f0;
+            color: #cf1322;
+            border-top-color: #ffa39e;
+        }
+
+        .module-footer.info {
+            background: #e6f7ff;
+            color: #096dd9;
+            border-top-color: #91d5ff;
+        }
+
+        /* Badge */
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #fff;
+            z-index: 10;
+        }
+
+        .badge.new { background: var(--success); }
+        .badge.hot { background: var(--danger); }
+        .badge.phase2 { background: #722ed1; }
+
+        /* External System */
+        .external {
+            background: #f5f5f5;
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            padding: 12px 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .external-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #595959;
+        }
+
+        .external-desc {
+            font-size: 10px;
+            color: #8c8c8c;
+            margin-top: 2px;
+        }
+
+        /* Calc Module */
+        .calc-module {
+            background: linear-gradient(135deg, #fff7e6, #fffbe6);
+            border: 1px solid #ffe58f;
+            border-radius: 6px;
+            padding: 12px 15px;
+            text-align: center;
+        }
+
+        .calc-icon {
+            font-size: 20px;
+            color: var(--warning);
+            margin-bottom: 4px;
+        }
+
+        .calc-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ad8b00;
+        }
+
+        /* Flow Labels */
+        .flow-label {
+            text-align: center;
+            padding: 8px 0;
+            font-size: 11px;
+            color: #bfbfbf;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            border-top: 2px dashed #e8e8e8;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .section-divider-label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 15px;
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        /* Phase II Group */
+        .phase2-group {
+            border-color: #d3adf7;
+            background: rgba(249, 240, 255, 0.3);
+        }
+
+        .phase2-group .group-label {
+            color: #722ed1;
+        }
+
+        .phase2-module {
+            border-style: dashed;
+            border-color: #d3adf7;
+            opacity: 0.85;
+        }
+
+        .phase2-module .module-header {
+            background: #f9f0ff;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">任职资格系统 - 模块架构图</h1>
+            <div class="update-info">
+                <i class="fa-regular fa-calendar"></i> 2025-01-15 更新
+                <span style="margin-left: 15px;"><i class="fa-regular fa-user"></i> 刘同庆</span>
+            </div>
+        </div>
+
+        <div class="legend-section">
+            <div class="legend-title">图例说明</div>
+            <div class="legend-grid">
+                <div class="legend-item"><div class="legend-dot done"><i class="fa-solid fa-check"></i></div> 已完成</div>
+                <div class="legend-item"><div class="legend-dot doing"><i class="fa-solid fa-circle"></i></div> 进行中</div>
+                <div class="legend-item"><div class="legend-dot todo"><i class="fa-solid fa-exclamation"></i></div> 待开发</div>
+                <div class="legend-item"><div class="legend-dot plan">-</div> 规划中</div>
+            </div>
+            <div class="stage-ref">
+                <div class="stage-ref-title">阶段说明（从左到右）</div>
+                <div class="stage-ref-grid">
+                    <span>方案</span>
+                    <span>设计</span>
+                    <span>开发</span>
+                    <span>测试</span>
+                    <span>上线</span>
+                    <span>运营</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="canvas">
+
+        <!-- Row 1: 基础层 -->
+        <div class="module-group">
+            <div class="group-label">基础层</div>
+            <div class="module-row">
+                
+                <div class="external">
+                    <div class="external-name">HR系统</div>
+                    <div class="external-desc">人员/组织</div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 基础配置 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">基础配置</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#595959;">管</div>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 资源库 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">资源库</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#52c41a;">陈</div>
+                            <span class="owner-name">陈斐</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 标准管理 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">标准管理</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#1890ff;">李</div>
+                            <span class="owner-name">李雪松</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 标准审批(移动) -->
+                <div class="module highlight">
+                    <div class="module-header">
+                        <span class="module-name">标准审批</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#1890ff;">李</div>
+                            <span class="owner-name">李雪松</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer">
+                        <i class="fa-regular fa-clock"></i> 移动端审批预计: 1月底
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="flow-label"><i class="fa-solid fa-arrow-down"></i> 引用标准</div>
+
+        <!-- Row 2: 举证层 -->
+        <div class="module-group">
+            <div class="group-label">举证层</div>
+            <div class="module-row">
+
+                <!-- 举证申请 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">举证申请</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#722ed1;">刘</div>
+                            <span class="owner-name">刘同庆</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 举证复核 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">举证复核</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#fa8c16;">王</div>
+                            <span class="owner-name">王小明</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 举证公示 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">举证公示</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#eb2f96;">张</div>
+                            <span class="owner-name">张潇文</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 举证查询(移动) -->
+                <div class="module highlight">
+                    <div class="module-header">
+                        <span class="module-name">举证查询</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#722ed1;">刘</div>
+                            <span class="owner-name">刘同庆</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer">
+                        <i class="fa-regular fa-clock"></i> 移动端查询预计: 1月中
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 匹配度计算 -->
+                <div class="calc-module">
+                    <div class="calc-icon"><i class="fa-solid fa-calculator"></i></div>
+                    <div class="calc-name">匹配度计算</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="flow-label"><i class="fa-solid fa-arrow-down"></i> 达标触发晋升</div>
+
+        <!-- Row 3: 晋升层 -->
+        <div class="module-group">
+            <div class="group-label">晋升层</div>
+            <div class="module-row">
+
+                <!-- 晋升申请 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">晋升申请</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#1890ff;">李</div>
+                            <span class="owner-name">李雪松</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 综合评审 -->
+                <div class="module highlight">
+                    <span class="badge hot">重点</span>
+                    <div class="module-header">
+                        <span class="module-name">综合评审</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#722ed1;">刘</div>
+                            <span class="owner-name">刘同庆</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer">
+                        <i class="fa-regular fa-clock"></i> 移动端评审预计: 1月底
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 签字确认 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">签字确认</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#52c41a;">陈</div>
+                            <span class="owner-name">陈斐</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 晋升公示 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">晋升公示</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#eb2f96;">张</div>
+                            <span class="owner-name">张潇文</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 预算审批 -->
+                <div class="module danger">
+                    <span class="badge hot">重构</span>
+                    <div class="module-header">
+                        <span class="module-name">预算审批</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#ff4d4f;">马</div>
+                            <span class="owner-name">马鑫</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell todo"><i class="fa-solid fa-exclamation"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer danger">
+                        <i class="fa-solid fa-hammer"></i> 逻辑重构中，预计: 2月
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <!-- 晋升生效 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">晋升生效</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#595959;">系</div>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+                <div class="external">
+                    <div class="external-name">HR系统</div>
+                    <div class="external-desc">更新职级</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Row 4: 辅助层 -->
+        <div class="module-group">
+            <div class="group-label">辅助层</div>
+            <div class="module-row">
+
+                <!-- 管理看板 -->
+                <div class="module highlight">
+                    <div class="module-header">
+                        <span class="module-name">管理看板</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#722ed1;">刘</div>
+                            <span class="owner-name">刘同庆</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer info">
+                        <i class="fa-solid fa-flask"></i> Demo完成，接口对接中
+                    </div>
+                </div>
+
+                <!-- 多语言 -->
+                <div class="module">
+                    <div class="module-header">
+                        <span class="module-name">多语言适配</span>
+                        <div class="module-owner">
+                            <div class="owner-avatar" style="background:#52c41a;">陈</div>
+                            <span class="owner-name">陈斐</span>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell done"><i class="fa-solid fa-check"></i></div>
+                            <div class="stage-cell doing"><i class="fa-solid fa-circle"></i></div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                    <div class="module-footer">
+                        <i class="fa-regular fa-clock"></i> 晋升模块英文预计: 2月
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Section Divider -->
+        <div class="section-divider">
+            <span class="section-divider-label">🚀 Phase II 规划</span>
+        </div>
+
+        <!-- Row 5: Phase II -->
+        <div class="module-group phase2-group">
+            <div class="group-label">Phase II 规划</div>
+            <div class="module-row">
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">移动端举证</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">多通道晋升</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">绿色通道</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">AI举证助手</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">培训联动</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="module phase2-module">
+                    <span class="badge phase2">规划</span>
+                    <div class="module-header">
+                        <span class="module-name">生态赋能</span>
+                    </div>
+                    <div class="module-body">
+                        <div class="stage-grid">
+                            <div class="stage-header">方案</div>
+                            <div class="stage-header">设计</div>
+                            <div class="stage-header">开发</div>
+                            <div class="stage-header">测试</div>
+                            <div class="stage-header">上线</div>
+                            <div class="stage-header">运营</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                            <div class="stage-cell plan">-</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

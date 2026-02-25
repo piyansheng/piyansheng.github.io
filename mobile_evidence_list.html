@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>举证记录 - 移动端</title>
+    <style>
+        :root {
+            --primary-yellow: #FFD700;
+            --light-yellow: #FFFACD;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-light: #999999;
+            --border-color: #eeeeee;
+            --active-blue: #1890ff;
+            --status-draft: #d9d9d9;
+            --status-pending: #faad14;
+            --status-processing: #1890ff;
+            --status-success: #52c41a;
+            --status-error: #ff4d4f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background-color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-icon {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
+        /* Top Tabs */
+        .top-tabs {
+            display: flex;
+            background: #fff;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 15px;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .top-tab-item.active {
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        .top-tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background-color: var(--primary-yellow);
+            border-radius: 2px;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            background: #fff;
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-icon {
+            color: var(--text-light);
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .filter-btn {
+            background: #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            color: var(--text-secondary);
+        }
+
+        /* Status Filter Chips (Horizontal Scroll) */
+        .status-scroll-wrapper {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 4px; /* Hide scrollbar visual impact if any */
+            margin-bottom: 16px;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        .status-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .status-chips {
+            display: inline-flex;
+            gap: 8px;
+        }
+
+        .status-chip {
+            padding: 6px 16px;
+            background: #fff;
+            border-radius: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-chip.active {
+            background: #fffbe6; /* Light yellow bg */
+            color: #d48806;
+            border-color: #ffe58f;
+            font-weight: 500;
+        }
+
+        .chip-count {
+            font-size: 11px;
+            background: #f5f5f5;
+            padding: 1px 5px;
+            border-radius: 8px;
+            color: var(--text-light);
+        }
+        
+        .status-chip.active .chip-count {
+            background: #fff;
+            color: #d48806;
+        }
+
+        /* Evidence List */
+        .evidence-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .evidence-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .ev-id {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .status-badge.draft { background: #f5f5f5; color: rgba(0,0,0,0.25); border: 1px solid #d9d9d9; }
+        .status-badge.pending { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .status-badge.processing { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .status-badge.completed { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+
+        .card-main {
+            margin-bottom: 12px;
+        }
+
+        .activity-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .type-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-right: 4px;
+            vertical-align: 2px;
+            font-weight: normal;
+            line-height: 1.2;
+        }
+        
+        .type-badge.task {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        
+        .type-badge.activity {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .project-row {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .project-tag {
+            background: #f0f2f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .feature-tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            background: #f9f9f9;
+            border: 1px solid #eee;
+        }
+        
+        .role-tag {
+            background: #e6f7ff;
+            color: #1890ff;
+            border-color: #91d5ff;
+        }
+
+        /* Evidence Summary */
+        .evidence-summary {
+            background: #f8f9fa;
+            border-left: 3px solid var(--active-blue);
+            padding: 8px 10px;
+            margin: 10px 0 0 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .evidence-summary .role-label {
+            display: inline-block;
+            background: var(--active-blue);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-right: 6px;
+        }
+
+        .evidence-summary .role-label.assist {
+            background: #52c41a;
+        }
+
+        .evidence-summary .highlight {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .evidence-summary .num {
+            color: var(--active-blue);
+            font-weight: 600;
+        }
+
+        .card-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .date-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .action-btn {
+            font-size: 13px;
+            color: var(--text-primary);
+            padding: 4px 12px;
+            border-radius: 14px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+        }
+        
+        /* Floating Filter Button (Optional, if search bar filter is enough, this can be removed) */
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-light);
+            font-size: 10px;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        /* Avatar group for Team Evidence */
+        .avatar-group {
+            display: flex;
+            align-items: center;
+        }
+        .avatar-small {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <i class="fa-solid fa-chevron-left header-icon" onclick="window.location.href='mobile_index.html'"></i>
+        <span>举证记录</span>
+        <i class="fa-solid fa-ellipsis header-icon"></i>
+    </div>
+
+    <!-- Top Tabs -->
+    <div class="top-tabs">
+        <div class="top-tab-item active">我的举证</div>
+        <div class="top-tab-item">团队举证</div>
+        <div class="top-tab-item">全部举证</div>
+    </div>
+
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="搜索项目、编号、活动">
+            </div>
+            <div class="filter-btn">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+        </div>
+
+        <!-- Status Filter Chips -->
+        <div class="status-scroll-wrapper">
+            <div class="status-chips">
+                <div class="status-chip active">
+                    全部 <span class="chip-count">21</span>
+                </div>
+                <div class="status-chip">
+                    草稿 <span class="chip-count">9</span>
+                </div>
+                <div class="status-chip">
+                    待校验 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    待完善 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    待公示 <span class="chip-count">6</span>
+                </div>
+                <div class="status-chip">
+                    公示中 <span class="chip-count">1</span>
+                </div>
+                <div class="status-chip">
+                    复核中 <span class="chip-count">0</span>
+                </div>
+                <div class="status-chip">
+                    已完成 <span class="chip-count">2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence List -->
+        <div class="evidence-list">
+            <!-- Item 1 (Draft) -->
+            <div class="evidence-card">
+                <div class="card-top">
+                    <span class="ev-id">EV20251204005</span>
+                    <span class="status-badge draft">草稿</span>
+                </div>
+                <div class="card-main">
+                    <div class="activity-name"><span class="type-badge task">任务</span>收集战略规划信息，分析业务痛点</div>
+                    <div class="project-row">
+                        <span class="project-tag"><i class="fa-regular fa-folder"></i> 项目：携手并肩</span>
+                    </div>
+                    <div class="evidence-summary">
+                        <span class="role-label">主导</span><span class="highlight">收集战略规划信息</span>，运用<span class="num">0</span>技术，交付<span class="num">0</span>个交付物
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-12-04 10:30</div>
+                    <div class="action-btn" onclick="window.location.href='mobile_evidence_detail.html'">查看详情</div>
+                </div>
+            </div>
+
+            <!-- Item 2 (Draft) -->
+            <div class="evidence-card">
+                <div class="card-top">
+                    <span class="ev-id">EV20251204004</span>
+                    <span class="status-badge draft">草稿</span>
+                </div>
+                <div class="card-main">
+                    <div class="activity-name"><span class="type-badge activity">活动</span>业务战略对接与需求梳理</div>
+                    <div class="project-row">
+                        <span class="project-tag"><i class="fa-regular fa-folder"></i> 项目：天人合一Ⅲ</span>
+                    </div>
+                    <div class="evidence-summary">
+                        <span class="role-label">主导</span><span class="highlight">业务战略对接</span>，运用<span class="num">1</span>技术，交付<span class="num">0</span>个交付物
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-12-04 09:15</div>
+                    <div class="action-btn" onclick="window.location.href='mobile_evidence_detail.html'">查看详情</div>
+                </div>
+            </div>
+
+            <!-- Item 3 (Publicizing) -->
+            <div class="evidence-card">
+                <div class="card-top">
+                    <span class="ev-id">EV20251128035</span>
+                    <span class="status-badge processing">公示中</span>
+                </div>
+                <div class="card-main">
+                    <div class="activity-name"><span class="type-badge task">任务</span>AI辅助制定项目计划</div>
+                    <div class="project-row">
+                        <span class="project-tag"><i class="fa-regular fa-folder"></i> 项目：纵横协作</span>
+                    </div>
+                    <div class="evidence-summary">
+                        <span class="role-label">主导</span><span class="highlight">AI辅助制定项目计划</span>，运用<span class="num">0</span>技术，交付<span class="num">1</span>个交付物
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-11-28 14:20</div>
+                    <div class="action-btn" onclick="window.location.href='mobile_evidence_detail.html'">查看详情</div>
+                </div>
+            </div>
+            
+            <!-- Item 4 (Pending Publicize) -->
+            <div class="evidence-card">
+                <div class="card-top">
+                    <span class="ev-id">EV20251128037</span>
+                    <span class="status-badge pending">待公示</span>
+                </div>
+                <div class="card-main">
+                    <div class="activity-name"><span class="type-badge task">任务</span>AI辅助绘制产品架构图</div>
+                    <div class="project-row">
+                        <span class="project-tag"><i class="fa-regular fa-folder"></i> 项目：纵横协作</span>
+                    </div>
+                    <div class="evidence-summary">
+                        <span class="role-label">主导</span><span class="highlight">AI辅助绘制产品架构图</span>，运用<span class="num">2</span>技术，交付<span class="num">1</span>个交付物
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-11-28 11:05</div>
+                    <div class="action-btn" onclick="window.location.href='mobile_evidence_detail.html'">查看详情</div>
+                </div>
+            </div>
+
+             <!-- Item 5 (Completed) -->
+             <div class="evidence-card">
+                <div class="card-top">
+                    <span class="ev-id">EV20251115021</span>
+                    <span class="status-badge completed">已完成</span>
+                </div>
+                <div class="card-main">
+                    <div class="activity-name"><span class="type-badge task">任务</span>AI辅助识别IT合规风险</div>
+                    <div class="project-row">
+                        <span class="project-tag"><i class="fa-regular fa-folder"></i> 项目：六脉神剑</span>
+                    </div>
+                    <div class="evidence-summary">
+                        <span class="role-label assist">协助</span><span class="highlight">AI辅助识别IT合规风险</span>，运用<span class="num">1</span>技术，交付<span class="num">2</span>个交付物
+                    </div>
+                </div>
+                <div class="card-bottom">
+                    <div class="date-time">2025-11-15 16:45</div>
+                    <div class="action-btn" onclick="window.location.href='mobile_evidence_detail.html'">查看详情</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Load More -->
+        <div style="text-align: center; color: #999; font-size: 12px; margin-top: 16px;">
+            没有更多了
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="mobile_index.html" class="nav-item">
+            <i class="fa-solid fa-house nav-icon"></i>
+            <span>首页</span>
+        </a>
+        <a href="mobile_evidence_list.html" class="nav-item active">
+            <i class="fa-solid fa-file-signature nav-icon"></i>
+            <span>举证</span>
+        </a>
+        <a href="mobile_promotion_list.html" class="nav-item">
+            <i class="fa-solid fa-arrow-trend-up nav-icon"></i>
+            <span>晋升</span>
+        </a>
+        <a href="mobile_publicity.html" class="nav-item">
+            <i class="fa-solid fa-bullhorn nav-icon"></i>
+            <span>公示</span>
+        </a>
+    </div>
+
+    <script>
+        // Simple tab switching logic for top tabs
+        document.querySelectorAll('.top-tab-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.top-tab-item').forEach(tab => tab.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Simple filter logic for chips
+        document.querySelectorAll('.status-chip').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.status-chip').forEach(chip => chip.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Bottom nav switching logic
+        // Removed preventDefault to allow page navigation
+        /*
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        */
+    </script>
+</body>
+</html>
+

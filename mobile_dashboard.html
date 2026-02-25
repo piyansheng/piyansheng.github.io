@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>管理驾驶舱 - 移动端</title>
+    <style>
+        :root {
+            --primary-blue: #1890ff;
+            --success-green: #52c41a;
+            --warning-orange: #faad14;
+            --error-red: #ff4d4f;
+            --purple: #722ed1;
+            --cyan: #13c2c2;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-light: #8c8c8c;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            line-height: 1.5;
+            font-size: 14px;
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            color: #fff;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Role Selector */
+        .role-selector {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .role-selector select {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .role-selector select option {
+            color: #333;
+        }
+        .role-selector i {
+            font-size: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 12px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin: 16px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--primary-blue);
+            border-radius: 2px;
+        }
+        .section-title .sub {
+            font-size: 11px;
+            font-weight: normal;
+            color: var(--text-light);
+            margin-left: auto;
+        }
+
+        /* Overview Cards - 2x2 Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .overview-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+        }
+        .card-green::before { background: var(--success-green); }
+        .card-blue::before { background: var(--primary-blue); }
+        .card-purple::before { background: var(--purple); }
+        .card-orange::before { background: var(--warning-orange); }
+
+        .ov-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .ov-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ov-icon {
+            font-size: 20px;
+            opacity: 0.15;
+        }
+        .ov-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .ov-sub {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+        .ov-breakdown {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #eee;
+        }
+        .ov-breakdown span {
+            color: var(--text-secondary);
+        }
+        .ov-warning {
+            background: #fff1f0;
+            color: var(--error-red);
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* Funnel Section */
+        .funnel-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+        }
+        .funnel-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .funnel-title .batch {
+            font-size: 11px;
+            font-weight: normal;
+            color: var(--primary-blue);
+            background: #e6f7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .pipeline-scroll {
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .pipeline-wrapper {
+            display: flex;
+            min-width: 500px;
+            gap: 4px;
+        }
+        .pipeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .pipeline-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -8px;
+            top: 8px;
+            color: #ddd;
+            font-size: 12px;
+        }
+        .p-num {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        .p-bar {
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin: 6px auto;
+            width: 80%;
+            overflow: hidden;
+        }
+        .p-fill {
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 2px;
+        }
+        .p-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        .funnel-tip {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+        .funnel-tip i {
+            color: var(--primary-blue);
+            margin-right: 4px;
+        }
+        .funnel-tip strong {
+            color: var(--text-primary);
+        }
+
+        /* Warning Cards */
+        .warning-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .warning-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .warning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .warning-title {
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .warning-title.red { color: var(--error-red); }
+        .warning-title.orange { color: var(--warning-orange); }
+        .warning-count {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+        .warning-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .warning-item {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .warning-item.red {
+            background: #fff1f0;
+            border: 1px solid #ffccc7;
+        }
+        .warning-item.orange {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+        }
+        .warning-item .name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .warning-item .name .badge {
+            font-size: 10px;
+            background: #fff1f0;
+            color: #ff4d4f;
+            padding: 1px 4px;
+            border-radius: 2px;
+            border: 1px solid #ffccc7;
+        }
+        .warning-item .desc {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+        .view-all {
+            text-align: center;
+            font-size: 12px;
+            color: var(--primary-blue);
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        /* Chart Cards */
+        .chart-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .chart-title {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .chart-controls {
+            display: flex;
+            gap: 4px;
+        }
+        .time-btn {
+            font-size: 11px;
+            padding: 4px 8px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+        .time-btn.active {
+            background: #e6f7ff;
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        .chart-subtitle {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+        .chart-hint {
+            font-size: 11px;
+            color: var(--primary-blue);
+        }
+
+        /* Simple Bar Chart */
+        .bar-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 150px;
+            padding-bottom: 30px;
+            position: relative;
+        }
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            cursor: pointer;
+        }
+        .bar-column {
+            flex: 1;
+            width: 60%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            position: relative;
+        }
+        .bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .bar-val {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .bar-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 6px;
+            position: absolute;
+            bottom: -24px;
+            width: 100%;
+        }
+        .bar-group:active .bar {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+
+        /* Legend */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+        .legend-line {
+            width: 16px;
+            height: 2px;
+        }
+
+        /* Rank Distribution */
+        .rank-scope {
+            font-size: 11px;
+            color: var(--primary-blue);
+            background: #e6f7ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .ideal-curve-hint {
+            font-size: 11px;
+            color: var(--warning-orange);
+            text-align: right;
+            margin-bottom: 8px;
+        }
+
+        /* Detail View */
+        .detail-view {
+            display: none;
+            padding: 12px;
+        }
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        .detail-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+        .filter-bar input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 13px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        /* Person Card List */
+        .person-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .person-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .person-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .person-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .person-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e6f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .person-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .person-id {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .person-dept {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .person-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .tag-green { background: #f6ffed; color: #52c41a; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; }
+
+        .person-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .person-field {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .field-label {
+            color: var(--text-light);
+            font-size: 11px;
+        }
+        .field-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .progress-bar {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 3px;
+        }
+
+        .person-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .view-detail-btn {
+            color: var(--primary-blue);
+            font-size: 13px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 4px 12px;
+        }
+        .nav-item.active {
+            color: var(--primary-blue);
+        }
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        /* Utilities */
+        .text-red { color: var(--error-red); }
+        .text-green { color: var(--success-green); }
+        .text-blue { color: var(--primary-blue); }
+        .text-orange { color: var(--warning-orange); }
+        .font-bold { font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="header-title">管理驾驶舱</div>
+            <div class="header-right">
+                <button class="refresh-btn" onclick="location.reload()"><i class="fa-solid fa-rotate"></i></button>
+                <div class="avatar">管</div>
+            </div>
+        </div>
+        <div class="role-selector">
+            <i class="fa-solid fa-user-tie"></i>
+            <select id="roleSelector" onchange="onRoleChange()">
+                <option value="admin">管理员</option>
+                <option value="dept_manager">部门经理</option>
+                <option value="domain_leader">业务域负责人</option>
+                <option value="hrbp">HRBP</option>
+                <option value="budget_owner">预算负责人</option>
+            </select>
+            <select id="scopeSelector" onchange="onScopeChange()" style="display:none;">
+            </select>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <!-- Main Dashboard View -->
+    <div class="main-content" id="dashboardView">
+        
+        <!-- Overview Cards -->
+        <div class="section-title">
+            全貌概览
+            <span class="sub">更新于 10:00</span>
+        </div>
+        
+        <div class="overview-grid">
+            <div class="overview-card card-green" onclick="showDetail('eligible')">
+                <div class="ov-header">
+                    <div class="ov-label"><i class="fa-solid fa-check-circle"></i> 晋升已就绪</div>
+                    <i class="fa-solid fa-user-check ov-icon text-green"></i>
+                </div>
+                <div class="ov-value">6</div>
+                <div class="ov-sub">满足条件，待发起</div>
+                <div class="ov-breakdown">
+                    <span>升级: 2人</span>
+                    <span>升等: 4人</span>
+                </div>
+            </div>
+            
+            <div class="overview-card card-blue" onclick="showDetail('promoting')">
+                <div class="ov-header">
+                    <div class="ov-label"><i class="fa-solid fa-spinner"></i> 晋升进行中</div>
+                    <i class="fa-solid fa-chart-line ov-icon text-blue"></i>
+                </div>
+                <div class="ov-value">12</div>
+                <div class="ov-sub">流程流转中</div>
+                <div class="ov-breakdown">
+                    <span>升级: 4人</span>
+                    <span>升等: 8人</span>
+                </div>
+            </div>
+            
+            <div class="overview-card card-purple" onclick="showDetail('budget')">
+                <div class="ov-header">
+                    <div class="ov-label"><i class="fa-solid fa-sack-dollar"></i> 预算审批</div>
+                    <i class="fa-solid fa-file-invoice-dollar ov-icon" style="color:var(--purple);"></i>
+                </div>
+                <div class="ov-value">7</div>
+                <div class="ov-sub">当前节点总人数</div>
+                <div class="ov-warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 4人因余额不足排队
+                </div>
+            </div>
+            
+            <div class="overview-card card-orange" onclick="showDetail('near')">
+                <div class="ov-header">
+                    <div class="ov-label"><i class="fa-solid fa-person-running"></i> 即将达标</div>
+                    <i class="fa-solid fa-chart-pie ov-icon text-orange"></i>
+                </div>
+                <div class="ov-value">8</div>
+                <div class="ov-sub">匹配度>90%或缺口<5%</div>
+                <div class="ov-breakdown">
+                    <span>升级: 3人</span>
+                    <span>升等: 5人</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promotion Funnel -->
+        <div class="funnel-card">
+            <div class="funnel-title">
+                当前晋升批次漏斗
+                <span class="batch">第12批次</span>
+            </div>
+            <div class="pipeline-scroll">
+                <div class="pipeline-wrapper">
+                    <div class="pipeline-step">
+                        <div class="p-num">5</div>
+                        <div class="p-bar"><div class="p-fill" style="width:100%"></div></div>
+                        <div class="p-label">认证/审批</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">3</div>
+                        <div class="p-bar"><div class="p-fill" style="width:60%"></div></div>
+                        <div class="p-label">签字确认</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">0</div>
+                        <div class="p-bar"><div class="p-fill" style="width:0%"></div></div>
+                        <div class="p-label">待公示</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">2</div>
+                        <div class="p-bar"><div class="p-fill" style="width:40%"></div></div>
+                        <div class="p-label">公示</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">1</div>
+                        <div class="p-bar"><div class="p-fill" style="width:20%"></div></div>
+                        <div class="p-label">预算核验</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">2</div>
+                        <div class="p-bar"><div class="p-fill" style="width:40%"></div></div>
+                        <div class="p-label">待生效</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="p-num">2</div>
+                        <div class="p-bar"><div class="p-fill" style="width:40%"></div></div>
+                        <div class="p-label">生效</div>
+                    </div>
+                </div>
+            </div>
+            <div class="funnel-tip">
+                <i class="fa-solid fa-chart-simple"></i>
+                <strong>流程分析：</strong>当前 <strong class="text-blue">53% (8人)</strong> 处于早期审批阶段，主要堆积在 <strong>认证/审批</strong> 节点。
+            </div>
+        </div>
+
+        <!-- Warning Cards -->
+        <div class="warning-grid">
+            <div class="warning-card">
+                <div class="warning-header">
+                    <div class="warning-title red">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 预算排队
+                    </div>
+                    <span class="warning-count">4人</span>
+                </div>
+                <div class="warning-list">
+                    <div class="warning-item red" onclick="showDetail('budget')">
+                        <div class="name">马鑫 (P3A→P3B)</div>
+                        <div class="desc"><i class="fa-regular fa-clock"></i> 已等待33天 | 优先级: 高</div>
+                    </div>
+                    <div class="warning-item red" onclick="showDetail('budget')">
+                        <div class="name">钱十一 (M3A→M3B)</div>
+                        <div class="desc"><i class="fa-regular fa-clock"></i> 已等待1天 | 优先级: 中</div>
+                    </div>
+                </div>
+                <div class="view-all" onclick="showDetail('budget')">查看全部 4 人 ></div>
+            </div>
+            
+            <div class="warning-card">
+                <div class="warning-header">
+                    <div class="warning-title orange">
+                        <i class="fa-solid fa-pause"></i> 升等暂缓
+                    </div>
+                    <span class="warning-count">3人</span>
+                </div>
+                <div class="warning-list">
+                    <div class="warning-item orange" onclick="showDetail('deferred')">
+                        <div class="name">
+                            刘同庆 (P2B→P2C)
+                            <span class="badge">连续2次</span>
+                        </div>
+                        <div class="desc">理由: 需观察管理能力</div>
+                    </div>
+                    <div class="warning-item orange" onclick="showDetail('deferred')">
+                        <div class="name">王五 (P3A→P3B)</div>
+                        <div class="desc">理由: 近期绩效波动</div>
+                    </div>
+                </div>
+                <div class="view-all" onclick="showDetail('deferred')">查看全部 3 人 ></div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="section-title">数据图表</div>
+
+        <!-- Promotion Coverage Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">各部门晋升覆盖率 Top5</div>
+            </div>
+            <div class="chart-subtitle">
+                * 覆盖率 = 年度晋升人数 / 部门总人数
+                <span class="chart-hint">点击柱子查看详情</span>
+            </div>
+            <div class="bar-chart" id="promotionChart">
+                <div class="bar-group" onclick="goToPromotionList('效率部')">
+                    <div class="bar-column">
+                        <div class="bar" style="height:90%; background:#1890ff;">
+                            <span class="bar-val">45%</span>
+                        </div>
+                        <span class="bar-label">效率部</span>
+                    </div>
+                </div>
+                <div class="bar-group" onclick="goToPromotionList('销售部')">
+                    <div class="bar-column">
+                        <div class="bar" style="height:76%; background:#13c2c2;">
+                            <span class="bar-val">38%</span>
+                        </div>
+                        <span class="bar-label">销售部</span>
+                    </div>
+                </div>
+                <div class="bar-group" onclick="goToPromotionList('人力资源部')">
+                    <div class="bar-column">
+                        <div class="bar" style="height:60%; background:#13c2c2;">
+                            <span class="bar-val">30%</span>
+                        </div>
+                        <span class="bar-label">人资部</span>
+                    </div>
+                </div>
+                <div class="bar-group" onclick="goToPromotionList('财务部')">
+                    <div class="bar-column">
+                        <div class="bar" style="height:50%; background:#722ed1;">
+                            <span class="bar-val">25%</span>
+                        </div>
+                        <span class="bar-label">财务部</span>
+                    </div>
+                </div>
+                <div class="bar-group" onclick="goToPromotionList('行政部')">
+                    <div class="bar-column">
+                        <div class="bar" style="height:30%; background:#faad14;">
+                            <span class="bar-val">15%</span>
+                        </div>
+                        <span class="bar-label">行政部</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence Activity Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">举证活跃度</div>
+                <div class="chart-controls">
+                    <button class="time-btn" onclick="changeTimeRange('1M', this)">1月</button>
+                    <button class="time-btn" onclick="changeTimeRange('3M', this)">3月</button>
+                    <button class="time-btn active" onclick="changeTimeRange('6M', this)">半年</button>
+                    <button class="time-btn" onclick="changeTimeRange('1Y', this)">1年</button>
+                </div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#1890ff;"></div>
+                    <span>提交量</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background:#52c41a;"></div>
+                    <span>通过量</span>
+                </div>
+            </div>
+            <div class="bar-chart" id="evidenceChart">
+                <!-- Dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- Rank Distribution Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">职级分布</div>
+                <span class="rank-scope" id="rankScopeLabel">全公司</span>
+            </div>
+            <div class="chart-subtitle">
+                理想模型：两头小(L1/L5)、中间大(L2/L3)的纺锤形结构
+                <span class="chart-hint">点击查看人员</span>
+            </div>
+            <div class="ideal-curve-hint">--- 理想分布曲线</div>
+            <div class="bar-chart" id="rankChart">
+                <!-- Dynamically rendered -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Detail View (Hidden by default) -->
+    <div class="detail-view" id="detailView">
+        <div class="detail-header">
+            <button class="back-btn" onclick="showDashboard()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="detail-title" id="detailTitle">人员明细</div>
+        </div>
+        
+        <div class="filter-bar">
+            <select id="detailDeptFilter" onchange="applyFilters()">
+                <option value="all">所有部门</option>
+                <option value="效率部">效率部</option>
+                <option value="销售部">销售部</option>
+                <option value="人力资源部">人力资源部</option>
+                <option value="财务部">财务部</option>
+                <option value="行政部">行政部</option>
+            </select>
+            <select id="detailTypeFilter" onchange="applyFilters()">
+                <option value="all">所有类型</option>
+                <option value="level_up">升级</option>
+                <option value="grade_up">升等</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="搜索姓名/工号" oninput="applyFilters()">
+        </div>
+        
+        <div class="person-list" id="personList">
+            <!-- Dynamically rendered -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="mobile_index.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>首页</span>
+        </a>
+        <a href="mobile_evidence_list.html" class="nav-item">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>举证</span>
+        </a>
+        <a href="mobile_dashboard.html" class="nav-item active">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>看板</span>
+        </a>
+        <a href="mobile_promotion_list.html" class="nav-item">
+            <i class="fa-solid fa-arrow-up-right-dots"></i>
+            <span>晋升</span>
+        </a>
+    </div>
+
+    <script>
+        // Mock Data
+        const employees = [
+            // Eligible
+            { id: '04322', name: '张三', dept: '效率部', level: 'P2A', target: 'P3E', status: 'eligible', promoteType: 'level_up', progress: 100, companyTenure: '3.5年', levelTenure: '2.5年', lastPerf: 'A' },
+            { id: '04325', name: '赵六', dept: '人力资源部', level: 'M2B', target: 'M2A', status: 'eligible', promoteType: 'grade_up', progress: 82, companyTenure: '5.0年', levelTenure: '1.8年', lastPerf: 'A+' },
+            { id: '04328', name: '孙八', dept: '全球供应链', level: 'S3B', target: 'S3A', status: 'eligible', promoteType: 'grade_up', progress: 91, companyTenure: '4.2年', levelTenure: '3.0年', lastPerf: 'A' },
+            { id: '04329', name: '周九', dept: '行政部', level: 'O1B', target: 'O2E', status: 'eligible', promoteType: 'level_up', progress: 100, companyTenure: '2.5年', levelTenure: '2.1年', lastPerf: 'A++' },
+            { id: '04330', name: '吴十', dept: '技术创新中心', level: 'T4C', target: 'T4B', status: 'eligible', promoteType: 'grade_up', progress: 96, companyTenure: '8.0年', levelTenure: '4.5年', lastPerf: 'A+' },
+            { id: '04335', name: '郑十五', dept: '效率部', level: 'P3A', target: 'P3A', status: 'eligible', promoteType: 'grade_up', progress: 85, companyTenure: '6.0年', levelTenure: '2.0年', lastPerf: 'A' },
+            
+            // Promoting
+            { id: '04321', name: '陈斐', dept: '效率部', level: 'P1A', target: 'P1B', status: 'promoting', promoteType: 'grade_up', currentNode: '认证/审批', currentAssignee: '李架构', nodeStayTime: '8天', startTime: '2025-12-10' },
+            { id: '04332', name: '周十二', dept: '全球供应链', level: 'S2B', target: 'S3E', status: 'promoting', promoteType: 'level_up', currentNode: '签字确认', currentAssignee: '王总监', nodeStayTime: '1天', startTime: '2025-12-08' },
+            
+            // Budget
+            { id: '04109', name: '马鑫', dept: '数字芯片研究中心', level: 'P3A', target: 'P3B', status: 'budget_block', promoteType: 'grade_up', priority: '高', waitTime: '33天', batch: '第11批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 3,000' },
+            { id: '04326', name: '郑七', dept: '行政部', level: 'P1B', target: 'P1C', status: 'budget_processing', promoteType: 'grade_up', priority: '-', waitTime: '-', batch: '第12批次', costCenter: '行政部', budgetOwner: '吴有', estimatedCost: '¥ 1,500' },
+            { id: '04331', name: '钱十一', dept: '人力资源部', level: 'M3A', target: 'M3B', status: 'budget_block', promoteType: 'grade_up', priority: '中', waitTime: '1天', batch: '第12批次', costCenter: '人力资源部', budgetOwner: '张潇文', estimatedCost: '¥ 5,000' },
+            { id: '04401', name: '测试A', dept: '数字芯片研究中心', level: 'P2B', target: 'P2C', status: 'budget_block', promoteType: 'grade_up', priority: '中', waitTime: '1天', batch: '第12批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 2,000' },
+            { id: '04402', name: '测试B', dept: '数字芯片研究中心', level: 'P4A', target: 'P4B', status: 'budget_block', promoteType: 'grade_up', priority: '低', waitTime: '1天', batch: '第12批次', costCenter: '数字芯片研究中心', budgetOwner: '马鑫', estimatedCost: '¥ 4,500' },
+            
+            // Deferred
+            { id: '04251', name: '刘同庆', dept: '业务解决方案部', level: 'P2B', target: 'P2C', status: 'deferred', promoteType: 'grade_up', progress: 100, note: '需观察管理能力', deferredBy: '张经理', deferredDate: '2025-12-01', deferCount: 2 },
+            { id: '04324', name: '王五', dept: '财务部', level: 'P3A', target: 'P3B', status: 'deferred', promoteType: 'grade_up', progress: 100, note: '近期绩效波动', deferredBy: '李总监', deferredDate: '2025-12-10', deferCount: 1 },
+            { id: '04405', name: '赵明', dept: '销售部', level: 'S2A', target: 'S1E', status: 'deferred', promoteType: 'grade_up', progress: 100, note: '团队协作待提升', deferredBy: '王总', deferredDate: '2025-12-08', deferCount: 1 },
+            
+            // Near
+            { id: '04323', name: '李四', dept: '销售部', level: 'P2C', target: 'P3A', status: 'near', promoteType: 'level_up', progress: 96, gapVal: '4%', lastPerf: 'A', lastActionDate: '2025-12-15' },
+            { id: '04333', name: '郑十三', dept: '技术创新中心', level: 'T3B', target: 'T3A', status: 'near', promoteType: 'grade_up', progress: 77, gapVal: '3%', lastPerf: 'A+', lastActionDate: '2025-12-01' },
+        ];
+
+        let currentDetailType = '';
+        let currentRole = 'admin';
+        let currentScope = 'all';
+
+        // Role config
+        const roleConfig = {
+            admin: { name: '管理员', scopes: [{ id: 'all', name: '全公司' }] },
+            dept_manager: { name: '部门经理', scopes: [{ id: 'all_managed', name: '全部管辖' }, { id: 'it', name: '效率部' }, { id: 'tic', name: '数字芯片研究中心' }] },
+            domain_leader: { name: '业务域负责人', scopes: [{ id: 'rd_all', name: '研发业务域' }, { id: 'scope', name: '示波器产品线' }, { id: 'rf', name: '射频产品线' }] },
+            hrbp: { name: 'HRBP', scopes: [{ id: 'hrbp_all', name: '全部负责范围' }, { id: 'rd_domain', name: '研发业务域' }, { id: 'func_domain', name: '职能业务域' }] },
+            budget_owner: { name: '预算负责人', scopes: [{ id: 'budget_all', name: '全部成本中心' }, { id: 'cc_tic', name: '数字芯片研究中心' }, { id: 'cc_it', name: '效率部' }] }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEvidenceChart();
+            renderRankChart();
+        });
+
+        function onRoleChange() {
+            const roleSelect = document.getElementById('roleSelector');
+            currentRole = roleSelect.value;
+            const role = roleConfig[currentRole];
+            
+            const scopeSelect = document.getElementById('scopeSelector');
+            if (role.scopes.length > 1) {
+                scopeSelect.innerHTML = '';
+                role.scopes.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    scopeSelect.appendChild(opt);
+                });
+                scopeSelect.style.display = 'block';
+            } else {
+                scopeSelect.style.display = 'none';
+            }
+            
+            currentScope = role.scopes[0].id;
+            updateScopeLabel();
+            renderRankChart();
+        }
+
+        function onScopeChange() {
+            currentScope = document.getElementById('scopeSelector').value;
+            updateScopeLabel();
+            renderRankChart();
+        }
+
+        function updateScopeLabel() {
+            const role = roleConfig[currentRole];
+            const scope = role.scopes.find(s => s.id === currentScope);
+            document.getElementById('rankScopeLabel').textContent = scope ? scope.name : '全公司';
+        }
+
+        function renderEvidenceChart() {
+            const container = document.getElementById('evidenceChart');
+            const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const data = [35, 42, 58, 45, 52, 48];
+            const passed = [28, 35, 50, 38, 45, 40];
+            const maxVal = Math.max(...data) * 1.2;
+            
+            let html = '';
+            months.forEach((m, i) => {
+                const h = (data[i] / maxVal) * 100;
+                const passH = (passed[i] / maxVal) * 100;
+                html += `
+                    <div class="bar-group" onclick="goToEvidenceList('${m}')">
+                        <div class="bar-column">
+                            <div class="bar" style="height:${h}%; background:#1890ff;">
+                                <span class="bar-val">${data[i]}</span>
+                            </div>
+                            <div style="position:absolute; bottom:${passH}%; width:100%; height:2px; background:#52c41a;"></div>
+                            <span class="bar-label">${m}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderRankChart() {
+            const container = document.getElementById('rankChart');
+            const labels = ['L1', 'L2', 'L3', 'L4', 'L5'];
+            const subLabels = ['初级/助理级', '中级', '高级', '资深级', '专家级'];
+            let dist = [15, 35, 40, 8, 2];
+            let counts = [30, 70, 80, 16, 4];
+            
+            // Adjust based on scope
+            if (currentScope.includes('it') || currentScope.includes('tic')) {
+                dist = [12, 30, 42, 14, 2];
+                counts = [6, 15, 21, 7, 1];
+            } else if (currentScope.includes('rd')) {
+                dist = [10, 28, 45, 14, 3];
+                counts = [10, 28, 45, 14, 3];
+            }
+            
+            const colors = ['#d9d9d9', '#1890ff', '#1890ff', '#13c2c2', '#faad14'];
+            const maxVal = 50;
+            
+            let html = '';
+            dist.forEach((val, i) => {
+                const h = (val / maxVal) * 100;
+                html += `
+                    <div class="bar-group" onclick="goToLevelList('${labels[i]}', ${counts[i]})">
+                        <div class="bar-column">
+                            <div class="bar" style="height:${h}%; background:${colors[i]};">
+                                <span class="bar-val">${val}%</span>
+                            </div>
+                            <span class="bar-label">${labels[i]} (${subLabels[i]})</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function changeTimeRange(range, btn) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Re-render with different data (mock)
+            renderEvidenceChart();
+        }
+
+        function showDetail(type) {
+            currentDetailType = type;
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('detailView').style.display = 'block';
+            
+            const titles = {
+                'eligible': '晋升已就绪',
+                'promoting': '晋升进行中',
+                'budget': '预算审批',
+                'deferred': '升等暂缓',
+                'near': '即将达标'
+            };
+            document.getElementById('detailTitle').textContent = titles[type] || '人员明细';
+            
+            // Update filter label for budget
+            const deptFilter = document.getElementById('detailDeptFilter');
+            if (type === 'budget') {
+                deptFilter.options[0].textContent = '所有成本中心';
+            } else {
+                deptFilter.options[0].textContent = '所有部门';
+            }
+            
+            renderPersonList();
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('detailView').style.display = 'none';
+        }
+
+        function applyFilters() {
+            renderPersonList();
+        }
+
+        function renderPersonList() {
+            const container = document.getElementById('personList');
+            const deptFilter = document.getElementById('detailDeptFilter').value;
+            const typeFilter = document.getElementById('detailTypeFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = employees.filter(e => {
+                if (currentDetailType === 'eligible' && e.status !== 'eligible') return false;
+                if (currentDetailType === 'promoting' && e.status !== 'promoting') return false;
+                if (currentDetailType === 'budget' && !['budget_block', 'budget_processing'].includes(e.status)) return false;
+                if (currentDetailType === 'deferred' && e.status !== 'deferred') return false;
+                if (currentDetailType === 'near' && e.status !== 'near') return false;
+                
+                if (deptFilter !== 'all') {
+                    if (currentDetailType === 'budget') {
+                        if (e.costCenter !== deptFilter) return false;
+                    } else {
+                        if (e.dept !== deptFilter) return false;
+                    }
+                }
+                if (typeFilter !== 'all' && e.promoteType !== typeFilter) return false;
+                if (search && !e.name.toLowerCase().includes(search) && !e.id.includes(search)) return false;
+                
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#999;">
+                        <i class="fa-solid fa-inbox" style="font-size:32px; margin-bottom:12px;"></i>
+                        <div>暂无符合条件的数据</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(emp => {
+                const avatarChar = emp.name.charAt(0);
+                const promoteBadge = emp.promoteType === 'level_up' 
+                    ? '<span class="person-tag tag-green">升级</span>' 
+                    : '<span class="person-tag tag-blue">升等</span>';
+                
+                let bodyHtml = '';
+                if (currentDetailType === 'eligible') {
+                    bodyHtml = `
+                        <div class="person-field">
+                            <span class="field-label">晋升目标</span>
+                            <span class="field-value">${emp.level} → ${emp.target}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">岗位匹配度</span>
+                            <span class="field-value text-blue font-bold">${emp.progress}%</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${emp.progress}%"></div></div>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">司龄/现职级</span>
+                            <span class="field-value">${emp.companyTenure} / ${emp.levelTenure}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">最近绩效</span>
+                            <span class="field-value">${emp.lastPerf}</span>
+                        </div>
+                    `;
+                } else if (currentDetailType === 'promoting') {
+                    const stayDays = parseInt(emp.nodeStayTime);
+                    const stayClass = stayDays > 7 ? 'text-red font-bold' : '';
+                    bodyHtml = `
+                        <div class="person-field">
+                            <span class="field-label">晋升目标</span>
+                            <span class="field-value">${emp.level} → ${emp.target}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">当前节点</span>
+                            <span class="field-value text-blue">${emp.currentNode}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">当前处理人</span>
+                            <span class="field-value">${emp.currentAssignee}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">节点停留</span>
+                            <span class="field-value ${stayClass}">${emp.nodeStayTime}</span>
+                        </div>
+                    `;
+                } else if (currentDetailType === 'budget') {
+                    const statusTag = emp.status === 'budget_block' 
+                        ? '<span class="person-tag" style="background:#fff1f0;color:#ff4d4f;">排队中</span>'
+                        : '<span class="person-tag tag-blue">审批中</span>';
+                    bodyHtml = `
+                        <div class="person-field">
+                            <span class="field-label">晋升目标</span>
+                            <span class="field-value">${emp.level} → ${emp.target}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">审批状态</span>
+                            ${statusTag}
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">成本中心</span>
+                            <span class="field-value">${emp.costCenter}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">预计金额</span>
+                            <span class="field-value font-bold">${emp.estimatedCost}</span>
+                        </div>
+                    `;
+                } else if (currentDetailType === 'deferred') {
+                    const deferBadge = emp.deferCount > 1 
+                        ? `<span class="badge" style="font-size:10px;background:#fff1f0;color:#ff4d4f;padding:1px 4px;border-radius:2px;">连续${emp.deferCount}次</span>` 
+                        : '';
+                    bodyHtml = `
+                        <div class="person-field">
+                            <span class="field-label">晋升目标</span>
+                            <span class="field-value">${emp.level} → ${emp.target}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">暂缓次数</span>
+                            <span class="field-value">${emp.deferCount}次 ${deferBadge}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">暂缓人</span>
+                            <span class="field-value">${emp.deferredBy}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">暂缓理由</span>
+                            <span class="field-value text-orange">${emp.note}</span>
+                        </div>
+                    `;
+                } else if (currentDetailType === 'near') {
+                    bodyHtml = `
+                        <div class="person-field">
+                            <span class="field-label">潜在目标</span>
+                            <span class="field-value">${emp.level} → ${emp.target}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">岗位匹配度</span>
+                            <span class="field-value text-blue font-bold">${emp.progress}%</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${emp.progress}%"></div></div>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">还需匹配度</span>
+                            <span class="field-value text-red font-bold">${emp.gapVal}</span>
+                        </div>
+                        <div class="person-field">
+                            <span class="field-label">最近举证</span>
+                            <span class="field-value">${emp.lastActionDate}</span>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <div class="person-card">
+                        <div class="person-header">
+                            <div class="person-info">
+                                <div class="person-avatar">${avatarChar}</div>
+                                <div>
+                                    <div class="person-name">${emp.name}</div>
+                                    <div class="person-id">${emp.id}</div>
+                                    <div class="person-dept">${emp.dept}</div>
+                                </div>
+                            </div>
+                            ${promoteBadge}
+                        </div>
+                        <div class="person-body">
+                            ${bodyHtml}
+                        </div>
+                        <div class="person-footer">
+                            <button class="view-detail-btn" onclick="alert('跳转至 ${emp.name} 的详情页')">
+                                查看详情 <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Chart click handlers
+        function goToPromotionList(dept) {
+            alert(`即将跳转到晋升记录列表\n\n筛选条件: 部门 = ${dept}\n\n该页面将展示 ${dept} 本年度所有晋升记录`);
+        }
+
+        function goToEvidenceList(month) {
+            alert(`即将跳转到举证记录列表\n\n筛选条件: 时间 = ${month}\n\n该页面将展示 ${month} 的所有举证记录`);
+        }
+
+        function goToLevelList(level, count) {
+            const scopeLabel = document.getElementById('rankScopeLabel').textContent;
+            alert(`即将跳转到人员列表\n\n筛选条件:\n• 职级 = ${level}\n• 范围 = ${scopeLabel}\n\n该页面将展示 ${count} 名 ${level} 级别人员`);
+        }
+    </script>
+</body>
+</html>
+
