@@ -1,0 +1,491 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RIGOL 普源精电｜招聘流程图 / Recruitment Workflow</title>
+  <style>
+    :root {
+      --bg: #050b14;
+      --bg2: #0a1426;
+      --text: #e0f0ff;
+      --muted: #8a9fb1;
+      --main-color: #00d2ff;
+      --main-glow: rgba(0, 210, 255, 0.4);
+      --social-color: #00ff9d;
+      --social-glow: rgba(0, 255, 157, 0.4);
+      --ai-color: #ffaa00;
+      --ai-glow: rgba(255, 170, 0, 0.4);
+      --panel-bg: rgba(10, 20, 38, 0.7);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 量子动态背景 */
+    .quantum-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: 
+        radial-gradient(circle at 15% 30%, rgba(0,210,255,0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(0,255,157,0.05) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255,170,0,0.03) 0%, transparent 50%);
+    }
+    .grid-layer {
+      position: absolute; inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 80%);
+      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 80%);
+    }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: #fff; box-shadow: 0 0 10px #fff;
+      animation: floatQ linear infinite;
+    }
+    .p1 { width: 4px; height: 4px; top: 20%; left: 20%; background: var(--main-color); animation-duration: 12s; }
+    .p2 { width: 6px; height: 6px; top: 60%; left: 80%; background: var(--social-color); animation-duration: 18s; }
+    .p3 { width: 3px; height: 3px; top: 80%; left: 30%; background: var(--ai-color); animation-duration: 15s; }
+    .p4 { width: 5px; height: 5px; top: 30%; left: 70%; background: var(--main-color); animation-duration: 20s; }
+
+    @keyframes floatQ {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      25% { opacity: 0.8; }
+      50% { transform: translateY(-50px) translateX(20px); }
+      75% { opacity: 0.8; }
+      100% { transform: translateY(-100px) translateX(-20px); opacity: 0; }
+    }
+
+    /* 页面结构 */
+    .wrapper {
+      position: relative; z-index: 1;
+      max-width: 1440px; margin: 0 auto; padding: 20px 16px 40px;
+    }
+
+    .brand-header, .brand-footer {
+      text-align: center; font-weight: 800; letter-spacing: 1px;
+    }
+    .brand-header { margin-bottom: 24px; }
+    .brand-footer { margin-top: 40px; font-size: 13px; color: var(--muted); line-height: 2; }
+    .brand-text { color: var(--main-color); text-shadow: 0 0 12px var(--main-glow); font-size: 15px; }
+    .sub-text { color: var(--muted); font-size: 12px; margin-top: 4px; letter-spacing: 2px; }
+
+    .hero { text-align: center; margin-bottom: 30px; }
+    .hero .icon { font-size: 48px; display: inline-block; filter: drop-shadow(0 0 16px var(--main-glow)); margin-bottom: 10px; }
+    .hero h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); font-weight: 900; }
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--main-color), #fff, var(--main-color));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero h2 { margin: 8px 0 0; font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+
+    /* 图例与说明 */
+    .legend-box {
+      display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 30px; background: rgba(255,255,255,0.02);
+      padding: 16px 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px); width: fit-content; margin-left: auto; margin-right: auto;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+    .l-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .l-main { background: var(--main-color); box-shadow: 0 0 10px var(--main-color); }
+    .l-social { background: var(--social-color); box-shadow: 0 0 10px var(--social-color); }
+    .l-ai { background: var(--ai-color); box-shadow: 0 0 10px var(--ai-color); }
+
+    /* 流程图容器 */
+    .canvas-container {
+      width: 100%; overflow-x: auto; padding: 20px 0 40px;
+      scrollbar-width: thin; scrollbar-color: var(--main-color) var(--panel-bg);
+    }
+    .canvas-container::-webkit-scrollbar { height: 8px; }
+    .canvas-container::-webkit-scrollbar-track { background: var(--panel-bg); border-radius: 4px; }
+    .canvas-container::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 4px; }
+
+    /* 画布尺寸 */
+    .flow-canvas {
+      position: relative; width: 1240px; height: 2550px; margin: 0 auto;
+      background: var(--panel-bg); border-radius: 24px;
+      border: 1px solid rgba(0,210,255,0.15);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    /* SVG 连线层 */
+    .svg-layer {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+    }
+    .path-main { stroke: var(--main-color); stroke-width: 3; fill: none; filter: drop-shadow(0 0 6px var(--main-glow)); }
+    .path-social { stroke: var(--social-color); stroke-width: 3; fill: none; filter: drop-shadow(0 0 6px var(--social-glow)); }
+    .path-ai { stroke: var(--ai-color); stroke-width: 2; fill: none; stroke-dasharray: 6 6; filter: drop-shadow(0 0 4px var(--ai-glow)); animation: dashMove 20s linear infinite; }
+    
+    @keyframes dashMove { to { stroke-dashoffset: -1000; } }
+
+    /* 节点样式 */
+    .node {
+      position: absolute; z-index: 2; width: 220px;
+      min-height: 124px;
+      background: linear-gradient(180deg, rgba(20,30,50,0.95), rgba(10,15,30,0.98));
+      border-radius: 14px; padding: 18px 16px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .node:hover { transform: translateY(-4px); }
+    
+    .node-main {
+      border: 2px solid var(--main-color);
+      box-shadow: 0 0 15px rgba(0,210,255,0.15);
+    }
+    .node-main:hover { box-shadow: 0 0 25px rgba(0,210,255,0.4); }
+    
+    .node-social {
+      border: 2px solid var(--social-color);
+      box-shadow: 0 0 15px rgba(0,255,157,0.15);
+    }
+    .node-social:hover { box-shadow: 0 0 25px rgba(0,255,157,0.4); }
+
+    .node-ai {
+      border: 2px dashed var(--ai-color);
+      background: linear-gradient(180deg, rgba(255,170,0,0.1), rgba(10,15,30,0.95));
+      box-shadow: 0 0 15px rgba(255,170,0,0.1);
+    }
+    .node-ai:hover { box-shadow: 0 0 25px rgba(255,170,0,0.4); }
+
+    .tag {
+      display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 800;
+      border-radius: 6px; margin-bottom: 10px; letter-spacing: 1px;
+    }
+    .tag-main { background: rgba(0,210,255,0.15); color: var(--main-color); }
+    .tag-social { background: rgba(0,255,157,0.15); color: var(--social-color); }
+    .tag-ai { background: rgba(255,170,0,0.15); color: var(--ai-color); }
+
+    .node h3 { margin: 0 0 10px; font-size: 17px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .node p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
+
+    /* 线路上的文本标签 */
+    .line-label {
+      position: absolute; z-index: 3; font-size: 12px; font-weight: 600;
+      background: #0a1426; border: 1px solid rgba(255,255,255,0.1);
+      padding: 4px 10px; border-radius: 12px; white-space: nowrap;
+    }
+    .lbl-main { color: var(--main-color); border-color: rgba(0,210,255,0.3); }
+    .lbl-social { color: var(--social-color); border-color: rgba(0,255,157,0.3); }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 28px; }
+      .legend-box { flex-direction: column; gap: 12px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 动态量子背景 -->
+  <div class="quantum-bg">
+    <div class="grid-layer"></div>
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+    <div class="particle p4"></div>
+  </div>
+
+  <div class="wrapper">
+    <!-- 顶部品牌 -->
+    <div class="brand-header">
+      <div class="brand-text">RIGOL 普源精电</div>
+      <div class="sub-text">RECRUITMENT WORKFLOW VISUALIZATION</div>
+    </div>
+
+    <!-- 标题区 -->
+    <div class="hero">
+      <span class="icon">🚀</span>
+      <h1><span>招聘流程图</span></h1>
+      <h2>One Main Flow · Parallel Branches · AI Upgrades</h2>
+    </div>
+
+    <!-- 图例 -->
+    <div class="legend-box">
+      <div class="legend-item"><div class="l-dot l-main"></div> 校招/通用主流程 (Main Trunk)</div>
+      <div class="legend-item"><div class="l-dot l-social"></div> 社招并行流程 (Social Parallel)</div>
+      <div class="legend-item"><div class="l-dot l-ai"></div> AI旁路增强功能 (AI Sidecar Bypass)</div>
+    </div>
+
+    <!-- 核心画布区 -->
+    <div class="canvas-container">
+      <div class="flow-canvas">
+        
+        <!-- SVG 连线定义 -->
+        <svg class="svg-layer">
+          <defs>
+            <marker id="arrow-main" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--main-color)" />
+            </marker>
+            <marker id="arrow-social" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--social-color)" />
+            </marker>
+            <marker id="arrow-ai" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ai-color)" />
+            </marker>
+          </defs>
+
+          <!-- ================= AI Bypass 横向连线 (Y = top + 75 居中对接) ================= -->
+          <!-- Row 1 (Top: 40) -->
+          <path class="path-ai" d="M 610 115 L 675 115" marker-end="url(#arrow-ai)" />
+
+          <!-- Row 2 (Top: 290) -->
+          <path class="path-ai" d="M 310 365 L 375 365" marker-end="url(#arrow-ai)" />
+          <path class="path-ai" d="M 610 365 L 675 365" marker-end="url(#arrow-ai)" />
+          <path class="path-ai" d="M 910 365 L 940 365" marker-end="url(#arrow-ai)" />
+
+          <!-- Row 3 (Top: 540) -->
+          <path class="path-ai" d="M 610 615 L 675 615" marker-end="url(#arrow-ai)" />
+          
+          <!-- Row 5 (Top: 1040) 新增测评AI连线 -->
+          <path class="path-ai" d="M 610 1115 L 675 1115" marker-end="url(#arrow-ai)" />
+
+          <!-- Row 6 (Top: 1290) -->
+          <path class="path-ai" d="M 610 1365 L 675 1365" marker-end="url(#arrow-ai)" />
+          
+          <!-- Row 7 (Top: 1540) -->
+          <path class="path-ai" d="M 390 1615 L 325 1615" marker-end="url(#arrow-ai)" />
+          <path class="path-ai" d="M 610 1615 L 675 1615" marker-end="url(#arrow-ai)" />
+          
+          <!-- Row 9 (Top: 2040) -->
+          <path class="path-ai" d="M 610 2115 L 675 2115" marker-end="url(#arrow-ai)" />
+
+          <!-- Row 10 (Top: 2290) 新增答疑AI连线 -->
+          <path class="path-ai" d="M 610 2365 L 675 2365" marker-end="url(#arrow-ai)" />
+
+          <!-- ================= 主流程与社招并行连线 ================= -->
+          <!-- 垂直线规律：起始 Y = 上方盒子 top + 155, 结束 Y = 下方盒子 top - 15 -->
+          
+          <!-- Main: Row 1(40) -> Row 2(290) -->
+          <path class="path-main" d="M 500 195 L 500 275" marker-end="url(#arrow-main)" />
+
+          <!-- Main: Row 2(290) -> Row 3(540) -->
+          <path class="path-main" d="M 500 445 L 500 525" marker-end="url(#arrow-main)" />
+          
+          <!-- Main: Row 3(540) -> Row 5(1040) -->
+          <path class="path-main" d="M 500 695 L 500 1025" marker-end="url(#arrow-main)" />
+          
+          <!-- Main: Row 5(1040) -> Row 6(1290) -->
+          <path class="path-main" d="M 500 1195 L 500 1275" marker-end="url(#arrow-main)" />
+          
+          <!-- Main: Row 6(1290) -> Row 7(1540) -->
+          <path class="path-main" d="M 500 1445 L 500 1525" marker-end="url(#arrow-main)" />
+          
+          <!-- Main: Row 7(1540) -> Row 9(2040) -->
+          <path class="path-main" d="M 500 1695 L 500 2025" marker-end="url(#arrow-main)" />
+          
+          <!-- Main: Row 9(2040) -> Row 10(2290) -->
+          <path class="path-main" d="M 500 2195 L 500 2275" marker-end="url(#arrow-main)" />
+
+
+          <!-- Social Diverge: R3(540) -> R4(790) -->
+          <path class="path-social" d="M 500 695 L 500 735 L 800 735 L 800 775" marker-end="url(#arrow-social)" />
+          
+          <!-- Social Merge: R4(790) -> R5(1040) -->
+          <path class="path-social" d="M 800 945 L 800 985 L 500 985 L 500 1025" />
+
+          <!-- Social Diverge: R7(1540) -> R8(1790) -->
+          <path class="path-social" d="M 500 1695 L 500 1735 L 800 1735 L 800 1775" marker-end="url(#arrow-social)" />
+          
+          <!-- Social Merge: R8(1790) -> R9(2040) -->
+          <path class="path-social" d="M 800 1945 L 800 1985 L 500 1985 L 500 2025" />
+
+        </svg>
+
+        <!-- 线路标签 (精确定位在连线断点附近，避开主视线) -->
+        <div class="line-label lbl-main" style="left: 395px; top: 845px;">校招主干（直接推进）</div>
+        <div class="line-label lbl-social" style="left: 620px; top: 705px;">社招进入并行环节</div>
+        <div class="line-label lbl-main" style="left: 395px; top: 1845px;">通常情况（无需背调）</div>
+        <div class="line-label lbl-social" style="left: 620px; top: 1705px;">管理/高薪岗触发背调</div>
+
+
+        <!-- ================= 绝对定位节点 (层间距 250px) ================= -->
+        
+        <!-- Row 1: Y = 40 -->
+        <div class="node node-main" style="left: 390px; top: 40px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>收集需求与生成JD</h3>
+          <p>对接业务部门，明确用人需求、岗位核心职责与任职资格要求。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 40px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>📝 AI JD与画像生成</h3>
+          <p>根据简短需求自动扩写标准岗位JD，提取核心关键词，生成匹配的人才画像。</p>
+        </div>
+
+
+        <!-- Row 2: Y = 290 -->
+        <div class="node node-ai" style="left: 90px; top: 290px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>🤖 AI寻访机器人</h3>
+          <p>全网智能检索与对话，自动触达潜客并引导投递简历。</p>
+        </div>
+
+        <div class="node node-main" style="left: 390px; top: 290px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>多渠道收集简历</h3>
+          <p>聚合多平台简历。阶段性分析渠道转化效果形成报告，辅助优化招聘投放预算。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 290px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>🧠 AI解析与归档</h3>
+          <p>自动打标(如算法/高潜)，生成附带理由的推荐报告；智能识别高潜力的“潜在候选人”。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 950px; top: 290px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>🗺️ AI人才地图</h3>
+          <p>定期清洗整理储备库中的合适人才，动态输出专属人才地图。</p>
+        </div>
+
+
+        <!-- Row 3: Y = 540 -->
+        <div class="node node-main" style="left: 390px; top: 540px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>简历初筛</h3>
+          <p>基于岗位核心要求，进行资质、经历与技术匹配度的初步筛查。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 540px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>🎯 AI匹配评分</h3>
+          <p>深度比对输出匹配度。支持智能反向推荐（人才活水），将落选者推荐至更适配的B岗。</p>
+        </div>
+
+
+        <!-- Row 4: Y = 790 -->
+        <div class="node node-social" style="left: 690px; top: 790px;">
+          <div class="tag tag-social">SOCIAL PARALLEL</div>
+          <h3>首轮电话沟通</h3>
+          <p>针对社招岗位，核实履历真实性、求职动机、薪资期望及到岗时间。</p>
+        </div>
+
+
+        <!-- Row 5: Y = 1040 -->
+        <div class="node node-main" style="left: 390px; top: 1040px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>综合测评</h3>
+          <p>心理风险排查测评与 Lumina 行为风格/潜能测评，辅助考察适配性。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 1040px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>📊 AI测评解读与建模</h3>
+          <p>融合历史绩优数据构建相似模型；输出岗位适配建议、分析报告及专属面试追问建议。</p>
+        </div>
+
+
+        <!-- Row 6: Y = 1290 -->
+        <div class="node node-main" style="left: 390px; top: 1290px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>技术笔试</h3>
+          <p>针对研发、算法等核心岗位的专业基础与代码实战能力考核。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 1290px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>💻 AI智能出题与分析</h3>
+          <p>自动生成考题组卷；考后自动阅卷与代码剖析；精准识别“简历AI代写”及作弊异常。</p>
+        </div>
+
+
+        <!-- Row 7: Y = 1540 -->
+        <div class="node node-ai" style="left: 90px; top: 1540px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>🎙️ AI面试助手</h3>
+          <p>面中实时生成追问，提取关键证据；面后整合生成标准化的结构化评价报告。</p>
+        </div>
+
+        <div class="node node-main" style="left: 390px; top: 1540px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>技术/综合面试</h3>
+          <p>涵盖专业技术面、业务组长面、交叉评估面及HR最终定级面。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 1540px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>📅 AI会议助手</h3>
+          <p>智能匹配双方日程，支持自助预约、改期，自动触发会议链接与提醒。</p>
+        </div>
+
+
+        <!-- Row 8: Y = 1790 -->
+        <div class="node node-social" style="left: 690px; top: 1790px;">
+          <div class="tag tag-social">SOCIAL PARALLEL</div>
+          <h3>背景调查</h3>
+          <p>针对社招中高阶人才，进行核心履历验证及离职原因核实。</p>
+        </div>
+
+
+        <!-- Row 9: Y = 2040 -->
+        <div class="node node-main" style="left: 390px; top: 2040px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>Offer 沟通</h3>
+          <p>与候选人详细对齐最终定级、薪酬结构、汇报关系及预计入职时间。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 2040px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>📈 AI Offer建议</h3>
+          <p>基于内部职级带宽、外部市场行情及人才稀缺度提供智能定薪参考。</p>
+        </div>
+
+
+        <!-- Row 10: Y = 2290 -->
+        <div class="node node-main" style="left: 390px; top: 2290px;">
+          <div class="tag tag-main">MAIN FLOW</div>
+          <h3>Offer 发放与入职</h3>
+          <p>完成内部各项审批流转，正式向候选人发放录用通知书并跟进。</p>
+        </div>
+
+        <div class="node node-ai" style="left: 690px; top: 2290px;">
+          <div class="tag tag-ai">AI BYPASS</div>
+          <h3>💬 AI入职答疑助手</h3>
+          <p>7*24小时全天候客服，随时解答候选人关于薪酬福利、入职流程、工作地点等疑问。</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部品牌与关键词 -->
+    <div class="brand-footer">
+      <div class="brand-text">RIGOL 普源精电</div>
+      <div>本页面关键词：招聘流程图、校招社招并行、人才画像、人才活水、AI高绩效建模、AI代写检测、标准化评价报告、AI入职答疑</div>
+    </div>
+  </div>
+
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
