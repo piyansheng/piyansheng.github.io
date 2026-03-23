@@ -31,6 +31,9 @@
       --social-glow: rgba(0, 255, 157, 0.4);
       --ai-color: #ffaa00;
       --ai-glow: rgba(255, 170, 0, 0.4);
+      /* 经销商生态分支（右侧独立列，不影响原有三色语义） */
+      --dealer-color: #c084fc;
+      --dealer-glow: rgba(192, 132, 252, 0.45);
       --panel-bg: rgba(10, 20, 38, 0.7);
     }
 
@@ -83,7 +86,7 @@
     /* 页面结构 */
     .wrapper {
       position: relative; z-index: 1;
-      max-width: 1440px; margin: 0 auto; padding: 20px 16px 40px;
+      max-width: 1680px; margin: 0 auto; padding: 20px 24px 48px;
     }
 
     .brand-header, .brand-footer {
@@ -115,10 +118,11 @@
     .l-main { background: var(--main-color); box-shadow: 0 0 10px var(--main-color); }
     .l-social { background: var(--social-color); box-shadow: 0 0 10px var(--social-color); }
     .l-ai { background: var(--ai-color); box-shadow: 0 0 10px var(--ai-color); }
+    .l-dealer { background: var(--dealer-color); box-shadow: 0 0 10px var(--dealer-color); }
 
     /* 流程图容器 */
     .canvas-container {
-      width: 100%; overflow-x: auto; padding: 20px 0 40px;
+      width: 100%; overflow-x: auto; padding: 24px 0 56px;
       scrollbar-width: thin; scrollbar-color: var(--main-color) var(--panel-bg);
     }
     .canvas-container::-webkit-scrollbar { height: 8px; }
@@ -127,7 +131,10 @@
 
     /* 画布尺寸 */
     .flow-canvas {
-      position: relative; width: 1240px; height: 2550px; margin: 0 auto;
+      position: relative;
+      width: 1640px;
+      height: 2780px;
+      margin: 0 auto;
       background: var(--panel-bg); border-radius: 24px;
       border: 1px solid rgba(0,210,255,0.15);
       box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.02);
@@ -140,7 +147,8 @@
     .path-main { stroke: var(--main-color); stroke-width: 3; fill: none; filter: drop-shadow(0 0 6px var(--main-glow)); }
     .path-social { stroke: var(--social-color); stroke-width: 3; fill: none; filter: drop-shadow(0 0 6px var(--social-glow)); }
     .path-ai { stroke: var(--ai-color); stroke-width: 2; fill: none; stroke-dasharray: 6 6; filter: drop-shadow(0 0 4px var(--ai-glow)); animation: dashMove 20s linear infinite; }
-    
+    .path-dealer { stroke: var(--dealer-color); stroke-width: 3; fill: none; filter: drop-shadow(0 0 6px var(--dealer-glow)); }
+
     @keyframes dashMove { to { stroke-dashoffset: -1000; } }
 
     /* 节点样式 */
@@ -173,6 +181,14 @@
     }
     .node-ai:hover { box-shadow: 0 0 25px rgba(255,170,0,0.4); }
 
+    .node-dealer {
+      z-index: 3;
+      border: 2px solid var(--dealer-color);
+      background: linear-gradient(180deg, rgba(192, 132, 252, 0.12), rgba(10, 15, 30, 0.96));
+      box-shadow: 0 0 15px rgba(192, 132, 252, 0.18);
+    }
+    .node-dealer:hover { box-shadow: 0 0 25px rgba(192, 132, 252, 0.45); }
+
     .tag {
       display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 800;
       border-radius: 6px; margin-bottom: 10px; letter-spacing: 1px;
@@ -180,6 +196,7 @@
     .tag-main { background: rgba(0,210,255,0.15); color: var(--main-color); }
     .tag-social { background: rgba(0,255,157,0.15); color: var(--social-color); }
     .tag-ai { background: rgba(255,170,0,0.15); color: var(--ai-color); }
+    .tag-dealer { background: rgba(192, 132, 252, 0.2); color: var(--dealer-color); }
 
     .node h3 { margin: 0 0 10px; font-size: 17px; font-weight: 800; color: #fff; line-height: 1.3; }
     .node p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
@@ -192,6 +209,7 @@
     }
     .lbl-main { color: var(--main-color); border-color: rgba(0,210,255,0.3); }
     .lbl-social { color: var(--social-color); border-color: rgba(0,255,157,0.3); }
+    .lbl-dealer { color: var(--dealer-color); border-color: rgba(192, 132, 252, 0.35); }
 
     @media (max-width: 768px) {
       .hero h1 { font-size: 28px; }
@@ -229,6 +247,7 @@
       <div class="legend-item"><div class="l-dot l-main"></div> 校招/通用主流程 (Main Trunk)</div>
       <div class="legend-item"><div class="l-dot l-social"></div> 社招并行流程 (Social Parallel)</div>
       <div class="legend-item"><div class="l-dot l-ai"></div> AI旁路增强功能 (AI Sidecar Bypass)</div>
+      <div class="legend-item"><div class="l-dot l-dealer"></div> 经销商生态分支 (Dealer Ecosystem)</div>
     </div>
 
     <!-- 核心画布区 -->
@@ -246,6 +265,9 @@
             </marker>
             <marker id="arrow-ai" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ai-color)" />
+            </marker>
+            <marker id="arrow-dealer" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--dealer-color)" />
             </marker>
           </defs>
 
@@ -314,6 +336,15 @@
           <!-- Social Merge: R8(1790) -> R9(2040) -->
           <path class="path-social" d="M 800 1945 L 800 1985 L 500 1985 L 500 2025" />
 
+          <!-- ================= 经销商生态分支：列中心 x=1310（节点 left=1200），折线绕开 AI 第二行黄框 ================= -->
+          <path class="path-dealer" d="M 610 340 L 610 248 L 1310 248 L 1310 445" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 445 L 1310 525" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 695 L 1310 775" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 945 L 1310 1025" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 1195 L 1310 1525" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 1695 L 1310 1775" marker-end="url(#arrow-dealer)" />
+          <path class="path-dealer" d="M 1310 1945 L 1310 2275" marker-end="url(#arrow-dealer)" />
+
         </svg>
 
         <!-- 线路标签 (精确定位在连线断点附近，避开主视线) -->
@@ -321,6 +352,7 @@
         <div class="line-label lbl-social" style="left: 620px; top: 705px;">社招进入并行环节</div>
         <div class="line-label lbl-main" style="left: 395px; top: 1845px;">通常情况（无需背调）</div>
         <div class="line-label lbl-social" style="left: 620px; top: 1705px;">管理/高薪岗触发背调</div>
+        <div class="line-label lbl-dealer" style="left: 1080px; top: 218px;">经销商生态（人才池闭环）</div>
 
 
         <!-- ================= 绝对定位节点 (层间距 250px) ================= -->
@@ -470,13 +502,56 @@
           <p>7*24小时全天候客服，随时解答候选人关于薪酬福利、入职流程、工作地点等疑问。</p>
         </div>
 
+        <!-- ================= 经销商生态分支（右侧列 left=1200，与 AI 人才地图错开） ================= -->
+        <div class="node node-dealer" style="left: 1200px; top: 290px;">
+          <div class="tag tag-dealer">DEALER · 收录</div>
+          <h3>平台意向收录（打招呼）</h3>
+          <p>各招聘平台对 RIGOL 岗位感兴趣、已与 HR 打招呼的候选人；不做业务筛选，收录个人信息与简历。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 540px;">
+          <div class="tag tag-dealer">DEALER · 人才池</div>
+          <h3>经销商招聘人才池</h3>
+          <p>上述候选人统一归入经销商招聘人才池，与本部编制流程分池管理、统一解析规范。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 790px;">
+          <div class="tag tag-dealer">DEALER · 需求</div>
+          <h3>经销商需求填报</h3>
+          <p>通过表单/飞书多维表格，由经销商定期填写区域、岗位、人数等人才需求。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 1040px;">
+          <div class="tag tag-dealer">DEALER · 匹配</div>
+          <h3>双向匹配与打分标记</h3>
+          <p>岗位需求与人才池双向匹配；对符合需求的人才打分排名并打标（可结合 AI 匹配评分能力）。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 1540px;">
+          <div class="tag tag-dealer">DEALER · 推送</div>
+          <h3>HR确认 · 一键推送</h3>
+          <p>经 RIGOL HR 确认后，将候选人一键推送给对应经销商；推送前合规授权流程按制度配置。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 1790px;">
+          <div class="tag tag-dealer">DEALER · 跟进</div>
+          <h3>经销商侧处理</h3>
+          <p>进入面试、面试不通过、已录用等状态由经销商回填，形成可追踪闭环。</p>
+        </div>
+
+        <div class="node node-dealer" style="left: 1200px; top: 2290px;">
+          <div class="tag tag-dealer">DEALER · 看板</div>
+          <h3>生态招聘看板</h3>
+          <p>汇聚推送量、查阅与转化、区域与经销商维度健康度等，可视化生态赋能成效。</p>
+        </div>
+
       </div>
     </div>
 
     <!-- 底部品牌与关键词 -->
     <div class="brand-footer">
       <div class="brand-text">RIGOL 普源精电</div>
-      <div>本页面关键词：招聘流程图、校招社招并行、人才画像、人才活水、AI高绩效建模、AI代写检测、标准化评价报告、AI入职答疑</div>
+      <div>本页面关键词：招聘流程图、校招社招并行、经销商生态人才池、人才画像、人才活水、AI高绩效建模、AI代写检测、标准化评价报告、AI入职答疑</div>
     </div>
   </div>
 
