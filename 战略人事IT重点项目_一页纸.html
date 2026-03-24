@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>战略 &amp; 人事重点事项梳理</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-2: #1e293b;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(248, 250, 252, 0.07);
+      --accent: #c8a449;
+      --accent-soft: rgba(200, 164, 73, 0.12);
+      --strategic: #38bdf8;
+      --hr: #c084fc;
+      --mix: #4ade80;
+      --radius: 10px;
+      --font: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(1140px, calc(100vw - 20px));
+      margin: 14px auto;
+      padding: 20px 22px 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    /* 入场动画 */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim { animation: fadeUp 0.5s ease-out both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.1s; }
+    .d3 { animation-delay: 0.15s; }
+    .d4 { animation-delay: 0.2s; }
+    .d5 { animation-delay: 0.25s; }
+    .d6 { animation-delay: 0.3s; }
+    .d7 { animation-delay: 0.35s; }
+    .d8 { animation-delay: 0.4s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim { animation: none; opacity: 1; }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    h1 { font-size: 26px; font-weight: 700; line-height: 1.15; }
+
+    .header-right {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .pill-s { color: var(--strategic); background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.22); }
+    .pill-h { color: var(--hr); background: rgba(192, 132, 252, 0.1); border: 1px solid rgba(192, 132, 252, 0.22); }
+    .pill-m { color: var(--mix); background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.22); }
+
+    /* 折叠关联图 */
+    .map-toggle {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      margin-top: 10px;
+    }
+
+    .map-toggle summary {
+      padding: 8px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      list-style: none;
+      user-select: none;
+    }
+
+    .map-toggle summary::-webkit-details-marker { display: none; }
+
+    .map-toggle summary::before {
+      content: "▸";
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+
+    .map-toggle[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .map-toggle summary:hover {
+      background: rgba(200, 164, 73, 0.04);
+    }
+
+    .map-body {
+      padding: 0 14px 12px;
+    }
+
+    .map-svg { width: 100%; height: auto; display: block; }
+
+
+    .pill-p {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      margin-left: 4px;
+    }
+
+    .pill-p0 { color: #f87171; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.22); }
+    .pill-p1 { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.22); }
+    .pill-p2 { color: #94a3b8; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.18); }
+
+    /* 事项组 */
+    .group {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s ease-out;
+    }
+
+    .group:hover {
+      border-color: rgba(200, 164, 73, 0.25);
+    }
+
+    .group-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      background: linear-gradient(90deg, rgba(200, 164, 73, 0.06), transparent 60%);
+      border-bottom: 1px solid var(--line);
+      cursor: default;
+    }
+
+    .group-num {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 20px;
+    }
+
+    .group-title { font-size: 14px; font-weight: 700; }
+    .group-desc { flex: 1; font-size: 12px; color: var(--muted); text-align: right; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr {
+      transition: background 0.15s ease-out;
+    }
+
+    tbody tr:hover {
+      background: rgba(200, 164, 73, 0.04);
+    }
+
+    .name { font-weight: 600; color: var(--ink); }
+    .desc { color: var(--muted); font-size: 12px; }
+
+    .solo-body { padding: 6px 14px; }
+
+    .solo-body .item {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      align-items: baseline;
+      transition: background 0.15s ease-out;
+    }
+
+    .solo-body .item:last-child { border-bottom: none; }
+    .solo-body .item-name { font-weight: 600; min-width: 200px; flex-shrink: 0; }
+    .solo-body .item-desc { color: var(--muted); font-size: 12px; }
+
+    .foot {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+      text-align: center;
+    }
+
+    /* ===== 平板 ===== */
+    @media (max-width: 860px) {
+      .page { padding: 14px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .group-head { flex-wrap: wrap; }
+      .group-desc { text-align: left; width: 100%; }
+      .solo-body .item { flex-direction: column; gap: 2px; }
+      .solo-body .item-name { min-width: auto; }
+      .map-body { overflow-x: auto; }
+      .map-svg { min-width: 700px; }
+    }
+
+    /* ===== 手机 ===== */
+    @media (max-width: 520px) {
+      body { font-size: 14px; line-height: 1.6; }
+
+      .page {
+        width: 100%;
+        margin: 0;
+        padding: 14px 12px 12px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+
+      .eyebrow { font-size: 9px; letter-spacing: 0.15em; }
+      h1 { font-size: 22px; }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+
+      .header-right { flex-wrap: wrap; gap: 4px; font-size: 10px; }
+
+      .pill { padding: 3px 8px; font-size: 10px; }
+      .pill-p { padding: 2px 7px; font-size: 9px; }
+
+      /* 事项组头部：移动端改为两行布局 */
+      .group { margin-bottom: 6px; }
+
+      .group-head {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 12px;
+      }
+
+      .group-num { font-size: 15px; min-width: 18px; }
+      .group-title { font-size: 14px; }
+
+      .group-desc {
+        text-align: left;
+        width: 100%;
+        font-size: 12px;
+        margin-top: 2px;
+        padding-top: 4px;
+        border-top: 1px solid var(--line);
+        order: 10;
+      }
+
+      /* 表格 → 卡片式布局 */
+      thead { display: none; }
+
+      tbody, tbody tr, tbody td {
+        display: block;
+        width: 100%;
+      }
+
+      tbody tr {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      tbody tr:last-child { border-bottom: none; }
+
+      tbody td {
+        padding: 0;
+        border-bottom: none;
+      }
+
+      tbody td:first-child {
+        margin-bottom: 3px;
+      }
+
+      .name { font-size: 14px; }
+      .desc { font-size: 13px; line-height: 1.55; }
+
+      /* 其他事项 */
+      .solo-body { padding: 4px 12px; }
+
+      .solo-body .item {
+        flex-direction: column;
+        gap: 3px;
+        padding: 8px 0;
+      }
+
+      .solo-body .item-name {
+        min-width: auto;
+        font-size: 14px;
+      }
+
+      .solo-body .item-desc { font-size: 13px; }
+
+      /* 折叠图 */
+      .map-toggle summary {
+        padding: 12px;
+        font-size: 12px;
+        min-height: 44px;
+      }
+
+      .map-body {
+        padding: 0 8px 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .map-svg { min-width: 700px; }
+
+      .foot { font-size: 10px; margin-top: 8px; padding-top: 6px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        width: 100%; margin: 0; padding: 10px;
+        background: #fff; color: #111;
+        box-shadow: none; border: 1px solid #ccc;
+      }
+      :root {
+        --ink: #111; --muted: #555; --line: #d9d9d9;
+        --panel: #fff; --panel-2: #f5f5f5; --accent: #8a6d1f;
+        --strategic: #0284c7; --hr: #9333ea; --mix: #16a34a;
+      }
+      .anim { animation: none; opacity: 1; }
+      .map-toggle { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header anim d1">
+      <div>
+        <div class="eyebrow">RIGOL · ITBP 战略 &amp; 人事</div>
+        <h1>重点事项梳理</h1>
+      </div>
+      <div class="header-right">
+        来源：<span class="pill pill-s">战略</span> <span class="pill pill-h">人事</span> <span class="pill pill-m">含效率部协同</span>
+      </div>
+    </div>
+
+    <!-- 1 RIGOL ESOP -->
+    <div class="group anim d2">
+      <div class="group-head">
+        <span class="group-num">1</span>
+        <span class="group-title">RIGOL ESOP</span>
+        <span class="pill pill-s">战略</span>
+        <span class="pill-p pill-p0">P0</span>
+        <span class="group-desc">涉及连任、股权激励与系统改造，是战略条线最完整的一条主线</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="name">阳光奋斗者连任流程</span></td><td><span class="desc">基于总裁办要求修改</span></td></tr>
+          <tr><td><span class="name">ESOP 系统对接</span></td><td><span class="desc">H 股引入招商国际，A 股保持平安银行</span></td></tr>
+          <tr><td><span class="name">基业长青管理系统</span></td><td><span class="desc">新开发原始股管理功能（查询、交易、分红等）</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2 任职资格系统 -->
+    <div class="group anim d3">
+      <div class="group-head">
+        <span class="group-num">2</span>
+        <span class="group-title">任职资格系统</span>
+        <span class="pill pill-h">人事</span>
+        <span class="pill-p pill-p0">P0</span>
+        <span class="group-desc">AI 重构第二期，覆盖学习、评估、JD 生成及外围系统对接</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="name">学习和考核</span></td><td><span class="desc">引入符合公司需求的在线学习和考核系统</span></td></tr>
+          <tr><td><span class="name">二期需求</span></td><td><span class="desc">多通道晋升推荐、学习途径推荐、发展分析报告等智能化升级</span></td></tr>
+          <tr><td><span class="name">AI 评审优化</span></td><td><span class="desc">根据公司实际业务场景和人员岗位画像优化 AI 评估</span></td></tr>
+          <tr><td><span class="name">招聘 JD 生成</span></td><td><span class="desc">招聘 JD 生成符合公司招聘人才画像</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3 招聘系统 -->
+    <div class="group anim d4">
+      <div class="group-head">
+        <span class="group-num">3</span>
+        <span class="group-title">招聘系统</span>
+        <span class="pill pill-m">人事主责 / 含效率协同</span>
+        <span class="pill-p pill-p1">P1</span>
+        <span class="group-desc">覆盖招聘全流程智能化与系统重构</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="name">AI 辅助智能招聘全流程</span></td><td><span class="desc">AI 简历筛选、打招呼、简历评分与推送、面试/笔试题、岗位画像</span></td></tr>
+          <tr><td><span class="name">测评模块智能化重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+          <tr><td><span class="name">需求单及 Offer 重构</span></td><td><span class="desc">融合预算管控进行改造</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4 广义项目 -->
+    <div class="group anim d5">
+      <div class="group-head">
+        <span class="group-num">4</span>
+        <span class="group-title">广义项目</span>
+        <span class="pill pill-m">战略主责 / 含效率协同</span>
+        <span class="pill-p pill-p1">P1</span>
+        <span class="group-desc">项目管理体系智能化与平台迁移</span>
+      </div>
+      <table>
+        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="name">AI 驱动项目管理</span></td><td><span class="desc">飞书项目的 AI 智能化改造</span></td></tr>
+          <tr><td><span class="name">PMP(RCMS) 智能化重构</span></td><td><span class="desc">植物大战僵尸 &amp; 预算管控 &amp; 项目评审</span></td></tr>
+          <tr><td><span class="name">飞书项目文档融合重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+          <tr><td><span class="name">工时周报智能化重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5 投资者关系管理 -->
+    <div class="group anim d6">
+      <div class="group-head">
+        <span class="group-num">5</span>
+        <span class="group-title">投资者关系管理</span>
+        <span class="pill pill-s">战略</span>
+        <span class="pill-p pill-p2">P2</span>
+        <span class="group-desc">轻量化的投资者关系管理系统（IRIS）</span>
+      </div>
+    </div>
+
+    <!-- 6 其他事项 -->
+    <div class="group anim d7">
+      <div class="group-head">
+        <span class="group-num">6</span>
+        <span class="group-title">其他事项</span>
+        <span class="pill-p pill-p2">P2</span>
+        <span class="group-desc">规模较小的独立需求，统一归集</span>
+      </div>
+      <div class="solo-body">
+        <div class="item">
+          <span class="item-name"><span class="pill pill-h">人事</span>&ensp;述职自动化</span>
+          <span class="item-desc">公司述职全流程 AI 自动化</span>
+        </div>
+        <div class="item">
+          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;ESG 签核流程开发</span>
+          <span class="item-desc">—</span>
+        </div>
+        <div class="item">
+          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;法务数字员工与 OA 合同辅助审核</span>
+          <span class="item-desc">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 折叠关联图 -->
+    <details class="map-toggle anim d8" id="mapToggle">
+      <summary>事项关联全景图 — 点击展开查看各体系间关联关系</summary>
+      <div class="map-body">
+        <svg class="map-svg" viewBox="0 0 1080 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="事项关联全景图">
+          <style>
+            .n-label { font-family: "Noto Sans SC", sans-serif; font-size: 13px; fill: #f8fafc; }
+            .n-sub { font-family: "Noto Sans SC", sans-serif; font-size: 10.5px; }
+            .n-note { font-family: "Noto Sans SC", sans-serif; font-size: 9.5px; fill: #64748b; }
+            .n-zone-title { font-family: "Noto Sans SC", sans-serif; font-size: 12px; font-weight: 700; }
+            .n-zone-desc { font-family: "Noto Sans SC", sans-serif; font-size: 9.5px; fill: #94a3b8; }
+          </style>
+
+          <defs>
+            <marker id="arrBlue" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="7" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 8 3 L 0 6 z" fill="#38bdf8" fill-opacity="0.6" />
+            </marker>
+            <marker id="arrPurple" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="7" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 8 3 L 0 6 z" fill="#c084fc" fill-opacity="0.6" />
+            </marker>
+            <marker id="arrGreen" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="7" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 8 3 L 0 6 z" fill="#4ade80" fill-opacity="0.6" />
+            </marker>
+            <marker id="arrCross" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="7" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 8 3 L 0 6 z" fill="#fbbf24" fill-opacity="0.7" />
+            </marker>
+          </defs>
+
+          <!-- ========== 体系区域背景 ========== -->
+          <rect x="8" y="8" width="270" height="310" rx="10" fill="rgba(56,189,248,0.03)" stroke="rgba(56,189,248,0.12)" stroke-width="1" stroke-dasharray="5 3" />
+          <rect x="296" y="8" width="530" height="310" rx="10" fill="rgba(192,132,252,0.03)" stroke="rgba(192,132,252,0.12)" stroke-width="1" stroke-dasharray="5 3" />
+          <rect x="844" y="8" width="228" height="310" rx="10" fill="rgba(74,222,128,0.03)" stroke="rgba(74,222,128,0.12)" stroke-width="1" stroke-dasharray="5 3" />
+
+          <!-- ========== 体系标题 + 说明 ========== -->
+          <text x="143" y="32" text-anchor="middle" class="n-zone-title" fill="#38bdf8">股权激励体系</text>
+          <text x="143" y="48" text-anchor="middle" class="n-zone-desc">ESOP 下辖阳光奋斗者（上市后激励）、基业长青（原始股管理）、</text>
+          <text x="143" y="62" text-anchor="middle" class="n-zone-desc">ESOP 系统对接（平安银行 A 股 / 招银国际 H 股）三个方向</text>
+
+          <text x="561" y="32" text-anchor="middle" class="n-zone-title" fill="#c084fc">人才能力体系</text>
+          <text x="561" y="48" text-anchor="middle" class="n-zone-desc">任职资格系统（AI 重构二期）与招聘系统围绕人才主线展开</text>
+          <text x="561" y="62" text-anchor="middle" class="n-zone-desc">任职资格侧重能力标准与 AI 评审，并生成招聘 JD；招聘侧重全流程智能化与系统重构</text>
+
+          <text x="958" y="32" text-anchor="middle" class="n-zone-title" fill="#4ade80">项目管理体系</text>
+          <text x="958" y="48" text-anchor="middle" class="n-zone-desc">聚焦项目管理智能化与低代码平台迁移</text>
+          <text x="958" y="62" text-anchor="middle" class="n-zone-desc">含 AI 驱动、PMP 重构、文档重构、工时重构</text>
+
+          <!-- ========== 一级事项卡片 ========== -->
+          <rect x="28" y="82" width="230" height="38" rx="7" fill="rgba(56,189,248,0.12)" stroke="rgba(56,189,248,0.4)" stroke-width="1.4" />
+          <text x="143" y="107" text-anchor="middle" class="n-label" fill="#38bdf8" font-weight="700">RIGOL ESOP</text>
+
+          <rect x="320" y="82" width="200" height="38" rx="7" fill="rgba(192,132,252,0.12)" stroke="rgba(192,132,252,0.4)" stroke-width="1.4" />
+          <text x="420" y="107" text-anchor="middle" class="n-label" fill="#c084fc" font-weight="700">任职资格系统</text>
+
+          <rect x="600" y="82" width="200" height="38" rx="7" fill="rgba(192,132,252,0.12)" stroke="rgba(192,132,252,0.4)" stroke-width="1.4" />
+          <text x="700" y="107" text-anchor="middle" class="n-label" fill="#c084fc" font-weight="700">招聘系统</text>
+
+          <rect x="860" y="82" width="200" height="38" rx="7" fill="rgba(74,222,128,0.12)" stroke="rgba(74,222,128,0.4)" stroke-width="1.4" />
+          <text x="960" y="107" text-anchor="middle" class="n-label" fill="#4ade80" font-weight="700">广义项目</text>
+
+          <!-- 任职资格 → 招聘系统 横向实线 -->
+          <line x1="520" y1="101" x2="600" y2="101" stroke="#c084fc" stroke-opacity="0.55" stroke-width="1.5" marker-end="url(#arrPurple)" />
+          <rect x="538" y="86" width="44" height="16" rx="3" fill="#1e293b" />
+          <text x="560" y="98" text-anchor="middle" class="n-note" fill="#c084fc" font-weight="600" opacity="0.85" font-size="9">JD生成</text>
+
+          <!-- ========== 父→子连线 ========== -->
+          <g fill="none" stroke-width="1.4">
+            <path d="M 143 120 L 143 138 L 62 138 L 62 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+            <path d="M 143 120 L 143 138 L 143 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+            <path d="M 143 120 L 143 138 L 224 138 L 224 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+          </g>
+
+          <g fill="none" stroke-width="1.4">
+            <path d="M 420 120 L 420 138 L 345 138 L 345 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 420 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 495 138 L 495 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 570 138 L 570 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+          </g>
+
+          <g fill="none" stroke-width="1.4">
+            <path d="M 700 120 L 700 138 L 660 138 L 660 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 700 120 L 700 138 L 770 138 L 770 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 700 120 L 700 138 L 660 138 L 660 218" stroke="#c084fc" stroke-opacity="0.35" marker-end="url(#arrPurple)" />
+          </g>
+
+          <g fill="none" stroke-width="1.4">
+            <path d="M 960 120 L 960 138 L 910 138 L 910 156" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 1010 138 L 1010 156" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 910 138 L 910 218" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 1010 138 L 1010 218" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
+          </g>
+
+          <!-- ========== 子项卡片（第一行） ========== -->
+          <!-- ESOP 子项 -->
+          <rect x="16" y="158" width="92" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="62" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">阳光奋斗者</text>
+          <text x="62" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">连任流程</text>
+
+          <rect x="116" y="158" width="76" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="154" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">ESOP</text>
+          <text x="154" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">系统对接</text>
+
+          <rect x="200" y="158" width="72" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="236" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">基业长青</text>
+          <text x="236" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">管理系统</text>
+
+          <line x1="108" y1="182" x2="116" y2="182" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
+          <line x1="192" y1="182" x2="200" y2="182" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
+
+          <!-- 任职资格子项 -->
+          <rect x="308" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="345" y="186" text-anchor="middle" class="n-sub" fill="#c084fc">学习和考核</text>
+
+          <rect x="390" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="427" y="186" text-anchor="middle" class="n-sub" fill="#c084fc">二期需求</text>
+
+          <rect x="472" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="509" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">AI 评审</text>
+          <text x="509" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">优化</text>
+
+          <rect x="554" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="591" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">招聘 JD</text>
+          <text x="591" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">生成</text>
+
+          <!-- 招聘系统子项 -->
+          <rect x="636" y="158" width="90" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="681" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">AI 辅助智能</text>
+          <text x="681" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">招聘全流程</text>
+
+          <rect x="734" y="158" width="86" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="777" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">测评模块</text>
+          <text x="777" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">智能化重构</text>
+
+          <!-- 广义项目子项 -->
+          <rect x="868" y="158" width="84" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="910" y="179" text-anchor="middle" class="n-sub" fill="#4ade80">AI 驱动</text>
+          <text x="910" y="196" text-anchor="middle" class="n-sub" fill="#4ade80">项目管理</text>
+
+          <rect x="960" y="158" width="100" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="1010" y="179" text-anchor="middle" class="n-sub" fill="#4ade80">PMP(RCMS)</text>
+          <text x="1010" y="196" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+
+          <!-- ========== 子项卡片（第二行） ========== -->
+          <rect x="636" y="220" width="90" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="681" y="241" text-anchor="middle" class="n-sub" fill="#c084fc">需求单及</text>
+          <text x="681" y="258" text-anchor="middle" class="n-sub" fill="#c084fc">Offer 重构</text>
+
+          <rect x="868" y="220" width="84" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="910" y="241" text-anchor="middle" class="n-sub" fill="#4ade80">飞书项目</text>
+          <text x="910" y="258" text-anchor="middle" class="n-sub" fill="#4ade80">文档融合重构</text>
+
+          <rect x="960" y="220" width="100" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="1010" y="241" text-anchor="middle" class="n-sub" fill="#4ade80">工时周报</text>
+          <text x="1010" y="258" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+
+          <!-- ========== 跨体系关联（黄色虚线） ========== -->
+          <!-- 二期需求 → AI辅助智能招聘全流程 -->
+          <path d="M 464 182 L 480 182 Q 490 182 490 192 L 490 240 Q 490 250 500 250 L 636 250" stroke="#fbbf24" stroke-opacity="0.65" stroke-width="1.8" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
+          <rect x="510" y="238" width="90" height="18" rx="4" fill="#1e293b" />
+          <text x="555" y="251" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接招聘系统</text>
+
+          <!-- 二期需求 → 广义项目 -->
+          <path d="M 427 206 L 427 296 Q 427 304 435 304 L 868 304 L 868 268" stroke="#fbbf24" stroke-opacity="0.5" stroke-width="1.6" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
+          <rect x="590" y="294" width="90" height="18" rx="4" fill="#1e293b" />
+          <text x="635" y="307" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接广义项目</text>
+
+          <!-- ========== 底部图例 ========== -->
+          <g class="n-note">
+            <rect x="20" y="340" width="24" height="12" rx="4" fill="none" stroke="#64748b" stroke-width="0.8" stroke-dasharray="5 3" />
+            <text x="50" y="350">体系区域</text>
+
+            <line x1="120" y1="346" x2="150" y2="346" stroke="#90a4ae" stroke-width="1.4" />
+            <path d="M 145 344 L 150 346 L 145 348" fill="#90a4ae" />
+            <text x="156" y="350">同体系（父→子）</text>
+
+            <line x1="290" y1="346" x2="320" y2="346" stroke="#fbbf24" stroke-width="1.4" stroke-dasharray="7 4" />
+            <path d="M 315 344 L 320 346 L 315 348" fill="#fbbf24" />
+            <text x="326" y="350" fill="#fbbf24">跨体系对接</text>
+
+            <text x="440" y="350" fill="#94a3b8">二期需求 → 对接招聘 &amp; 广义项目</text>
+            <text x="730" y="350" fill="#64748b" opacity="0.7">外部执行：平安银行（A股）/ 招银国际（H股）</text>
+          </g>
+
+          <!-- 独立事项 -->
+          <rect x="20" y="370" width="1040" height="24" rx="5" fill="rgba(100,116,139,0.05)" />
+          <text x="540" y="387" text-anchor="middle" class="n-note" font-size="10">独立事项：投资者关系管理 · 述职自动化 · ESG 签核流程开发 · 法务数字员工与 OA 合同辅助审核</text>
+        </svg>
+      </div>
+    </details>
+
+    <div class="foot anim d7">
+      内容依据飞书多维表格「项目跟踪表」整理，按父记录层级与需求来源字段呈现。
+    </div>
+  </div>
+</body>
+</html>
