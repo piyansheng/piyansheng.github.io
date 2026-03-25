@@ -166,6 +166,26 @@
     .pill-p1 { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.22); }
     .pill-p2 { color: #94a3b8; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.18); }
 
+    /* 当前进度（与多维表格「当前进度」一致） */
+    .pill-st {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .pill-st-idle { color: #94a3b8; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.22); }
+    .pill-st-run { color: #fbbf24; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.28); }
+    .pill-st-done { color: #4ade80; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.25); }
+
+    th.col-st { width: 88px; white-space: nowrap; }
+    td.cell-st { vertical-align: middle; }
+
     /* 事项组 */
     .group {
       border: 1px solid var(--line);
@@ -247,7 +267,15 @@
     }
 
     .solo-body .item:last-child { border-bottom: none; }
-    .solo-body .item-name { font-weight: 600; min-width: 200px; flex-shrink: 0; }
+    .solo-body .item-name {
+      font-weight: 600;
+      min-width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 8px;
+    }
     .solo-body .item-desc { color: var(--muted); font-size: 12px; }
 
     .foot {
@@ -346,6 +374,12 @@
         margin-bottom: 3px;
       }
 
+      tbody td.cell-st {
+        margin-bottom: 4px;
+      }
+
+      .pill-st { margin-top: 2px; }
+
       .name { font-size: 14px; }
       .desc { font-size: 13px; line-height: 1.55; }
 
@@ -422,11 +456,11 @@
         <span class="group-desc">涉及连任、股权激励与系统改造，是战略条线最完整的一条主线</span>
       </div>
       <table>
-        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">阳光奋斗者连任流程</span></td><td><span class="desc">基于总裁办要求修改</span></td></tr>
-          <tr><td><span class="name">ESOP 系统对接</span></td><td><span class="desc">H 股引入招商国际，A 股保持平安银行</span></td></tr>
-          <tr><td><span class="name">基业长青管理系统</span></td><td><span class="desc">新开发原始股管理功能（查询、交易、分红等）</span></td></tr>
+          <tr><td><span class="name">阳光奋斗者连任流程</span></td><td class="cell-st"><span class="pill-st pill-st-run">进行中</span></td><td><span class="desc">基于总裁办要求修改</span></td></tr>
+          <tr><td><span class="name">ESOP 系统对接</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">H 股引入招商国际，A 股保持平安银行</span></td></tr>
+          <tr><td><span class="name">基业长青管理系统</span></td><td class="cell-st"><span class="pill-st pill-st-run">进行中</span></td><td><span class="desc">新开发原始股管理功能（查询、交易、分红等）</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -441,12 +475,12 @@
         <span class="group-desc">AI 重构第二期，覆盖学习、评估、JD 生成及外围系统对接</span>
       </div>
       <table>
-        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">学习和考核</span></td><td><span class="desc">引入符合公司需求的在线学习和考核系统</span></td></tr>
-          <tr><td><span class="name">二期需求</span></td><td><span class="desc">多通道晋升推荐、学习途径推荐、发展分析报告等智能化升级</span></td></tr>
-          <tr><td><span class="name">AI 评审优化</span></td><td><span class="desc">根据公司实际业务场景和人员岗位画像优化 AI 评估</span></td></tr>
-          <tr><td><span class="name">招聘 JD 生成</span></td><td><span class="desc">招聘 JD 生成符合公司招聘人才画像</span></td></tr>
+          <tr><td><span class="name">学习和考核</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">引入符合公司需求的在线学习和考核系统</span></td></tr>
+          <tr><td><span class="name">二期需求</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">多通道晋升推荐、学习途径推荐、发展分析报告等智能化升级</span></td></tr>
+          <tr><td><span class="name">AI 评审优化</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">根据公司实际业务场景和人员岗位画像优化 AI 评估</span></td></tr>
+          <tr><td><span class="name">招聘 JD 生成</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">招聘 JD 生成符合公司招聘人才画像</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -461,11 +495,11 @@
         <span class="group-desc">覆盖招聘全流程智能化与系统重构</span>
       </div>
       <table>
-        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">AI 辅助智能招聘全流程</span></td><td><span class="desc">RIGOL 内部招聘 &amp; 经销商招聘：AI 简历筛选、打招呼、简历评分与推送、面试/笔试题、岗位画像</span></td></tr>
-          <tr><td><span class="name">测评模块重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
-          <tr><td><span class="name">需求单及 Offer 重构</span></td><td><span class="desc">融合预算管控进行改造</span></td></tr>
+          <tr><td><span class="name">AI 辅助智能招聘全流程</span></td><td class="cell-st"><span class="pill-st pill-st-run">进行中</span></td><td><span class="desc">RIGOL 内部招聘 &amp; 经销商招聘：AI 简历筛选、打招呼、简历评分与推送、面试/笔试题、岗位画像</span></td></tr>
+          <tr><td><span class="name">测评模块重构</span></td><td class="cell-st"><span class="pill-st pill-st-run">进行中</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+          <tr><td><span class="name">需求单及 Offer 重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">融合预算管控进行改造</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -480,12 +514,12 @@
         <span class="group-desc">项目管理体系智能化与平台迁移</span>
       </div>
       <table>
-        <thead><tr><th style="width:28%">事项</th><th>说明</th></tr></thead>
+        <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">AI 驱动项目管理</span></td><td><span class="desc">飞书项目的 AI 智能化改造</span></td></tr>
-          <tr><td><span class="name">PMP(RCMS) 智能化重构</span></td><td><span class="desc">植物大战僵尸 &amp; 预算管控 &amp; 项目评审</span></td></tr>
-          <tr><td><span class="name">飞书项目文档融合重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
-          <tr><td><span class="name">工时周报智能化重构</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+          <tr><td><span class="name">AI 驱动项目管理</span></td><td class="cell-st"><span class="pill-st pill-st-done">已结项</span></td><td><span class="desc">飞书项目的 AI 智能化改造</span></td></tr>
+          <tr><td><span class="name">PMP(RCMS) 智能化重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">植物大战僵尸 &amp; 预算管控 &amp; 项目评审</span></td></tr>
+          <tr><td><span class="name">飞书项目文档融合重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
+          <tr><td><span class="name">工时周报智能化重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -499,6 +533,12 @@
         <span class="pill-p pill-p2">P2</span>
         <span class="group-desc">轻量化的投资者关系管理系统（IRIS）</span>
       </div>
+      <table>
+        <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="name">投资者关系管理（IRIS）</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">轻量化的投资者关系管理系统，IRIS</span></td></tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- 6 其他事项 -->
@@ -511,15 +551,15 @@
       </div>
       <div class="solo-body">
         <div class="item">
-          <span class="item-name"><span class="pill pill-h">人事</span>&ensp;述职自动化</span>
+          <span class="item-name"><span class="pill pill-h">人事</span>&ensp;述职自动化<span class="pill-st pill-st-idle">未启动</span></span>
           <span class="item-desc">公司述职全流程 AI 自动化</span>
         </div>
         <div class="item">
-          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;ESG 签核流程开发</span>
+          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;ESG 签核流程开发<span class="pill-st pill-st-idle">未启动</span></span>
           <span class="item-desc">—</span>
         </div>
         <div class="item">
-          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;法务数字员工与 OA 合同辅助审核</span>
+          <span class="item-name"><span class="pill pill-s">战略</span>&ensp;法务数字员工与 OA 合同辅助审核<span class="pill-st pill-st-run">进行中</span></span>
           <span class="item-desc">—</span>
         </div>
       </div>
@@ -536,6 +576,7 @@
             .n-note { font-family: "Noto Sans SC", sans-serif; font-size: 9.5px; fill: #64748b; }
             .n-zone-title { font-family: "Noto Sans SC", sans-serif; font-size: 12px; font-weight: 700; }
             .n-zone-desc { font-family: "Noto Sans SC", sans-serif; font-size: 9.5px; fill: #94a3b8; }
+            .n-st { font-family: "Noto Sans SC", sans-serif; font-size: 7.5px; font-weight: 700; }
           </style>
 
           <defs>
@@ -591,104 +632,116 @@
 
           <!-- ========== 父→子连线 ========== -->
           <g fill="none" stroke-width="1.4">
-            <path d="M 143 120 L 143 138 L 62 138 L 62 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
-            <path d="M 143 120 L 143 138 L 143 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
-            <path d="M 143 120 L 143 138 L 224 138 L 224 156" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+            <path d="M 143 120 L 143 138 L 62 138 L 62 158" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+            <path d="M 143 120 L 143 138 L 154 138 L 154 158" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
+            <path d="M 143 120 L 143 138 L 236 138 L 236 158" stroke="#38bdf8" stroke-opacity="0.5" marker-end="url(#arrBlue)" />
           </g>
 
           <g fill="none" stroke-width="1.4">
-            <path d="M 420 120 L 420 138 L 345 138 L 345 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
-            <path d="M 420 120 L 420 138 L 420 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
-            <path d="M 420 120 L 420 138 L 495 138 L 495 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
-            <path d="M 420 120 L 420 138 L 570 138 L 570 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 345 138 L 345 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 427 138 L 427 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 509 138 L 509 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 420 120 L 420 138 L 591 138 L 591 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
           </g>
 
           <g fill="none" stroke-width="1.4">
-            <path d="M 700 120 L 700 138 L 660 138 L 660 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
-            <path d="M 700 120 L 700 138 L 770 138 L 770 156" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
-            <path d="M 700 120 L 700 138 L 660 138 L 660 218" stroke="#c084fc" stroke-opacity="0.35" marker-end="url(#arrPurple)" />
+            <path d="M 700 120 L 700 138 L 681 138 L 681 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 700 120 L 700 138 L 777 138 L 777 158" stroke="#c084fc" stroke-opacity="0.5" marker-end="url(#arrPurple)" />
+            <path d="M 700 120 L 700 138 L 681 138 L 681 232" stroke="#c084fc" stroke-opacity="0.35" marker-end="url(#arrPurple)" />
           </g>
 
           <g fill="none" stroke-width="1.4">
-            <path d="M 960 120 L 960 138 L 910 138 L 910 156" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
-            <path d="M 960 120 L 960 138 L 1010 138 L 1010 156" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
-            <path d="M 960 120 L 960 138 L 910 138 L 910 218" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
-            <path d="M 960 120 L 960 138 L 1010 138 L 1010 218" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 910 138 L 910 158" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 1010 138 L 1010 158" stroke="#4ade80" stroke-opacity="0.5" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 910 138 L 910 232" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
+            <path d="M 960 120 L 960 138 L 1010 138 L 1010 232" stroke="#4ade80" stroke-opacity="0.35" marker-end="url(#arrGreen)" />
           </g>
 
-          <!-- ========== 子项卡片（第一行） ========== -->
+          <!-- ========== 子项卡片（第一行，含当前进度） ========== -->
           <!-- ESOP 子项 -->
-          <rect x="16" y="158" width="92" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
-          <text x="62" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">阳光奋斗者</text>
-          <text x="62" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">连任流程</text>
+          <rect x="16" y="158" width="92" height="56" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="62" y="176" text-anchor="middle" class="n-sub" fill="#38bdf8">阳光奋斗者</text>
+          <text x="62" y="192" text-anchor="middle" class="n-sub" fill="#38bdf8">连任流程</text>
+          <text x="62" y="208" text-anchor="middle" class="n-st" fill="#fbbf24">进行中</text>
 
-          <rect x="116" y="158" width="76" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
-          <text x="154" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">ESOP</text>
-          <text x="154" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">系统对接</text>
+          <rect x="116" y="158" width="76" height="56" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="154" y="176" text-anchor="middle" class="n-sub" fill="#38bdf8">ESOP</text>
+          <text x="154" y="192" text-anchor="middle" class="n-sub" fill="#38bdf8">系统对接</text>
+          <text x="154" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="200" y="158" width="72" height="48" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
-          <text x="236" y="179" text-anchor="middle" class="n-sub" fill="#38bdf8">基业长青</text>
-          <text x="236" y="196" text-anchor="middle" class="n-sub" fill="#38bdf8">管理系统</text>
+          <rect x="200" y="158" width="72" height="56" rx="5" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.25)" stroke-width="1" />
+          <text x="236" y="176" text-anchor="middle" class="n-sub" fill="#38bdf8">基业长青</text>
+          <text x="236" y="192" text-anchor="middle" class="n-sub" fill="#38bdf8">管理系统</text>
+          <text x="236" y="208" text-anchor="middle" class="n-st" fill="#fbbf24">进行中</text>
 
-          <line x1="108" y1="182" x2="116" y2="182" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
-          <line x1="192" y1="182" x2="200" y2="182" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
+          <line x1="108" y1="186" x2="116" y2="186" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
+          <line x1="192" y1="186" x2="200" y2="186" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2" />
 
           <!-- 任职资格子项 -->
-          <rect x="308" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <rect x="308" y="158" width="74" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
           <text x="345" y="186" text-anchor="middle" class="n-sub" fill="#c084fc">学习和考核</text>
+          <text x="345" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="390" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <rect x="390" y="158" width="74" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
           <text x="427" y="186" text-anchor="middle" class="n-sub" fill="#c084fc">二期需求</text>
+          <text x="427" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="472" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
-          <text x="509" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">AI 评审</text>
-          <text x="509" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">优化</text>
+          <rect x="472" y="158" width="74" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="509" y="176" text-anchor="middle" class="n-sub" fill="#c084fc">AI 评审</text>
+          <text x="509" y="192" text-anchor="middle" class="n-sub" fill="#c084fc">优化</text>
+          <text x="509" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="554" y="158" width="74" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
-          <text x="591" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">招聘 JD</text>
-          <text x="591" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">生成</text>
+          <rect x="554" y="158" width="74" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="591" y="176" text-anchor="middle" class="n-sub" fill="#c084fc">招聘 JD</text>
+          <text x="591" y="192" text-anchor="middle" class="n-sub" fill="#c084fc">生成</text>
+          <text x="591" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
           <!-- 招聘系统子项 -->
-          <rect x="636" y="158" width="90" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
-          <text x="681" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">AI 辅助智能</text>
-          <text x="681" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">招聘全流程</text>
+          <rect x="636" y="158" width="90" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="681" y="176" text-anchor="middle" class="n-sub" fill="#c084fc">AI 辅助智能</text>
+          <text x="681" y="192" text-anchor="middle" class="n-sub" fill="#c084fc">招聘全流程</text>
+          <text x="681" y="208" text-anchor="middle" class="n-st" fill="#fbbf24">进行中</text>
 
-          <rect x="734" y="158" width="86" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
-          <text x="777" y="179" text-anchor="middle" class="n-sub" fill="#c084fc">测评模块</text>
-          <text x="777" y="196" text-anchor="middle" class="n-sub" fill="#c084fc">重构</text>
+          <rect x="734" y="158" width="86" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="777" y="176" text-anchor="middle" class="n-sub" fill="#c084fc">测评模块</text>
+          <text x="777" y="192" text-anchor="middle" class="n-sub" fill="#c084fc">重构</text>
+          <text x="777" y="208" text-anchor="middle" class="n-st" fill="#fbbf24">进行中</text>
 
           <!-- 广义项目子项 -->
-          <rect x="868" y="158" width="84" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
-          <text x="910" y="179" text-anchor="middle" class="n-sub" fill="#4ade80">AI 驱动</text>
-          <text x="910" y="196" text-anchor="middle" class="n-sub" fill="#4ade80">项目管理</text>
+          <rect x="868" y="158" width="84" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="910" y="176" text-anchor="middle" class="n-sub" fill="#4ade80">AI 驱动</text>
+          <text x="910" y="192" text-anchor="middle" class="n-sub" fill="#4ade80">项目管理</text>
+          <text x="910" y="208" text-anchor="middle" class="n-st" fill="#4ade80">已结项</text>
 
-          <rect x="960" y="158" width="100" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
-          <text x="1010" y="179" text-anchor="middle" class="n-sub" fill="#4ade80">PMP(RCMS)</text>
-          <text x="1010" y="196" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+          <rect x="960" y="158" width="100" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="1010" y="176" text-anchor="middle" class="n-sub" fill="#4ade80">PMP(RCMS)</text>
+          <text x="1010" y="192" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+          <text x="1010" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
           <!-- ========== 子项卡片（第二行） ========== -->
-          <rect x="636" y="220" width="90" height="48" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
-          <text x="681" y="241" text-anchor="middle" class="n-sub" fill="#c084fc">需求单及</text>
-          <text x="681" y="258" text-anchor="middle" class="n-sub" fill="#c084fc">Offer 重构</text>
+          <rect x="636" y="232" width="90" height="56" rx="5" fill="rgba(192,132,252,0.06)" stroke="rgba(192,132,252,0.25)" stroke-width="1" />
+          <text x="681" y="250" text-anchor="middle" class="n-sub" fill="#c084fc">需求单及</text>
+          <text x="681" y="266" text-anchor="middle" class="n-sub" fill="#c084fc">Offer 重构</text>
+          <text x="681" y="282" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="868" y="220" width="84" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
-          <text x="910" y="241" text-anchor="middle" class="n-sub" fill="#4ade80">飞书项目</text>
-          <text x="910" y="258" text-anchor="middle" class="n-sub" fill="#4ade80">文档融合重构</text>
+          <rect x="868" y="232" width="84" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="910" y="250" text-anchor="middle" class="n-sub" fill="#4ade80">飞书项目</text>
+          <text x="910" y="266" text-anchor="middle" class="n-sub" fill="#4ade80">文档融合重构</text>
+          <text x="910" y="282" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
-          <rect x="960" y="220" width="100" height="48" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
-          <text x="1010" y="241" text-anchor="middle" class="n-sub" fill="#4ade80">工时周报</text>
-          <text x="1010" y="258" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+          <rect x="960" y="232" width="100" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
+          <text x="1010" y="250" text-anchor="middle" class="n-sub" fill="#4ade80">工时周报</text>
+          <text x="1010" y="266" text-anchor="middle" class="n-sub" fill="#4ade80">智能化重构</text>
+          <text x="1010" y="282" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
           <!-- ========== 跨体系关联（黄色虚线） ========== -->
-          <!-- 二期需求 → AI辅助智能招聘全流程 -->
-          <path d="M 464 182 L 480 182 Q 490 182 490 192 L 490 240 Q 490 250 500 250 L 636 250" stroke="#fbbf24" stroke-opacity="0.65" stroke-width="1.8" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
-          <rect x="510" y="238" width="90" height="18" rx="4" fill="#1e293b" />
-          <text x="555" y="251" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接招聘系统</text>
+          <path d="M 464 186 L 480 186 Q 492 186 492 198 L 492 258 Q 492 268 502 268 L 636 268" stroke="#fbbf24" stroke-opacity="0.65" stroke-width="1.8" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
+          <rect x="512" y="256" width="90" height="18" rx="4" fill="#1e293b" />
+          <text x="557" y="269" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接招聘系统</text>
 
-          <!-- 二期需求 → 广义项目 -->
-          <path d="M 427 206 L 427 296 Q 427 304 435 304 L 868 304 L 868 268" stroke="#fbbf24" stroke-opacity="0.5" stroke-width="1.6" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
-          <rect x="590" y="294" width="90" height="18" rx="4" fill="#1e293b" />
-          <text x="635" y="307" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接广义项目</text>
+          <path d="M 427 214 L 427 312 Q 427 320 436 320 L 910 320 L 910 214" stroke="#fbbf24" stroke-opacity="0.5" stroke-width="1.6" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
+          <rect x="600" y="310" width="90" height="18" rx="4" fill="#1e293b" />
+          <text x="645" y="323" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接广义项目</text>
 
           <!-- ========== 底部图例 ========== -->
           <g class="n-note">
@@ -715,7 +768,7 @@
     </details>
 
     <div class="foot anim d7">
-      内容依据飞书多维表格「项目跟踪表」整理，按父记录层级与需求来源字段呈现。
+      内容依据飞书多维表格「项目跟踪表」整理；子项「当前进度」与表中「当前进度」字段一致。
     </div>
   </div>
 </body>
