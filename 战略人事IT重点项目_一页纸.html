@@ -254,6 +254,28 @@
     .name { font-weight: 600; color: var(--ink); }
     .desc { color: var(--muted); font-size: 12px; }
 
+    /* 多维表格「关键用户」摘录（与说明同一行，避免无谓增高） */
+    .key-users {
+      display: inline;
+      margin-left: 0.35em;
+      font-size: 11px;
+      color: #a8b9cf;
+      white-space: nowrap;
+    }
+
+    .key-users::before {
+      content: "· ";
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* 说明列整段不换行（仅用于已含关键用户的长说明） */
+    .note-nowrap {
+      display: inline-block;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
     .solo-body { padding: 6px 14px; }
 
     .solo-body .item {
@@ -276,7 +298,13 @@
       align-items: center;
       gap: 6px 8px;
     }
-    .solo-body .item-desc { color: var(--muted); font-size: 12px; }
+    .solo-body .item-desc {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      flex: 1;
+      min-width: 0;
+    }
 
     .foot {
       margin-top: 10px;
@@ -295,6 +323,8 @@
       .group-desc { text-align: left; width: 100%; }
       .solo-body .item { flex-direction: column; gap: 2px; }
       .solo-body .item-name { min-width: auto; }
+      .solo-body .item-desc { white-space: normal; text-align: left; }
+      .note-nowrap { white-space: normal; }
       .map-body { overflow-x: auto; }
       .map-svg { min-width: 700px; }
     }
@@ -453,7 +483,7 @@
         <span class="group-title">RIGOL ESOP</span>
         <span class="pill pill-s">战略</span>
         <span class="pill-p pill-p0">P0</span>
-        <span class="group-desc">涉及连任、股权激励与系统改造，是战略条线最完整的一条主线</span>
+        <span class="group-desc">涉及连任、股权激励与系统改造，是战略条线最完整的一条主线 · 关键用户：王宁</span>
       </div>
       <table>
         <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
@@ -472,7 +502,7 @@
         <span class="group-title">任职资格系统</span>
         <span class="pill pill-h">人事</span>
         <span class="pill-p pill-p0">P0</span>
-        <span class="group-desc">AI 重构第二期，覆盖学习、评估、JD 生成及外围系统对接</span>
+        <span class="group-desc">AI 重构第二期，覆盖学习、评估、JD 生成及外围系统对接 · 关键用户：张潇文、陆大安</span>
       </div>
       <table>
         <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
@@ -516,7 +546,7 @@
       <table>
         <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">AI 驱动项目管理</span></td><td class="cell-st"><span class="pill-st pill-st-done">已结项</span></td><td><span class="desc">飞书项目的 AI 智能化改造</span></td></tr>
+          <tr><td><span class="name">AI 驱动项目管理二期</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="note-nowrap"><span class="desc">飞书项目的 AI 智能化改造。已立项（是）· 优先级 P1。</span><span class="key-users">关键用户：苗建龙、攸艳、张灵敏</span></span></td></tr>
           <tr><td><span class="name">PMP(RCMS) 智能化重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">植物大战僵尸 &amp; 预算管控 &amp; 项目评审</span></td></tr>
           <tr><td><span class="name">飞书项目文档融合重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
           <tr><td><span class="name">工时周报智能化重构</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">低代码平台迁移</span></td></tr>
@@ -536,7 +566,7 @@
       <table>
         <thead><tr><th style="width:26%">事项</th><th class="col-st">当前进度</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><span class="name">投资者关系管理（IRIS）</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="desc">轻量化的投资者关系管理系统，IRIS</span></td></tr>
+          <tr><td><span class="name">投资者关系管理（IRIS）</span></td><td class="cell-st"><span class="pill-st pill-st-idle">未启动</span></td><td><span class="note-nowrap"><span class="desc">轻量化的投资者关系管理系统，IRIS。</span><span class="key-users">关键用户：程建川、苏湘君</span></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -552,15 +582,15 @@
       <div class="solo-body">
         <div class="item">
           <span class="item-name"><span class="pill pill-h">人事</span>&ensp;述职自动化<span class="pill-st pill-st-idle">未启动</span></span>
-          <span class="item-desc">公司述职全流程 AI 自动化</span>
+          <span class="item-desc">公司述职全流程 AI 自动化<span class="key-users">关键用户：周俊飞</span></span>
         </div>
         <div class="item">
           <span class="item-name"><span class="pill pill-s">战略</span>&ensp;ESG 签核流程开发<span class="pill-st pill-st-idle">未启动</span></span>
-          <span class="item-desc">—</span>
+          <span class="item-desc"><span class="key-users">关键用户：黄丽真</span></span>
         </div>
         <div class="item">
           <span class="item-name"><span class="pill pill-s">战略</span>&ensp;法务数字员工与 OA 合同辅助审核<span class="pill-st pill-st-run">进行中</span></span>
-          <span class="item-desc">—</span>
+          <span class="item-desc"><span class="key-users">关键用户：程建川</span></span>
         </div>
       </div>
     </div>
@@ -610,7 +640,7 @@
 
           <text x="958" y="32" text-anchor="middle" class="n-zone-title" fill="#4ade80">项目管理体系</text>
           <text x="958" y="48" text-anchor="middle" class="n-zone-desc">聚焦项目管理智能化与低代码平台迁移</text>
-          <text x="958" y="62" text-anchor="middle" class="n-zone-desc">含 AI 驱动、PMP 重构、文档重构、工时重构</text>
+          <text x="958" y="62" text-anchor="middle" class="n-zone-desc">含 AI 驱动项目管理二期、PMP 与文档/工时重构</text>
 
           <!-- ========== 一级事项卡片 ========== -->
           <rect x="28" y="82" width="230" height="38" rx="7" fill="rgba(56,189,248,0.12)" stroke="rgba(56,189,248,0.4)" stroke-width="1.4" />
@@ -707,11 +737,11 @@
           <text x="777" y="192" text-anchor="middle" class="n-sub" fill="#c084fc">重构</text>
           <text x="777" y="208" text-anchor="middle" class="n-st" fill="#fbbf24">进行中</text>
 
-          <!-- 广义项目子项 -->
+          <!-- 广义项目子项：AI 驱动项目管理二期 -->
           <rect x="868" y="158" width="84" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
           <text x="910" y="176" text-anchor="middle" class="n-sub" fill="#4ade80">AI 驱动</text>
-          <text x="910" y="192" text-anchor="middle" class="n-sub" fill="#4ade80">项目管理</text>
-          <text x="910" y="208" text-anchor="middle" class="n-st" fill="#4ade80">已结项</text>
+          <text x="910" y="192" text-anchor="middle" class="n-sub" fill="#4ade80">项目管理二期</text>
+          <text x="910" y="208" text-anchor="middle" class="n-st" fill="#94a3b8">未启动</text>
 
           <rect x="960" y="158" width="100" height="56" rx="5" fill="rgba(74,222,128,0.06)" stroke="rgba(74,222,128,0.25)" stroke-width="1" />
           <text x="1010" y="176" text-anchor="middle" class="n-sub" fill="#4ade80">PMP(RCMS)</text>
@@ -740,8 +770,8 @@
           <text x="557" y="269" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接招聘系统</text>
 
           <path d="M 427 214 L 427 312 Q 427 320 436 320 L 910 320 L 910 214" stroke="#fbbf24" stroke-opacity="0.5" stroke-width="1.6" stroke-dasharray="7 4" fill="none" marker-end="url(#arrCross)" />
-          <rect x="600" y="310" width="90" height="18" rx="4" fill="#1e293b" />
-          <text x="645" y="323" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接广义项目</text>
+          <rect x="590" y="302" width="90" height="18" rx="4" fill="#1e293b" />
+          <text x="635" y="315" text-anchor="middle" font-size="9" fill="#fbbf24" opacity="0.9" font-weight="600" font-family="Noto Sans SC, sans-serif">对接广义项目</text>
 
           <!-- ========== 底部图例 ========== -->
           <g class="n-note">
@@ -768,7 +798,7 @@
     </details>
 
     <div class="foot anim d7">
-      内容依据飞书多维表格「项目跟踪表」整理；子项「当前进度」与表中「当前进度」字段一致。
+      内容依据飞书多维表格「项目跟踪表」整理；「当前进度」「关键用户」与表中同名字段一致（[多维表格](https://rigolportal.feishu.cn/base/Jep9bPkhmaroPHsVAZqcVxOcnCf?from=from_copylink)）。
     </div>
   </div>
 </body>
