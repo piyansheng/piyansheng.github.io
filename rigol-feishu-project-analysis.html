@@ -18,6 +18,21 @@ html,body{background:var(--bg-primary);color:var(--text-primary);font-family:-ap
 @media(min-width:769px){
   html,body{height:100%;overflow:hidden}
   #app{height:100vh}
+  .headline-bar{padding:5px 16px}
+  .hl-core{margin-bottom:6px;padding-bottom:6px}
+  .hl-core-title{margin-bottom:2px;font-size:11px}
+  .hl-core-ol{font-size:12px;line-height:1.35}
+  .hl-core-ol li{margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hl-right{display:flex;flex-direction:column;gap:0}
+  .kpi-groups{display:flex;gap:12px;align-items:flex-start}
+  .kpi-group{flex:1;display:flex;align-items:center;gap:8px}
+  .kpi-group-label{font-size:10px;margin:0;white-space:nowrap;flex-shrink:0}
+  .kpi-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:3px 6px;margin-bottom:0}
+  .kpi-cell{padding:2px 4px}
+  .kpi-val{font-size:16px}
+  .kpi-lbl{font-size:9px}
+  .kpi-sub{font-size:9px;color:rgba(126,184,218,0.45);margin-top:1px;margin-left:0;padding-left:0}
+  .hl-sub{font-size:10px;margin-left:0;display:none}
 }
 #app{display:flex;flex-direction:column;padding:8px 12px;gap:6px}
 .header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;height:36px}
@@ -32,7 +47,8 @@ html,body{background:var(--bg-primary);color:var(--text-primary);font-family:-ap
 .hl-dot{font-size:10px;flex-shrink:0}
 .hl-text{color:var(--text-secondary)}
 .hl-text b{color:var(--text-primary)}
-.hl-sub{margin-left:16px;font-size:11px;color:rgba(126,184,218,0.5);line-height:1.3;margin-bottom:1px}
+.hl-sub{display:none}
+.kpi-sub{font-size:10px;color:rgba(126,184,218,0.45);margin-top:3px;line-height:1.3}
 .hl-core{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(0,212,255,0.15)}
 .hl-core-title{font-size:12px;font-weight:700;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:8px}
 .hl-core-ol{margin:0;padding-left:1.35em;color:var(--text-primary);font-size:14px;line-height:1.55}
@@ -44,6 +60,8 @@ html,body{background:var(--bg-primary);color:var(--text-primary);font-family:-ap
 .hl-kpi-row{font-size:13px;color:var(--text-secondary);line-height:1.5}
 .hl-kpi-row b{color:var(--text-primary);font-weight:600}
 .hl-kpi-label{font-size:11px;font-weight:600;color:rgba(126,184,218,0.55);letter-spacing:1px;margin-bottom:6px;margin-top:2px}
+.kpi-group-label{font-size:9px;color:rgba(126,184,218,0.5);letter-spacing:1px;margin-bottom:2px;margin-top:4px;font-weight:600}
+.kpi-group-label:first-child{margin-top:0}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 8px;margin-bottom:4px}
 .kpi-cell{text-align:center;padding:4px 2px;border-radius:4px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.08)}
 .kpi-val{font-size:18px;font-weight:700;color:var(--text-primary);line-height:1.2}
@@ -225,18 +243,30 @@ function renderHeadline(){
     '<li>'+c3+'</li>'+
     '</ol>'+
     '</div>'+
-    '<div class="hl-kpi-label">关键指标</div>'+
-    '<div class="kpi-grid">'+
-      '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+total+'</div><div class="kpi-lbl">项目总量</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val accent-green">'+running+'<span class="kpi-pct">'+rp+'%</span></div><div class="kpi-lbl">运行中</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val">'+rd+' <span class="kpi-pct">/ '+gen+'</span></div><div class="kpi-lbl">研发 / 通用</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val'+(attn>8?' accent-amber':'')+'">'+attn+'</div><div class="kpi-lbl">需关注</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val">'+SEAT.used_seats+'<span class="kpi-pct">/ '+hc+'</span></div><div class="kpi-lbl">开通 / 在岗</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val accent-green">'+SEAT.active_30d+'<span class="kpi-pct">'+ar+'%</span></div><div class="kpi-lbl">月活跃 MAU</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val'+(mom>0?' accent-green':' accent-amber')+'">'+lv+'<span class="kpi-pct">'+momsign+mom+'%</span></div><div class="kpi-lbl">'+mc+'月新增</div></div>'+
-      '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+cov+'%</div><div class="kpi-lbl">在岗覆盖率</div></div>'+
+    '<div class="hl-right">'+
+    '<div class="kpi-groups">'+
+      '<div class="kpi-group">'+
+        '<div class="kpi-group-label">📋 项目</div>'+
+        '<div class="kpi-grid">'+
+          '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+total+'</div><div class="kpi-lbl">总量</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val accent-green">'+running+'<span class="kpi-pct">'+rp+'%</span></div><div class="kpi-lbl">运行中</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val">'+rd+' <span class="kpi-pct">/ '+gen+'</span></div><div class="kpi-lbl">研发 / 通用</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val'+(attn>8?' accent-amber':'')+'">'+attn+'</div><div class="kpi-lbl">需关注</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="kpi-group">'+
+        '<div class="kpi-group-label">👥 用户</div>'+
+        '<div class="kpi-grid">'+
+          '<div class="kpi-cell"><div class="kpi-val">'+SEAT.used_seats+'<span class="kpi-pct">/ '+hc+'</span></div><div class="kpi-lbl">开通 / 在岗</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val accent-green">'+SEAT.active_30d+'<span class="kpi-pct">'+ar+'%</span></div><div class="kpi-lbl">月活跃 MAU</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val'+(mom>0?' accent-green':' accent-amber')+'">'+lv+'<span class="kpi-pct">'+momsign+mom+'%</span></div><div class="kpi-lbl">'+mc+'月新增</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+cov+'%</div><div class="kpi-lbl">在岗覆盖率</div></div>'+
+        '</div>'+
+        '<div class="kpi-sub">口径：末次登录30天内 · 席位'+SEAT.total_seats+'为合同上限</div>'+
+      '</div>'+
     '</div>'+
-    '<div class="hl-sub">活跃口径：末次登录30天内 · 采购席位'+SEAT.total_seats+'为合同上限</div>';
+    '<div class="hl-sub">活跃口径：末次登录30天内 · 采购席位'+SEAT.total_seats+'为合同上限</div>'+
+    '</div>';
 }
 
 function renderProgress(){
@@ -395,10 +425,7 @@ document.addEventListener('DOMContentLoaded',function(){
   renderC1();
   renderAll();
   function resizeCharts(){Object.values(charts).forEach(function(c){c.resize()})}
-  /* 移动端布局高度确定后再 resize，避免图被压扁 */
-  if(window.matchMedia('(max-width:768px)').matches){
-    requestAnimationFrame(function(){setTimeout(resizeCharts,120)});
-  }
+  requestAnimationFrame(function(){setTimeout(resizeCharts,150)});
   window.addEventListener('orientationchange',function(){setTimeout(resizeCharts,280)});
   document.querySelectorAll('.filter-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
