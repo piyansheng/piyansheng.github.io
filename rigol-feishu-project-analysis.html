@@ -63,6 +63,8 @@ html,body{background:var(--bg-primary);color:var(--text-primary);font-family:-ap
 .kpi-group-label{font-size:9px;color:rgba(126,184,218,0.5);letter-spacing:1px;margin-bottom:2px;margin-top:4px;font-weight:600}
 .kpi-group-label:first-child{margin-top:0}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 8px;margin-bottom:4px}
+.kpi-5{grid-template-columns:repeat(5,1fr)}
+.kpi-3{grid-template-columns:repeat(3,1fr)}
 .kpi-cell{text-align:center;padding:4px 2px;border-radius:4px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.08)}
 .kpi-val{font-size:18px;font-weight:700;color:var(--text-primary);line-height:1.2}
 .kpi-val .kpi-pct{font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:2px}
@@ -247,19 +249,19 @@ function renderHeadline(){
     '<div class="kpi-groups">'+
       '<div class="kpi-group">'+
         '<div class="kpi-group-label">📋 项目</div>'+
-        '<div class="kpi-grid">'+
+        '<div class="kpi-grid kpi-5">'+
           '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+total+'</div><div class="kpi-lbl">总量</div></div>'+
           '<div class="kpi-cell"><div class="kpi-val accent-green">'+running+'<span class="kpi-pct">'+rp+'%</span></div><div class="kpi-lbl">运行中</div></div>'+
           '<div class="kpi-cell"><div class="kpi-val">'+rd+' <span class="kpi-pct">/ '+gen+'</span></div><div class="kpi-lbl">研发 / 通用</div></div>'+
           '<div class="kpi-cell"><div class="kpi-val'+(attn>8?' accent-amber':'')+'">'+attn+'</div><div class="kpi-lbl">需关注</div></div>'+
+          '<div class="kpi-cell"><div class="kpi-val'+(mom>0?' accent-green':' accent-amber')+'">'+lv+'<span class="kpi-pct">'+momsign+mom+'%</span></div><div class="kpi-lbl">'+mc+'月新增</div></div>'+
         '</div>'+
       '</div>'+
       '<div class="kpi-group">'+
         '<div class="kpi-group-label">👥 用户</div>'+
-        '<div class="kpi-grid">'+
+        '<div class="kpi-grid kpi-3">'+
           '<div class="kpi-cell"><div class="kpi-val">'+SEAT.used_seats+'<span class="kpi-pct">/ '+hc+'</span></div><div class="kpi-lbl">开通 / 在岗</div></div>'+
           '<div class="kpi-cell"><div class="kpi-val accent-green">'+SEAT.active_30d+'<span class="kpi-pct">'+ar+'%</span></div><div class="kpi-lbl">月活跃 MAU</div></div>'+
-          '<div class="kpi-cell"><div class="kpi-val'+(mom>0?' accent-green':' accent-amber')+'">'+lv+'<span class="kpi-pct">'+momsign+mom+'%</span></div><div class="kpi-lbl">'+mc+'月新增</div></div>'+
           '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+cov+'%</div><div class="kpi-lbl">在岗覆盖率</div></div>'+
         '</div>'+
         '<div class="kpi-sub">口径：末次登录30天内 · 席位'+SEAT.total_seats+'为合同上限</div>'+
