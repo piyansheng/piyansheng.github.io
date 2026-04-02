@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RIGOL 飞书项目使用情况分析</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+:root {
+  --bg-primary:#0a1628;--bg-panel:#0d1f3c;--border-glow:#00d4ff;--border-dim:#1a3a5c;
+  --text-primary:#e8f4fd;--text-secondary:#7eb8da;
+  --accent-green:#00e676;--accent-amber:#ffc107;--accent-red:#ff5252;
+  --accent-cyan:#00d4ff;--accent-purple:#b388ff;--accent-blue:#448aff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg-primary);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+/* 桌面端单屏不滚动 */
+@media(min-width:769px){
+  html,body{height:100%;overflow:hidden}
+  #app{height:100vh}
+}
+#app{display:flex;flex-direction:column;padding:8px 12px;gap:6px}
+.header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;height:36px}
+.header h1{font-size:16px;font-weight:600;color:var(--text-primary);letter-spacing:1px}
+.filter-group{display:flex;gap:4px}
+.filter-btn{padding:4px 12px;border:1px solid var(--border-dim);background:transparent;color:var(--text-secondary);border-radius:4px;font-size:12px;cursor:pointer;transition:all 200ms;font-family:inherit}
+.filter-btn:hover{border-color:var(--accent-cyan);color:var(--text-primary)}
+.filter-btn.active{background:rgba(0,212,255,0.15);border-color:var(--accent-cyan);color:var(--accent-cyan)}
+.headline-bar{flex-shrink:0;background:rgba(0,212,255,0.03);border-left:3px solid var(--accent-cyan);border-radius:0 6px 6px 0;padding:10px 16px}
+.hl-line{display:flex;align-items:center;gap:6px;line-height:1.6;font-size:15px}
+.hl-line b{color:var(--text-primary);font-weight:600}
+.hl-dot{font-size:10px;flex-shrink:0}
+.hl-text{color:var(--text-secondary)}
+.hl-text b{color:var(--text-primary)}
+.hl-sub{margin-left:16px;font-size:11px;color:rgba(126,184,218,0.5);line-height:1.3;margin-bottom:1px}
+.hl-core{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(0,212,255,0.15)}
+.hl-core-title{font-size:12px;font-weight:700;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:8px}
+.hl-core-ol{margin:0;padding-left:1.35em;color:var(--text-primary);font-size:14px;line-height:1.55}
+.hl-core-ol li{margin-bottom:6px;padding-left:4px}
+.hl-core-ol li:last-child{margin-bottom:0}
+.hl-core-ol li b{color:var(--accent-cyan);font-weight:600}
+.hl-core-ol li::marker{color:var(--accent-cyan);font-weight:700}
+.hl-core-note{font-size:11px;color:rgba(126,184,218,0.55);line-height:1.4;margin-top:4px;margin-bottom:0;font-weight:400}
+.hl-kpi-row{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.hl-kpi-row b{color:var(--text-primary);font-weight:600}
+.hl-kpi-label{font-size:11px;font-weight:600;color:rgba(126,184,218,0.55);letter-spacing:1px;margin-bottom:6px;margin-top:2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 8px;margin-bottom:4px}
+.kpi-cell{text-align:center;padding:4px 2px;border-radius:4px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.08)}
+.kpi-val{font-size:18px;font-weight:700;color:var(--text-primary);line-height:1.2}
+.kpi-val .kpi-pct{font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:2px}
+.kpi-lbl{font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.2}
+.kpi-val.accent-cyan{color:var(--accent-cyan)}
+.kpi-val.accent-green{color:var(--accent-green)}
+.kpi-val.accent-amber{color:var(--accent-amber)}
+.hl-line+.hl-line{margin-top:1px}
+.hl-sub+.hl-line{margin-top:2px}
+.chart-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:6px;min-height:0}
+.panel{background:var(--bg-panel);border-radius:6px;border-top:2px solid var(--accent-cyan);padding:8px 10px;display:flex;flex-direction:column;overflow:hidden}
+.panel-header{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;flex-shrink:0}
+.panel-title{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap}
+.panel-subtitle{font-size:10px;color:var(--text-secondary);opacity:0.6}
+.chart-box{flex:1;min-height:0}
+.progress-section{display:flex;flex-direction:column;gap:5px;margin-bottom:4px;flex-shrink:0}
+.progress-row{display:flex;align-items:center;gap:8px}
+.progress-label{font-size:11px;color:var(--text-secondary);width:56px;flex-shrink:0}
+.progress-bar{flex:1;height:10px;background:rgba(26,58,92,0.6);border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;border-radius:5px;transition:width 600ms ease}
+.progress-value{font-size:12px;font-weight:600;color:var(--text-primary);width:44px;text-align:right;flex-shrink:0}
+.footer{flex-shrink:0;text-align:center;font-size:10px;color:rgba(126,184,218,0.4);padding:4px 0;border-top:1px solid var(--border-dim)}
+@media(max-width:1200px){.chart-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}}
+@media(max-width:768px){
+  html,body{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto;min-height:100%}
+  #app{height:auto;min-height:100vh;max-height:none;overflow:visible;padding-bottom:16px}
+  .chart-grid{flex:0 0 auto;grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:minmax(300px,auto);gap:10px}
+  .panel{min-height:280px;overflow:visible}
+  .chart-box{min-height:240px}
+  .header{flex-direction:row;flex-wrap:wrap;height:auto;gap:6px 12px;align-items:center;position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg-primary);padding:8px 12px 6px;border-bottom:1px solid var(--border-dim)}
+  #app{padding-top:72px}
+  .filter-group{flex-wrap:wrap;justify-content:flex-start}
+  .hl-line{font-size:13px}
+  .hl-core-ol{font-size:13px}
+  .hl-core-title{font-size:11px}
+  .panel-title{white-space:normal;line-height:1.35;word-break:break-word}
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .kpi-val{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>RIGOL 飞书项目使用情况分析</h1>
+    <div class="filter-group" id="filters">
+      <button class="filter-btn" data-range="1m">近1月</button>
+      <button class="filter-btn" data-range="3m">近3月</button>
+      <button class="filter-btn" data-range="6m">近6月</button>
+      <button class="filter-btn" data-range="12m">近12月</button>
+      <button class="filter-btn active" data-range="all">全部</button>
+    </div>
+  </div>
+  <div class="headline-bar" id="headline"></div>
+  <div class="chart-grid" id="chartArea">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">用户活跃度</span>
+        <span class="panel-subtitle">口径：末次登录30天内</span>
+      </div>
+      <div class="progress-section">
+        <div class="progress-row">
+          <span class="progress-label">采购席位</span>
+          <div class="progress-bar"><div class="progress-fill" id="pf1"></div></div>
+          <span class="progress-value" id="pv1"></span>
+        </div>
+        <div class="progress-row">
+          <span class="progress-label">30日活跃</span>
+          <div class="progress-bar"><div class="progress-fill" id="pf2"></div></div>
+          <span class="progress-value" id="pv2"></span>
+        </div>
+      </div>
+      <div class="chart-box" id="c1"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="t2">项目状态</span></div>
+      <div class="chart-box" id="c2"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">项目阶段分布</span></div>
+      <div class="chart-box" id="c3"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">月度项目新增趋势</span></div>
+      <div class="chart-box" id="c4"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">项目分布</span></div>
+      <div class="chart-box" id="c5"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">通用项目 vs 研发项目对比</span></div>
+      <div class="chart-box" id="c6"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title" id="t7">研发项目状态</span></div>
+      <div class="chart-box" id="c7"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">研发项目模板分布</span></div>
+      <div class="chart-box" id="c8"></div>
+    </div>
+  </div>
+  <div class="footer">数据来源：飞书项目（通用+研发空间）& 飞书企业管理后台 | 在岗人数730为人力口径、1050为采购席位上限 | 活跃：末次登录30天内 | 截至 2026-04-02</div>
+</div>
+<script>
+var SEAT={total_seats:1050,company_headcount:730,used_seats:616,active_7d:293,active_30d:392,active_90d:465,only_once:55,monthly_new:{"2024-04":49,"2024-05":39,"2024-06":20,"2024-07":7,"2024-08":29,"2024-09":19,"2024-10":18,"2024-11":27,"2024-12":25,"2025-01":70,"2025-02":37,"2025-03":58,"2025-04":32,"2025-05":26,"2025-06":22,"2025-07":53,"2025-08":17,"2025-09":18,"2025-10":4,"2025-11":5,"2025-12":8,"2026-01":16,"2026-02":5,"2026-03":10,"2026-04":2},dept_stats:[{dept:"全球供应链",total:125,active_30d:42},{dept:"技术创新中心",total:120,active_30d:84},{dept:"SCOPE & VERIFICATION",total:67,active_30d:63},{dept:"集团职能平台",total:56,active_30d:38},{dept:"RF & MICROWAVE",total:48,active_30d:46},{dept:"NAISHU SOLUTION",total:44,active_30d:39},{dept:"PRECISION & POWER",total:39,active_30d:35},{dept:"Global Marketing",total:24,active_30d:15},{dept:"China Sales",total:17,active_30d:1},{dept:"Global Service",total:11,active_30d:4},{dept:"HIT",total:9,active_30d:4},{dept:"Global Commerce",total:8,active_30d:0},{dept:"Commercial Excellence",total:7,active_30d:6},{dept:"大客户部",total:6,active_30d:2},{dept:"EMD_APAC",total:5,active_30d:2},{dept:"EMD_EU",total:4,active_30d:2},{dept:"RIGOL应用服务",total:3,active_30d:0},{dept:"苏大电信",total:3,active_30d:0},{dept:"EMD_AM",total:3,active_30d:2},{dept:"北大软微",total:3,active_30d:1},{dept:"Solution",total:2,active_30d:1},{dept:"飞书顾问",total:2,active_30d:0},{dept:"杭电电子信息",total:2,active_30d:0},{dept:"内部顾问",total:1,active_30d:0},{dept:"International Sales",total:1,active_30d:1},{dept:"Global Sales & Marketing",total:1,active_30d:1},{dept:"北京软通",total:1,active_30d:1},{dept:"制造部（槟城）",total:1,active_30d:0},{dept:"计划&物流&采购（槟城）",total:1,active_30d:0},{dept:"制造部（槟城）,全球供应链",total:1,active_30d:1},{dept:"工程部（槟城）",total:1,active_30d:1}]};
+var P=[{"s":"g","c":"2026-04-01","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-30","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-30","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-24","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-23","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-22","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-20","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-20","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-19","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-19","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-17","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-17","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-17","st":"进行中","p":"计划阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-16","st":"进行中","p":"计划阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-15","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-10","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-10","st":"进行中","p":"概念阶段","bu":"Global Sales & Marketing","t":"普通项目_V1.0"},{"s":"g","c":"2026-03-10","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-10","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-06","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-05","st":"进行中","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-03-05","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-28","st":"未开始","p":"立项阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-25","st":"进行中","p":"执行阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-25","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-25","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-25","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-25","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-24","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-13","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-10","st":"进行中","p":"执行阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-10","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-04","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-03","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-03","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-03","st":"进行中","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-02-02","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-29","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-29","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-27","st":"未开始","p":"立项阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-27","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-27","st":"进行中","p":"计划阶段","bu":"","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-22","st":"进行中","p":"概念阶段","bu":"集团职能平台","t":"IT信息化系统开发流程"},{"s":"g","c":"2026-01-13","st":"进行中","p":"计划阶段","bu":"","t":"普通项目_V1.0"},{"s":"g","c":"2026-01-09","st":"进行中","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-08","st":"进行中","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2026-01-07","st":"进行中","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-12-08","st":"进行中","p":"执行阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-11-24","st":"进行中","p":"执行阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-11-07","st":"进行中","p":"开发阶段","bu":"Scope & Verification","t":"市场NPI流程_V1.6"},{"s":"g","c":"2025-11-03","st":"未开始","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-10-28","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-09-30","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-09-19","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-09-17","st":"已结项","p":"检查阶段","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-09-09","st":"进行中","p":"开发阶段","bu":"Precision & Power","t":"市场NPI流程_V1.6"},{"s":"g","c":"2025-09-03","st":"已结项","p":"已完成","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"g","c":"2025-09-02","st":"进行中","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-08-21","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-08-14","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-08-14","st":"已结项","p":"已完成","bu":"集团职能平台","t":"PD/KPI月度Review会议_V1.0"},{"s":"g","c":"2025-08-12","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-08-12","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-07-30","st":"已结项","p":"已完成","bu":"Scope & Verification","t":"市场NPI流程_V1.6"},{"s":"g","c":"2025-07-30","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-07-28","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-07-15","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-07-08","st":"已结项","p":"已完成","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"g","c":"2025-07-03","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-06-30","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-06-16","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-06-11","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-06-11","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-06-03","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-05-27","st":"已终止","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-05-26","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-05-23","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-05-07","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-05-06","st":"已终止","p":"检查阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-30","st":"已终止","p":"执行阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-25","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-25","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-23","st":"已终止","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-22","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-21","st":"已结项","p":"检查阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-18","st":"已终止","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-17","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-16","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-15","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-15","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-15","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-15","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-14","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-14","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-10","st":"已终止","p":"计划阶段","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-09","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-07","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-07","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-02","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-04-02","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-31","st":"已结项","p":"开发阶段","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-03-31","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-30","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-28","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-26","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-26","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-24","st":"进行中","p":"数据总结阶段","bu":"RF & Microwave","t":"市场NPI流程_V1.6"},{"s":"g","c":"2025-03-21","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-21","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-21","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-21","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-20","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-19","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-18","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-18","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-17","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-17","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-17","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-14","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-13","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-13","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-13","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-12","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-12","st":"已终止","p":"正式会议","bu":"NAISHU SOLUTION","t":"PD/KPI月度Review会议_V1.0"},{"s":"g","c":"2025-03-12","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-03-11","st":"进行中","p":"开发阶段","bu":"集团职能平台","t":"普通项目_V1.0"},{"s":"g","c":"2025-03-10","st":"已结项","p":"已完成","bu":"集团职能平台","t":"PD/KPI月度Review会议_V1.0"},{"s":"g","c":"2025-03-09","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-02-25","st":"已结项","p":"已完成","bu":"Global Sales & Marketing","t":"简洁项目_V1.0"},{"s":"g","c":"2025-02-18","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"g","c":"2025-02-14","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"市场NPI流程_V1.6"},{"s":"g","c":"2025-02-14","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"g","c":"2025-02-13","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-02-13","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-02-13","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"g","c":"2025-02-12","st":"已结项","p":"已完成","bu":"供应链","t":"简洁项目_V1.0"},{"s":"r","c":"2026-04-02","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"技术预研_V1.0"},{"s":"r","c":"2026-04-01","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-30","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-27","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-27","st":"进行中","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2026-03-26","st":"进行中","p":"执行阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-24","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-20","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-20","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-19","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-19","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-19","st":"进行中","p":"执行阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-18","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-18","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-18","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"执行阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-17","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-16","st":"进行中","p":"执行阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-16","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-16","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-16","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-15","st":"未开始","p":"立项阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2026-03-14","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"技术预研_V1.0"},{"s":"r","c":"2026-03-13","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-13","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2026-03-12","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"集成产品开发_V1.5"},{"s":"r","c":"2026-03-12","st":"未开始","p":"立项阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-11","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-10","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2026-03-10","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-03-09","st":"未开始","p":"立项阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-09","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2026-03-06","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-06","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-03-06","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2026-03-05","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2026-03-04","st":"进行中","p":"计划阶段","bu":"RF & Microwave","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2026-03-02","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2026-03-02","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-02-28","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2026-02-25","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2026-02-11","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2026-02-06","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-02-05","st":"进行中","p":"开发阶段","bu":"Scope & Verification","t":"维护项目_软件_V1.0"},{"s":"r","c":"2026-02-04","st":"进行中","p":"概念阶段","bu":"Scope & Verification","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2026-02-04","st":"进行中","p":"概念阶段","bu":"Scope & Verification","t":"产品预研_V1.3"},{"s":"r","c":"2026-02-03","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-02-02","st":"进行中","p":"概念阶段","bu":"Precision & Power","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2026-01-30","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-30","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-01-29","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-29","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-23","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-20","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-01-20","st":"进行中","p":"执行阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-20","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-15","st":"进行中","p":"开发阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-14","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2026-01-14","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-01-14","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-01-13","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-13","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-01-13","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2026-01-13","st":"未开始","p":"立项阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-13","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"普通项目_V1.0"},{"s":"r","c":"2026-01-12","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-12","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-09","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-09","st":"进行中","p":"执行阶段","bu":"Precision & Power","t":"简洁项目_V1.0"},{"s":"r","c":"2026-01-08","st":"已结项","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2026-01-08","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-01-07","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2026-01-05","st":"进行中","p":"开发阶段","bu":"RF & Microwave","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2025-12-25","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-12-23","st":"进行中","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-12-23","st":"进行中","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-12-02","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-12-02","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-11-28","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术预研_V1.0"},{"s":"r","c":"2025-11-26","st":"进行中","p":"执行阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-11-24","st":"延期","p":"开发阶段","bu":"RF & Microwave","t":"产品预研_V1.3"},{"s":"r","c":"2025-11-24","st":"进行中","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-11-18","st":"进行中","p":"开发阶段","bu":"RF & Microwave","t":"产品预研_V1.3"},{"s":"r","c":"2026-01-05","st":"延期","p":"概念阶段","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-11-14","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-11-14","st":"进行中","p":"开发阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-11-14","st":"进行中","p":"计划阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-11-14","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目"},{"s":"r","c":"2025-11-11","st":"已结项","p":"已完成","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"r","c":"2025-11-10","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-11-06","st":"进行中","p":"概念阶段","bu":"集团职能平台","t":"产品预研_V1.3"},{"s":"r","c":"2025-11-05","st":"进行中","p":"概念阶段","bu":"Scope & Verification","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-10-23","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-10-21","st":"延期","p":"开发阶段","bu":"RF & Microwave","t":"维护项目_软件_V1.0"},{"s":"r","c":"2025-10-21","st":"进行中","p":"开发阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-10-20","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术预研_V1.0"},{"s":"r","c":"2025-10-20","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"维护项目_软件_V1.0"},{"s":"r","c":"2025-10-20","st":"延期","p":"检查阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2025-10-20","st":"进行中","p":"执行阶段","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2025-10-17","st":"已结项","p":"技术成果迁移","bu":"RF & Microwave","t":"产品预研_V1.3"},{"s":"r","c":"2025-10-13","st":"进行中","p":"开发阶段","bu":"Precision & Power","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2025-10-09","st":"进行中","p":"开发阶段","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-09-24","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-09-23","st":"进行中","p":"检查阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-09-22","st":"进行中","p":"开发阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2025-09-18","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"技术开发_V1.0"},{"s":"r","c":"2025-09-18","st":"延期","p":"开发阶段","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-11-15","st":"已终止","p":"概念阶段","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-09-16","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-09-16","st":"进行中","p":"概念阶段","bu":"Precision & Power","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-09-12","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-09-11","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-09-02","st":"已终止","p":"开发阶段","bu":"Precision & Power","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2025-09-01","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-08-27","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-08-26","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-08-20","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-08-04","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-08-04","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-08-01","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-08-01","st":"已结项","p":"检查阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2025-08-01","st":"进行中","p":"开发阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2025-08-01","st":"已结项","p":"已完成","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2025-07-31","st":"已结项","p":"检查阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-24","st":"进行中","p":"开发阶段","bu":"Precision & Power","t":"技术开发_V1.0"},{"s":"r","c":"2025-07-22","st":"进行中","p":"开发阶段","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-07-17","st":"进行中","p":"生产阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-16","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-07-16","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-16","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-14","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-07-14","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-14","st":"已终止","p":"计划阶段","bu":"NAISHU SOLUTION","t":"技术预研_V1.0"},{"s":"r","c":"2025-07-11","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-07-01","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-01","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-07-01","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-06-30","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-06-25","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-06-25","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"简洁项目_V1.0"},{"s":"r","c":"2025-06-25","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":" ICD流程_V1.3"},{"s":"r","c":"2025-06-25","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":" ICD流程_V1.3"},{"s":"r","c":"2025-06-25","st":"进行中","p":"概念阶段","bu":"技术创新中心","t":" ICD流程_V1.3"},{"s":"r","c":"2025-06-20","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术预研_V1.0"},{"s":"r","c":"2025-06-16","st":"进行中","p":"概念阶段","bu":"NAISHU SOLUTION","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-06-03","st":"进行中","p":"验收阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-05-29","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-05-21","st":"进行中","p":"验收阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-05-21","st":"进行中","p":"验收阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-05-21","st":"进行中","p":"检查阶段","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-05-21","st":"已终止","p":"计划阶段","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-05-20","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-05-16","st":"已结项","p":"立项阶段","bu":"NAISHU SOLUTION","t":"耐数日常项目_V1.0"},{"s":"r","c":"2025-05-16","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-05-15","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数日常项目_V1.0"},{"s":"r","c":"2025-05-14","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数日常项目_V1.0"},{"s":"r","c":"2025-05-12","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-05-07","st":"进行中","p":"计划阶段","bu":"Scope & Verification","t":"简洁项目_V1.0"},{"s":"r","c":"2025-05-06","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-05-06","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-05-06","st":"进行中","p":"开发阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-05-06","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-05-06","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-04-29","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-29","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-29","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-28","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-24","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-04-24","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-04-17","st":"进行中","p":"开发阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-04-15","st":"进行中","p":"计划阶段","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-04-15","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-15","st":"已终止","p":"开发阶段","bu":"NAISHU SOLUTION","t":"技术开发_V1.0"},{"s":"r","c":"2025-04-10","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-10","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-04-01","st":"已结项","p":"已完成","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-03-31","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单备货项目_V1.0"},{"s":"r","c":"2025-03-28","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-04-13","st":"已结项","p":"已完成","bu":"NAISHU SOLUTION","t":"简洁项目_V1.0"},{"s":"r","c":"2025-05-09","st":"进行中","p":"验收阶段","bu":"NAISHU SOLUTION","t":"耐数订单研制项目_V1.0"},{"s":"r","c":"2025-03-25","st":"已结项","p":"开发阶段","bu":"Scope & Verification","t":"产品预研_V1.3"},{"s":"r","c":"2025-03-21","st":"已结项","p":"已完成","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-03-10","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术预研_V1.0"},{"s":"r","c":"2025-03-10","st":"已结项","p":"验证阶段","bu":"Scope & Verification","t":"维护项目_软件_V1.0"},{"s":"r","c":"2025-03-10","st":"已结项","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-03-05","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"模拟芯片预研流程_V1.0"},{"s":"r","c":"2025-02-27","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术预研_V1.0"},{"s":"r","c":"2025-02-18","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"产品预研_V1.3"},{"s":"r","c":"2025-02-17","st":"已结项","p":"开发阶段","bu":"技术创新中心","t":"产品预研_V1.3"},{"s":"r","c":"2025-02-14","st":"已结项","p":"计划阶段","bu":"NAISHU SOLUTION","t":"耐数订单销售项目_V1.0"},{"s":"r","c":"2025-02-14","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-02-13","st":"已结项","p":"开发阶段","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-02-12","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-02-10","st":"已结项","p":"检查阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"r","c":"2025-01-14","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-01-14","st":"已结项","p":"已完成","bu":"技术创新中心","t":"简洁项目_V1.0"},{"s":"r","c":"2025-01-13","st":"进行中","p":"概念阶段","bu":"NAISHU SOLUTION","t":"集成产品开发_V1.5"},{"s":"r","c":"2025-01-10","st":"已终止","p":"开发阶段","bu":"Precision & Power","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2025-01-08","st":"已结项","p":"已完成","bu":"技术创新中心","t":"技术开发_V1.0"},{"s":"r","c":"2025-01-06","st":"进行中","p":"验证阶段","bu":"Scope & Verification","t":"集成产品开发_V1.5"},{"s":"r","c":"2024-12-30","st":"已结项","p":"开发阶段","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2024-12-30","st":"进行中","p":"开发阶段","bu":"技术创新中心","t":"产品预研_V1.3"},{"s":"r","c":"2024-12-25","st":"已终止","p":"概念阶段","bu":"Scope & Verification","t":"集成产品开发_V1.5"},{"s":"r","c":"2024-12-25","st":"已结项","p":"已完成","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2024-12-22","st":"已结项","p":"已完成","bu":"集团职能平台","t":"普通项目_V1.0"},{"s":"r","c":"2024-12-11","st":"已终止","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"r","c":"2024-12-09","st":"已结项","p":"已完成","bu":"供应链","t":"普通项目_V1.0"},{"s":"r","c":"2024-10-18","st":"进行中","p":"开发阶段","bu":"Precision & Power","t":"产品预研_V1.3"},{"s":"r","c":"2024-10-18","st":"已结项","p":"已完成","bu":"Scope & Verification","t":"技术预研_V1.0"},{"s":"r","c":"2024-10-10","st":"已结项","p":"已完成","bu":"Scope & Verification","t":"产品预研_V1.3"},{"s":"r","c":"2024-09-24","st":"已结项","p":"已完成","bu":"Precision & Power","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2024-09-10","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"维护项目_硬件_V1.0"},{"s":"r","c":"2024-09-10","st":"进行中","p":"开发阶段","bu":"Precision & Power","t":"集成产品开发_V1.5"},{"s":"r","c":"2024-09-09","st":"已结项","p":"概念阶段","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2024-09-09","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"集成产品开发_V1.5"},{"s":"r","c":"2024-09-06","st":"已结项","p":"已完成","bu":"RF & Microwave","t":"维护项目_Firmware(含逻辑)_V1.0"},{"s":"r","c":"2024-09-04","st":"已终止","p":"计划阶段","bu":"集团职能平台","t":"简洁项目_V1.0"},{"s":"r","c":"2024-08-05","st":"进行中","p":"概念阶段","bu":"Precision & Power","t":"集成产品开发_V1.5"}];
+var SC={'进行中':'#00e676','已结项':'#00d4ff','已终止':'#ff5252','未开始':'#607d8b','延期':'#ffc107','已冻结':'#b388ff'};
+var SO=['进行中','已结项','未开始','已终止','延期','已冻结'];
+var PO=['立项阶段','概念阶段','计划阶段','开发阶段','执行阶段','生产阶段','检查阶段','验收阶段','验证阶段','已完成'];
+var TT={backgroundColor:'rgba(13,31,60,0.95)',borderColor:'#1a3a5c',textStyle:{color:'#e8f4fd',fontSize:12}};
+var charts={},curRange='all';
+
+function countBy(a,k){var r={};a.forEach(function(i){var v=i[k]||'';r[v]=(r[v]||0)+1});return r}
+
+function filterByRange(range){
+  if(range==='all')return P;
+  var ms={'1m':1,'3m':3,'6m':6,'12m':12};
+  var d=new Date(2026,3,2);d.setMonth(d.getMonth()-(ms[range]||12));
+  var cut=d.toISOString().slice(0,10);
+  return P.filter(function(p){return p.c>=cut});
+}
+
+function renderHeadline(){
+  var total=P.length;
+  var running=P.filter(function(p){return p.st==='进行中'}).length;
+  var delayed=P.filter(function(p){return p.st==='延期'}).length;
+  var frozen=P.filter(function(p){return p.st==='已冻结'}).length;
+  var rd=P.filter(function(p){return p.s==='r'}).length;
+  var gen=P.filter(function(p){return p.s==='g'}).length;
+  var monthly={};
+  P.forEach(function(p){var m=p.c.slice(0,7);if(m)monthly[m]=(monthly[m]||0)+1});
+  var months=Object.keys(monthly).sort();
+  var lm=months[months.length-1],lv=monthly[lm];
+  if(lv<5&&months.length>1){lm=months[months.length-2];lv=monthly[lm]}
+  var pi=months.indexOf(lm),pm=pi>0?months[pi-1]:null,pv=pm?monthly[pm]:0;
+  var mom=pv>0?((lv-pv)/pv*100).toFixed(1):'N/A';
+  var sr=(SEAT.used_seats/SEAT.total_seats*100).toFixed(1);
+  var ar=(SEAT.active_30d/SEAT.used_seats*100).toFixed(1);
+  var rp=(running/total*100).toFixed(1);
+  var rdp=(rd/total*100).toFixed(1);
+  var attn=delayed+frozen;
+  var mc=parseInt(lm.split('-')[1]);
+  var momsign=parseFloat(mom)>0?'+':'';
+  var anno=lm==='2026-03'?' —— 主要为UVerse内测项目批量立项':'';
+  var hc=SEAT.company_headcount||730;
+  var cov=(SEAT.used_seats/hc*100).toFixed(1);
+  var rdNum=parseFloat(rdp);
+  var rpf=parseFloat(rp);
+  var arf=parseFloat(ar);
+  var core1,core2,c3;
+  if(rpf>=50&&rdNum>=55){
+    core1='项目<b>整体负荷饱满</b>，超半数处于运行中，治理重心在研发 IPD，与 PQA 管控定位一致。';
+  }else if(rpf>=50){
+    core1='项目<b>整体负荷饱满</b>，超半数处于运行中，通用与研发分工清晰、滚动正常。';
+  }else if(rdNum>=55){
+    core1='研发项目体量突出，<b>治理重心在 IPD</b>，运行节奏平稳。';
+  }else{
+    core1='双空间项目<b>运行节奏正常</b>，通用与研发分工明确。';
+  }
+  if(arf>=60){
+    core2='用户<b>活跃面整体健康</b>，在岗覆盖已较高，后续侧重深度使用与留存。';
+  }else{
+    core2='用户<b>活跃面仍有提升空间</b>，建议结合培训与典型场景拉升。';
+  }
+  if(attn<=8){
+    c3='<b>进度风险可控</b>，延期与冻结项数较少'+(lm==='2026-03'&&anno?'；3月新增峰值为计划内事件（UVerse 内测批量立项）。':'。');
+  }else{
+    c3='延期与冻结项<b>需重点关注</b>，建议按 BU 复盘根因'+(lm==='2026-03'&&anno?'；3月峰值为 UVerse 内测批量立项。':'。');
+  }
+  document.getElementById('headline').innerHTML=
+    '<div class="hl-core">'+
+    '<div class="hl-core-title">核心结论</div>'+
+    '<ol class="hl-core-ol">'+
+    '<li>'+core1+'</li>'+
+    '<li>'+core2+'</li>'+
+    '<li>'+c3+'</li>'+
+    '</ol>'+
+    '</div>'+
+    '<div class="hl-kpi-label">关键指标</div>'+
+    '<div class="kpi-grid">'+
+      '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+total+'</div><div class="kpi-lbl">项目总量</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val accent-green">'+running+'<span class="kpi-pct">'+rp+'%</span></div><div class="kpi-lbl">运行中</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val">'+rd+' <span class="kpi-pct">/ '+gen+'</span></div><div class="kpi-lbl">研发 / 通用</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val'+(attn>8?' accent-amber':'')+'">'+attn+'</div><div class="kpi-lbl">需关注</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val">'+SEAT.used_seats+'<span class="kpi-pct">/ '+hc+'</span></div><div class="kpi-lbl">开通 / 在岗</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val accent-green">'+SEAT.active_30d+'<span class="kpi-pct">'+ar+'%</span></div><div class="kpi-lbl">月活跃 MAU</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val'+(mom>0?' accent-green':' accent-amber')+'">'+lv+'<span class="kpi-pct">'+momsign+mom+'%</span></div><div class="kpi-lbl">'+mc+'月新增</div></div>'+
+      '<div class="kpi-cell"><div class="kpi-val accent-cyan">'+cov+'%</div><div class="kpi-lbl">在岗覆盖率</div></div>'+
+    '</div>'+
+    '<div class="hl-sub">活跃口径：末次登录30天内 · 采购席位'+SEAT.total_seats+'为合同上限</div>';
+}
+
+function renderProgress(){
+  var sr=(SEAT.used_seats/SEAT.total_seats*100).toFixed(1);
+  var ar=(SEAT.active_30d/SEAT.used_seats*100).toFixed(1);
+  document.getElementById('pf1').style.cssText='width:'+sr+'%;background:var(--accent-cyan)';
+  document.getElementById('pv1').textContent=sr+'%';
+  document.getElementById('pf2').style.cssText='width:'+ar+'%;background:var(--accent-green)';
+  document.getElementById('pv2').textContent=ar+'%';
+}
+
+function renderC1(){
+  var dept=SEAT.dept_stats.slice().sort(function(a,b){return b.active_30d-a.active_30d}).slice(0,8).reverse();
+  charts.c1.setOption({
+    tooltip:{backgroundColor:'rgba(13,31,60,0.95)',borderColor:'#1a3a5c',textStyle:{color:'#e8f4fd',fontSize:12},formatter:function(p){var d=dept[p.dataIndex];return d.dept+'<br/>活跃: '+d.active_30d+'/'+d.total+' ('+Math.round(d.active_30d/d.total*100)+'%)'}},
+    grid:{top:4,right:82,bottom:4,left:4,containLabel:true},
+    xAxis:{type:'value',show:false},
+    yAxis:{type:'category',data:dept.map(function(d){return d.dept}),axisLabel:{color:'#7eb8da',fontSize:10,width:95,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',barWidth:14,
+      data:dept.map(function(d){var r=d.total>0?d.active_30d/d.total:0;return{value:d.active_30d,itemStyle:{color:r>=0.8?'#00e676':r>=0.6?'#ffc107':'#ff5252',borderRadius:[0,3,3,0]}}}),
+      label:{show:true,position:'right',formatter:function(p){var d=dept[p.dataIndex];return d.active_30d+'/'+d.total+' '+Math.round(d.active_30d/d.total*100)+'%'},color:'#7eb8da',fontSize:10}
+    }]
+  });
+}
+
+function renderDonut(cid,tid,data,label){
+  var cnt=countBy(data,'st');var total=data.length;
+  var running=cnt['进行中']||0;var pct=total?(running/total*100).toFixed(1):'0';
+  if(tid)document.getElementById(tid).innerHTML=label+' | <span style="color:#00e676">运行中 '+running+'（'+pct+'%）</span>';
+  var pd=SO.filter(function(s){return cnt[s]}).map(function(s){return{name:s,value:cnt[s],itemStyle:{color:SC[s]}}});
+  charts[cid].setOption({
+    tooltip:{backgroundColor:'rgba(13,31,60,0.95)',borderColor:'#1a3a5c',textStyle:{color:'#e8f4fd',fontSize:12},formatter:'{b}: {c} ({d}%)'},
+    title:{text:String(total),subtext:'总计',left:'center',top:'center',textStyle:{fontSize:22,color:'#e8f4fd',fontWeight:'bold'},subtextStyle:{fontSize:10,color:'#7eb8da'}},
+    series:[{type:'pie',radius:['40%','68%'],center:['50%','52%'],data:pd,
+      label:{show:true,formatter:'{b}\n{c}',color:'#7eb8da',fontSize:10,lineHeight:14},
+      labelLine:{lineStyle:{color:'#1a3a5c'}},emphasis:{scaleSize:3}
+    }]
+  });
+}
+
+function renderC3(data){
+  var cnt=countBy(data,'p');var other=0;var items=[];
+  PO.forEach(function(ph){var c=cnt[ph]||0;if(c>=3)items.push({name:ph,value:c});else other+=c});
+  Object.keys(cnt).forEach(function(ph){if(ph&&PO.indexOf(ph)<0){if(cnt[ph]>=3)items.push({name:ph,value:cnt[ph]});else other+=cnt[ph]}});
+  if(other>0)items.push({name:'其他',value:other});
+  items.reverse();
+  charts.c3.setOption({
+    tooltip:TT,
+    grid:{top:4,right:36,bottom:4,left:4,containLabel:true},
+    xAxis:{type:'value',show:false},
+    yAxis:{type:'category',data:items.map(function(i){return i.name}),axisLabel:{color:'#7eb8da',fontSize:10},axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',data:items.map(function(i){return i.value}),barWidth:14,
+      itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1a3a5c'},{offset:1,color:'#448aff'}]),borderRadius:[0,3,3,0]},
+      label:{show:true,position:'right',color:'#7eb8da',fontSize:10}
+    }]
+  });
+}
+
+function renderC4(data){
+  var cnt={};
+  data.forEach(function(p){var m=p.c.slice(0,7);if(m)cnt[m]=(cnt[m]||0)+1});
+  var months=Object.keys(cnt).sort();var vals=months.map(function(m){return cnt[m]});
+  if(months.length===0)return;
+  var maxI=0;vals.forEach(function(v,i){if(v>vals[maxI])maxI=i});
+  var mpLabel=months[maxI]==='2026-03'?'UVerse内测\n批量立项':String(vals[maxI]);
+  charts.c4.setOption({
+    tooltip:{backgroundColor:'rgba(13,31,60,0.95)',borderColor:'#1a3a5c',textStyle:{color:'#e8f4fd',fontSize:12},trigger:'axis'},
+    grid:{top:30,right:12,bottom:20,left:36},
+    xAxis:{type:'category',data:months,axisLabel:{color:'#7eb8da',fontSize:9,rotate:35},axisLine:{lineStyle:{color:'#1a3a5c'}},axisTick:{lineStyle:{color:'#1a3a5c'}}},
+    yAxis:{type:'value',splitLine:{lineStyle:{color:'#1a3a5c',type:'dashed'}},axisLabel:{color:'#7eb8da',fontSize:10}},
+    series:[{type:'line',data:vals,smooth:true,symbol:'circle',symbolSize:4,
+      lineStyle:{color:'#00d4ff',width:2},itemStyle:{color:'#00d4ff'},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,212,255,0.3)'},{offset:1,color:'rgba(0,212,255,0.02)'}])},
+      markPoint:{data:[{coord:[months[maxI],vals[maxI]],symbol:'pin',symbolSize:36,
+        itemStyle:{color:'#ffc107'},label:{show:true,formatter:mpLabel,fontSize:9,color:'#fff',lineHeight:12}}]}
+    }]
+  });
+}
+
+function renderC5(data){
+  var cnt=countBy(data,'bu');
+  var items=Object.keys(cnt).map(function(k){return{name:k||'未分配',value:cnt[k]}}).sort(function(a,b){return b.value-a.value});
+  if(items.length>8){
+    var rest=0;for(var i=8;i<items.length;i++)rest+=items[i].value;
+    items=items.slice(0,8);if(rest>0)items.push({name:'其他',value:rest});
+  }
+  items.reverse();
+  charts.c5.setOption({
+    tooltip:TT,
+    grid:{top:4,right:36,bottom:4,left:4,containLabel:true},
+    xAxis:{type:'value',show:false},
+    yAxis:{type:'category',data:items.map(function(i){return i.name}),axisLabel:{color:'#7eb8da',fontSize:10,width:110,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',data:items.map(function(i){return i.value}),barWidth:14,
+      itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1a3a5c'},{offset:1,color:'#b388ff'}]),borderRadius:[0,3,3,0]},
+      label:{show:true,position:'right',color:'#7eb8da',fontSize:10}
+    }]
+  });
+}
+
+function renderC6(data){
+  var gen=data.filter(function(p){return p.s==='g'});
+  var rd=data.filter(function(p){return p.s==='r'});
+  var sts=['进行中','已结项','已终止','未开始','延期'];
+  charts.c6.setOption({
+    tooltip:{backgroundColor:'rgba(13,31,60,0.95)',borderColor:'#1a3a5c',textStyle:{color:'#e8f4fd',fontSize:12},trigger:'axis'},
+    legend:{data:['通用项目','研发项目'],textStyle:{color:'#7eb8da',fontSize:10},top:0,right:0,itemWidth:12,itemHeight:8},
+    grid:{top:24,right:12,bottom:4,left:4,containLabel:true},
+    xAxis:{type:'category',data:sts,axisLabel:{color:'#7eb8da',fontSize:10},axisLine:{lineStyle:{color:'#1a3a5c'}}},
+    yAxis:{type:'value',splitLine:{lineStyle:{color:'#1a3a5c',type:'dashed'}},axisLabel:{color:'#7eb8da',fontSize:10}},
+    series:[
+      {name:'通用项目',type:'bar',data:sts.map(function(s){return gen.filter(function(p){return p.st===s}).length}),itemStyle:{color:'#448aff',borderRadius:[3,3,0,0]},barGap:'20%'},
+      {name:'研发项目',type:'bar',data:sts.map(function(s){return rd.filter(function(p){return p.st===s}).length}),itemStyle:{color:'#b388ff',borderRadius:[3,3,0,0]}}
+    ]
+  });
+}
+
+function renderC8(data){
+  var cnt=countBy(data,'t');
+  var items=Object.keys(cnt).map(function(k){return{name:k||'未指定',value:cnt[k]}}).sort(function(a,b){return b.value-a.value});
+  if(items.length>6){
+    var rest=0;for(var i=6;i<items.length;i++)rest+=items[i].value;
+    items=items.slice(0,6);if(rest>0)items.push({name:'其他',value:rest});
+  }
+  items.forEach(function(i){i.name=i.name.replace(/_V[\d.]+$/,'')});
+  items.reverse();
+  charts.c8.setOption({
+    tooltip:TT,
+    grid:{top:4,right:36,bottom:4,left:4,containLabel:true},
+    xAxis:{type:'value',show:false},
+    yAxis:{type:'category',data:items.map(function(i){return i.name}),axisLabel:{color:'#7eb8da',fontSize:10,width:100,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',data:items.map(function(i){return i.value}),barWidth:14,
+      itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1a3a5c'},{offset:1,color:'#00d4ff'}]),borderRadius:[0,3,3,0]},
+      label:{show:true,position:'right',color:'#7eb8da',fontSize:10}
+    }]
+  });
+}
+
+function renderAll(){
+  var d=filterByRange(curRange);
+  renderDonut('c2','t2',d,'项目状态');
+  renderC3(d);
+  renderC4(d);
+  renderC5(d);
+  renderC6(d);
+  var rdD=d.filter(function(p){return p.s==='r'});
+  renderDonut('c7','t7',rdD,'研发项目状态');
+  renderC8(rdD);
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  ['c1','c2','c3','c4','c5','c6','c7','c8'].forEach(function(id){
+    charts[id]=echarts.init(document.getElementById(id));
+  });
+  renderHeadline();
+  renderProgress();
+  renderC1();
+  renderAll();
+  function resizeCharts(){Object.values(charts).forEach(function(c){c.resize()})}
+  /* 移动端布局高度确定后再 resize，避免图被压扁 */
+  if(window.matchMedia('(max-width:768px)').matches){
+    requestAnimationFrame(function(){setTimeout(resizeCharts,120)});
+  }
+  window.addEventListener('orientationchange',function(){setTimeout(resizeCharts,280)});
+  document.querySelectorAll('.filter-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+      this.classList.add('active');
+      curRange=this.dataset.range;
+      renderAll();
+      if(window.matchMedia('(max-width:768px)').matches){
+        document.getElementById('chartArea').scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    });
+  });
+  var rt;
+  window.addEventListener('resize',function(){
+    clearTimeout(rt);
+    rt=setTimeout(function(){Object.values(charts).forEach(function(c){c.resize()})},200);
+  });
+});
+</script>
+</body>
+</html>
