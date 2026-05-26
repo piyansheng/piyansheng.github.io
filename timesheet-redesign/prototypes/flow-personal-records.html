@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的工时记录</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: #f4f6f9; color: #1e293b; font-size: 14px; }
+    .nav { background: #1e293b; color: #fff; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+    .nav a { color: #94a3b8; text-decoration: none; font-size: 13px; }
+    .main { max-width: 900px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 22px; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; background: #fff; border: 1px solid #e2e8f0; }
+    .tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .record {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 16px 20px; margin-bottom: 12px;
+    }
+    .record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .record-header strong { font-size: 16px; }
+    .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .badge-submitted { background: #dbeafe; color: #1d4ed8; }
+    .badge-auto { background: #dcfce7; color: #166534; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .detail { font-size: 13px; color: #64748b; line-height: 1.8; }
+    .back { margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="flow-submitted.html">← 提交成功页</a>
+    <a href="index.html">原型导航</a>
+    <span style="font-weight:600;margin-left:auto">个人查询 · 提交后</span>
+  </nav>
+  <main class="main">
+    <h1>我的工时记录</h1>
+    <div class="tabs">
+      <div class="tab active">已提交</div>
+      <div class="tab">代发历史</div>
+      <div class="tab">已驳回</div>
+    </div>
+    <div class="record" id="latest">
+      <div class="record-header">
+        <strong id="week-label">W21 · 2026/05/17 – 05/23</strong>
+        <span class="badge badge-submitted">已提交</span>
+      </div>
+      <div class="detail" id="detail">加载中…</div>
+    </div>
+    <div class="record">
+      <div class="record-header">
+        <strong>W20 · 2026/05/10 – 05/16</strong>
+        <span class="badge badge-auto">全部已接收</span>
+      </div>
+      <div class="detail">合计 40.0h · 无超 Booking 待审 · 已于 5/16 18:02 提交</div>
+    </div>
+    <a class="btn btn-secondary back" href="flow-submitted.html">← 返回提交成功页</a>
+  </main>
+  <script src="shared.js"></script>
+  <script>
+    const d = FlowStore.get();
+    document.getElementById('week-label').textContent = (d.week || 'W21') + ' · 2026/05/17 – 05/23';
+    document.getElementById('detail').innerHTML =
+      '合计 <strong>' + (d.totalHours || 44.5) + 'h</strong><br>' +
+      '<span class="badge badge-auto" style="margin-right:6px">自动接收 ' + (d.autoHours || 38.5) + 'h</span>' +
+      '<span class="badge badge-pending">待 PM 审 ' + (d.pendingHours || 6) + 'h</span><br>' +
+      '提交于 ' + (d.submittedAt ? new Date(d.submittedAt).toLocaleString('zh-CN') : '刚刚') +
+      ' · 本周已锁定，不可再编辑（除非 PM 驳回）';
+  </script>
+</body>
+</html>

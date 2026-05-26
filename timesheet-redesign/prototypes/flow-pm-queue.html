@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM 待接收队列</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: #f8fafc; color: #1e293b; font-size: 14px; }
+    .nav { background: #7c2d12; color: #fff; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+    .nav a { color: #fed7aa; text-decoration: none; font-size: 13px; }
+    .main { max-width: 960px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .sub { color: #64748b; margin-bottom: 24px; }
+    .project-block {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+      margin-bottom: 16px; overflow: hidden;
+    }
+    .project-head {
+      padding: 14px 20px; background: #fff7ed; border-bottom: 1px solid #fed7aa;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .row {
+      padding: 14px 20px; border-bottom: 1px solid #f1f5f9;
+      display: grid; grid-template-columns: 120px 1fr auto auto; gap: 16px; align-items: center;
+    }
+    .row:last-child { border-bottom: none; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #cbd5e1; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+    .overflow { color: #dc2626; font-weight: 700; }
+    .actions-bar { padding: 16px 20px; background: #f8fafc; display: flex; gap: 8px; }
+    .hint { margin-top: 20px; padding: 14px; background: #eff6ff; border-radius: 8px; font-size: 13px; color: #1e40af; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="flow-submitted.html">← 员工提交成功页</a>
+    <a href="index.html">原型导航</a>
+    <span style="font-weight:600;margin-left:auto">工时接收 · PM 视角</span>
+  </nav>
+  <main class="main">
+    <h1>待接收工时 · <span id="week">W21</span></h1>
+    <p class="sub">以下为员工提交后、<strong>超出 Booking</strong> 需您审批的工时（Booking 内已自动接收）</p>
+
+    <div class="project-block">
+      <div class="project-head">
+        <strong>战略运营</strong>
+        <span>阶段：项目实施 · 待接收 <strong class="overflow" id="proj-pending">4h</strong></span>
+      </div>
+      <div class="row">
+        <div><span class="avatar">王</span> 王小明</div>
+        <div>软件详细设计 · 备注：阶段评审材料整理</div>
+        <div class="overflow">待接收 4h</div>
+        <div>
+          <button class="btn btn-primary btn-accept" style="padding:6px 12px;font-size:12px">接收</button>
+          <button class="btn btn-secondary btn-reject" style="padding:6px 12px;font-size:12px">驳回</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-block">
+      <div class="project-head">
+        <strong>天人合一</strong>
+        <span>阶段：方案实施 · 待接收 <strong class="overflow">2h</strong></span>
+      </div>
+      <div class="row">
+        <div><span class="avatar">李</span> 李小红</div>
+        <div>方案实施 · 日历会议归类</div>
+        <div class="overflow">待接收 2h</div>
+        <div>
+          <button class="btn btn-primary btn-accept" style="padding:6px 12px;font-size:12px">接收</button>
+          <button class="btn btn-secondary btn-reject" style="padding:6px 12px;font-size:12px">驳回</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="batch-accept">批量接收本周全部</button>
+      <button class="btn btn-secondary" id="batch-reject">驳回整项目</button>
+    </div>
+
+    <div class="hint">
+      💡 员工在任一填报范式提交后，Booking 内工时不会出现在此队列；仅 <strong>超 Booking</strong> 部分流转到此。
+      点击「接收」后，工时写入 Actuals，员工在「我的记录」状态变为已接收。
+    </div>
+  </main>
+  <script src="shared.js"></script>
+  <script>
+    const d = FlowStore.get();
+    if (d.week) document.getElementById('week').textContent = d.week;
+    if (d.pendingHours) document.getElementById('proj-pending').textContent = Math.min(4, d.pendingHours) + 'h';
+
+    document.querySelectorAll('.btn-accept').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (await confirmDialog('确认接收', '接收后工时计入项目 Actuals，不可撤销。')) {
+          showToast('已接收，员工将收到通知', 'success');
+          btn.closest('.row').style.opacity = '.5';
+          btn.disabled = true;
+        }
+      });
+    });
+    document.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (await confirmDialog('确认驳回', '需填写驳回原因；员工可修改后重提或转日常。')) {
+          showToast('已驳回，已通知提交人', 'warn');
+        }
+      });
+    });
+    document.getElementById('batch-accept').addEventListener('click', async () => {
+      if (await confirmDialog('批量接收', '确认接收本周该项目下全部待审工时？')) {
+        showToast('批量接收成功', 'success');
+      }
+    });
+  </script>
+</body>
+</html>

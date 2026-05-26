@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>范式 C · 日历时间轴</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, "PingFang SC", sans-serif; background: #fafafa; color: #171717; font-size: 14px; }
+    .nav { background: #064e3b; color: #fff; padding: 12px 20px; display: flex; gap: 12px; align-items: center; }
+    .nav a { color: #6ee7b7; text-decoration: none; font-size: 13px; }
+    .phone-wrap { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; padding: 24px; align-items: flex-start; }
+    .phone {
+      width: 390px; background: #fff; border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12); border: 8px solid #1a1a1a;
+      overflow: hidden; position: relative; min-height: 680px;
+    }
+    .status-bar { height: 44px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .summary { padding: 12px 16px; background: #ecfdf5; display: flex; justify-content: space-between; font-size: 13px; }
+    .timeline { margin: 12px 16px 80px 48px; position: relative; min-height: 400px; border-left: 1px solid #e5e5e5; }
+    .block {
+      position: absolute; left: 8px; right: 0; border-radius: 8px; padding: 10px;
+      font-size: 12px; border-left: 4px solid; cursor: pointer; transition: .2s;
+    }
+    .block.booking { top: 20px; height: 70px; background: #dbeafe; border-color: #2563eb; }
+    .block.pending { top: 110px; height: 64px; background: #fff; border: 2px dashed #d97706; border-left: 4px solid #d97706; }
+    .block.pending.assigned { background: #d1fae5; border: 1px solid #059669; border-left: 4px solid #059669; }
+    .block.delegate { top: 200px; height: 50px; background: #fce7f3; border-color: #db2777; }
+    .fab { position: absolute; bottom: 20px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #059669; color: #fff; border: none; font-size: 24px; cursor: pointer; }
+    .submit-bar { padding: 12px 16px; border-top: 1px solid #eee; }
+    .submit-bar button { width: 100%; padding: 12px; background: #059669; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .side-note { max-width: 320px; padding: 16px; background: #1e293b; color: #fff; border-radius: 12px; font-size: 13px; line-height: 1.7; }
+    .side-note h3 { margin-bottom: 12px; font-size: 14px; }
+    .side-note ol { padding-left: 18px; }
+    .side-note li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 返回导航</a>
+    <span style="font-weight:600">范式 C · 时间轴（可交互）</span>
+  </nav>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="status-bar">周三 5/21</div>
+      <div class="summary">
+        <span>今日 <strong id="day-total">7.0h</strong></span>
+        <span id="day-status" style="color:#059669">● 1 项待分配</span>
+      </div>
+      <div class="timeline">
+        <div class="block booking"><strong>战略运营 · 软件详细设计</strong><br>9:00–12:00 · 3h · Booking</div>
+        <div class="block pending" id="meeting-block"><strong>📅 技术方案讨论会</strong><br>14:00–15:30 · 1.5h · <span id="meet-state">点击分配项目</span></div>
+        <div class="block delegate"><strong>业务方案 · 代发·李四</strong><br>16:00–17:00 · 1h</div>
+      </div>
+      <div class="submit-bar">
+        <button id="btn-submit-day">提交今日工时</button>
+      </div>
+      <button class="fab" id="fab">+</button>
+    </div>
+    <div class="side-note">
+      <h3>🖱️ 操作指引</h3>
+      <ol>
+        <li>点击 <strong>黄色虚线会议块</strong></li>
+        <li>在弹窗选择「天人合一 › 方案实施」</li>
+        <li>块变绿 = 已分配</li>
+        <li>点 <strong>提交今日工时</strong> → 进入提交成功页</li>
+      </ol>
+      <p style="margin-top:16px;opacity:.8">提交后同样进入 Booking 拆分 + PM 待审流程。</p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-pick">
+    <div class="modal-box">
+      <div class="modal-head">分配会议到项目活动</div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:#64748b;margin-bottom:12px">技术方案讨论会 · 1.5h</p>
+        <div class="activity-option selected" data-p="天人合一" data-a="方案实施">
+          <div class="name">⚡ 天人合一 › 方案实施</div>
+          <div class="path">AI 推荐 · 2h 内超 Booking 需 PM 审</div>
+        </div>
+        <div class="activity-option" data-p="战略运营" data-a="软件详细设计">
+          <div class="name">战略运营 › 软件详细设计</div>
+          <div class="path">Booking 内自动接收</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('modal-pick')">取消</button>
+        <button class="btn btn-primary" id="confirm-pick">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    let assigned = false;
+    let sel = document.querySelector('#modal-pick .activity-option.selected');
+    document.querySelectorAll('#modal-pick .activity-option').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('#modal-pick .activity-option').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected'); sel = el;
+      });
+    });
+    document.getElementById('meeting-block').addEventListener('click', () => {
+      if (!assigned) openModal('modal-pick');
+    });
+    document.getElementById('confirm-pick').addEventListener('click', () => {
+      assigned = true;
+      const b = document.getElementById('meeting-block');
+      b.classList.add('assigned');
+      b.innerHTML = '<strong>' + sel.dataset.p + ' · ' + sel.dataset.a + '</strong><br>14:00–15:30 · 1.5h · 日历 · 已分配';
+      document.getElementById('meet-state')?.remove();
+      document.getElementById('day-status').textContent = '● 已全部确认';
+      document.getElementById('day-status').style.color = '#059669';
+      closeModal('modal-pick');
+      showToast('会议已分配到 ' + sel.dataset.p, 'success');
+    });
+    document.getElementById('fab').addEventListener('click', () => showToast('打开手动添加工时弹窗', 'info'));
+    document.getElementById('btn-submit-day').addEventListener('click', async () => {
+      if (!assigned) { showToast('请先点击黄色会议块分配项目活动', 'error'); return; }
+      await submitTimesheet({ paradigm: 'C', totalHours: 7, autoHours: 4, pendingHours: 1.5, week: 'W21', unassigned: 0 });
+    });
+  </script>
+</body>
+</html>

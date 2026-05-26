@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>范式 A · 草稿确认页</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    :root {
+      --bg: #f4f6f9; --surface: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --primary: #2563eb;
+      --tag-booking: #dbeafe; --tag-delegate: #fce7f3; --tag-calendar: #d1fae5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+    .nav { background: #1e293b; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
+    .nav a { color: #94a3b8; text-decoration: none; font-size: 13px; }
+    .nav .title { font-weight: 600; color: #fff; }
+    .nav .pill { background: #3b82f6; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 48px); }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px; }
+    .sidebar h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
+    .stat { margin-bottom: 20px; }
+    .stat .num { font-size: 32px; font-weight: 700; color: var(--primary); transition: .3s; }
+    .stat .label { font-size: 12px; color: var(--muted); }
+    .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; margin: 8px 0; overflow: hidden; }
+    .progress-bar span { display: block; height: 100%; width: 85%; background: linear-gradient(90deg, #22c55e, #eab308); border-radius: 4px; transition: .3s; }
+    .main { padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .header h1 { font-size: 22px; }
+    .header .week { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hint { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #1e40af; }
+    .draft-list { display: flex; flex-direction: column; gap: 12px; }
+    .draft-row {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 20px; display: grid; grid-template-columns: 32px 1fr auto; gap: 16px; align-items: center;
+      transition: .2s;
+    }
+    .draft-row.warning { border-color: #fcd34d; background: #fffbeb; }
+    .draft-row.resolved { border-color: #86efac; background: #f0fdf4; }
+    .draft-row.unchecked { opacity: .55; }
+    .project { font-weight: 600; margin-bottom: 4px; }
+    .activity { font-size: 13px; color: var(--muted); }
+    .tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+    .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .tag-booking { background: var(--tag-booking); color: #1d4ed8; }
+    .tag-delegate { background: var(--tag-delegate); color: #be185d; }
+    .tag-calendar { background: var(--tag-calendar); color: #047857; }
+    .hours .total { font-size: 24px; font-weight: 700; text-align: right; }
+    .hours .days { font-size: 11px; color: var(--muted); margin-top: 4px; text-align: right; }
+    .grid-view { display: none; background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; margin-top: 16px; }
+    .grid-view.show { display: block; }
+    .grid-view table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 13px; }
+    .grid-view th, .grid-view td { border: 1px solid var(--border); padding: 8px; text-align: center; }
+    .grid-view th { background: #f8fafc; }
+    .grid-view td:first-child { text-align: left; }
+    .step-bar { display: flex; gap: 8px; margin-bottom: 16px; font-size: 12px; }
+    .step-bar span { padding: 4px 10px; border-radius: 20px; background: #e2e8f0; color: #64748b; }
+    .step-bar span.active { background: #2563eb; color: #fff; }
+    .step-bar span.done { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 返回导航</a>
+    <span class="title">范式 A · 草稿确认页</span>
+    <span class="pill">可交互 · 点「选择活动」→ 提交</span>
+  </nav>
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>本周概览 W21</h3>
+      <div class="stat">
+        <div class="num" id="stat-total">42.5h</div>
+        <div class="label">已选工时合计</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="stat-pending" style="color:#d97706">2.0h</div>
+        <div class="label">待分配活动</div>
+      </div>
+      <div class="progress-bar"><span id="progress"></span></div>
+      <div class="step-bar" style="flex-direction:column;gap:6px;margin-top:16px">
+        <span id="step1" class="active">① 确认草稿行</span>
+        <span id="step2">② 处理未分配</span>
+        <span id="step3">③ 提交</span>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <div>
+          <h1>我的本周 · 草稿确认</h1>
+          <div class="week">2026/05/17 – 2026/05/23</div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" id="btn-add">+ 手动添加</button>
+          <button class="btn btn-secondary" id="btn-grid">切换表格视图</button>
+          <button class="btn btn-primary" id="btn-submit">✓ 确认并提交本周</button>
+        </div>
+      </div>
+      <div class="hint">
+        🖱️ <strong>试试：</strong>点击黄色行的「选择项目活动」→ 选「天人合一」→ 再点「确认并提交」→ 查看提交后流转页面。
+      </div>
+      <div class="draft-list" id="draft-list">
+        <div class="draft-row" data-hours="16" data-auto="16" data-pending="0">
+          <input type="checkbox" checked class="row-check">
+          <div>
+            <div class="project">战略运营</div>
+            <div class="activity">项目实施 · 软件详细设计</div>
+            <div class="tags"><span class="tag tag-booking">Booking · 自动接收</span></div>
+          </div>
+          <div class="hours"><div class="total">16h</div><div class="days">一8 · 二8</div></div>
+        </div>
+        <div class="draft-row" data-hours="8" data-auto="6" data-pending="2">
+          <input type="checkbox" checked class="row-check">
+          <div>
+            <div class="project">业务方案 · 日常工作</div>
+            <div class="activity">后台系统 · 需求分析</div>
+            <div class="tags"><span class="tag tag-delegate">代发 · 李四</span><span class="tag" style="background:#fef3c7;color:#92400e">2h 超 Booking 待 PM 审</span></div>
+          </div>
+          <div class="hours"><div class="total">8h</div><div class="days">三4 · 四4</div></div>
+        </div>
+        <div class="draft-row warning" id="unassigned-row" data-hours="2" data-unassigned="1">
+          <input type="checkbox" class="row-check">
+          <div>
+            <div class="project" id="unassigned-title">⚠ 未分配活动</div>
+            <div class="activity" id="unassigned-desc">日历：技术方案讨论会 · 5/21 14:00–16:00</div>
+            <div class="tags">
+              <span class="tag tag-calendar">日历</span>
+              <span class="tag" style="background:#fef3c7;color:#92400e" id="ai-suggest">AI 建议：天人合一 › 方案实施</span>
+              <button class="btn btn-secondary" id="btn-pick-activity" style="padding:4px 10px;font-size:11px;margin-top:4px">选择项目活动 ▼</button>
+            </div>
+          </div>
+          <div class="hours"><div class="total">2h</div><div class="days">三 2h</div></div>
+        </div>
+        <div class="draft-row" data-hours="16.5" data-auto="14.5" data-pending="2">
+          <input type="checkbox" checked class="row-check">
+          <div>
+            <div class="project">IPD 芯片开发</div>
+            <div class="activity">概念阶段 · 专利检索</div>
+            <div class="tags"><span class="tag tag-booking">Booking</span></div>
+          </div>
+          <div class="hours"><div class="total">16.5h</div><div class="days">三8 · 四4.5 · 五4</div></div>
+        </div>
+      </div>
+      <div class="grid-view" id="grid-view">
+        <table>
+          <thead><tr><th>项目 / 活动</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>合计</th></tr></thead>
+          <tbody id="grid-body"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- 选择活动弹窗 -->
+  <div class="modal-overlay" id="modal-activity">
+    <div class="modal-box">
+      <div class="modal-head">选择项目活动</div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:#64748b;margin-bottom:16px">为日历事件「技术方案讨论会 · 2h」指定项目活动（植物大战僵尸规则过滤后）</p>
+        <div class="activity-option selected" data-project="天人合一" data-activity="方案实施" data-auto="0" data-pending="2">
+          <div class="name">⚡ AI 推荐</div>
+          <div class="path">天人合一 › 方案实施 · 2h 将全部超 Booking，需 PM 审批</div>
+        </div>
+        <div class="activity-option" data-project="战略运营" data-activity="软件详细设计" data-auto="2" data-pending="0">
+          <div class="name">战略运营 › 项目实施</div>
+          <div class="path">软件详细设计 · Booking 内 2h 自动接收</div>
+        </div>
+        <div class="activity-option" data-project="IPD 芯片开发" data-activity="专利检索" data-auto="0" data-pending="2">
+          <div class="name">IPD 芯片开发 › 概念阶段</div>
+          <div class="path">专利检索 · 2h 超 Booking</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('modal-activity')">取消</button>
+        <button class="btn btn-primary" id="confirm-activity">确认选择</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    let unassigned = 2;
+    let selectedOption = document.querySelector('.activity-option.selected');
+
+    document.querySelectorAll('.activity-option').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.activity-option').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedOption = el;
+      });
+    });
+
+    document.getElementById('btn-pick-activity').addEventListener('click', () => openModal('modal-activity'));
+
+    document.getElementById('confirm-activity').addEventListener('click', () => {
+      if (!selectedOption) return;
+      const proj = selectedOption.dataset.project;
+      const act = selectedOption.dataset.activity;
+      const row = document.getElementById('unassigned-row');
+      row.classList.remove('warning');
+      row.classList.add('resolved');
+      row.dataset.unassigned = '0';
+      row.dataset.auto = selectedOption.dataset.auto;
+      row.dataset.pending = selectedOption.dataset.pending;
+      document.getElementById('unassigned-title').textContent = proj;
+      document.getElementById('unassigned-desc').textContent = act + ' · 来自日历：技术方案讨论会';
+      document.getElementById('ai-suggest').remove();
+      document.getElementById('btn-pick-activity').remove();
+      row.querySelector('.row-check').checked = true;
+      const tag = document.createElement('span');
+      tag.className = 'tag tag-calendar';
+      tag.textContent = '日历 · 已分配';
+      row.querySelector('.tags').appendChild(tag);
+      if (+selectedOption.dataset.pending > 0) {
+        const t2 = document.createElement('span');
+        t2.className = 'tag';
+        t2.style.cssText = 'background:#fef3c7;color:#92400e';
+        t2.textContent = selectedOption.dataset.pending + 'h 待 PM 审';
+        row.querySelector('.tags').appendChild(t2);
+      } else {
+        const t2 = document.createElement('span');
+        t2.className = 'tag tag-booking';
+        t2.textContent = 'Booking · 自动接收';
+        row.querySelector('.tags').appendChild(t2);
+      }
+      unassigned = 0;
+      updateStats();
+      closeModal('modal-activity');
+      showToast('已分配到「' + proj + ' › ' + act + '」', 'success');
+      document.getElementById('step2').className = 'done';
+      document.getElementById('step2').textContent = '② 未分配已处理 ✓';
+    });
+
+    function updateStats() {
+      let total = 0, auto = 0, pending = 0;
+      document.querySelectorAll('.draft-row').forEach(row => {
+        if (!row.querySelector('.row-check').checked) { row.classList.add('unchecked'); return; }
+        row.classList.remove('unchecked');
+        const h = +row.dataset.hours || 0;
+        total += h;
+        if (row.dataset.unassigned === '1') return;
+        auto += +(row.dataset.auto || 0);
+        pending += +(row.dataset.pending || 0);
+      });
+      document.getElementById('stat-total').textContent = total.toFixed(1) + 'h';
+      document.getElementById('stat-pending').textContent = unassigned + 'h';
+      document.getElementById('stat-pending').style.color = unassigned ? '#d97706' : '#059669';
+      document.getElementById('progress').style.width = Math.min(100, (total / 40) * 100) + '%';
+      window._flowTotals = { total, auto, pending, unassigned };
+    }
+
+    document.querySelectorAll('.row-check').forEach(cb => cb.addEventListener('change', updateStats));
+
+    document.getElementById('btn-grid').addEventListener('click', () => {
+      const g = document.getElementById('grid-view');
+      g.classList.toggle('show');
+      if (g.classList.contains('show')) {
+        document.getElementById('grid-body').innerHTML = `
+          <tr><td>战略运营 · 软件详细设计</td><td>8</td><td>8</td><td>—</td><td>—</td><td>—</td><td>16</td></tr>
+          <tr><td>业务方案 · 需求分析</td><td>—</td><td>—</td><td>4</td><td>4</td><td>—</td><td>8</td></tr>
+          <tr><td id="grid-unassigned">未分配 / 待选</td><td>—</td><td>—</td><td>2</td><td>—</td><td>—</td><td>2</td></tr>
+          <tr><td>IPD · 专利检索</td><td>—</td><td>—</td><td>8</td><td>4.5</td><td>4</td><td>16.5</td></tr>`;
+        showToast('表格视图与列表数据同步（演示）', 'info');
+      }
+    });
+
+    document.getElementById('btn-add').addEventListener('click', () => {
+      showToast('打开手动添加向导：选项目 → 选活动 → 填小时', 'info');
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      updateStats();
+      const t = window._flowTotals || {};
+      if (unassigned > 0) {
+        showToast('请先为黄色「未分配活动」选择项目活动', 'error');
+        document.getElementById('unassigned-row').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      document.getElementById('step3').className = 'done';
+      await submitTimesheet({
+        paradigm: 'A',
+        totalHours: t.total || 42.5,
+        autoHours: t.auto || 36.5,
+        pendingHours: t.pending || 6,
+        week: 'W21',
+        unassigned: 0
+      });
+    });
+
+    updateStats();
+  </script>
+</body>
+</html>

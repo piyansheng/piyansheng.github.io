@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提交成功 · 工时流转</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    :root { --bg: #f0fdf4; --text: #1e293b; --muted: #64748b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .nav { background: #065f46; color: #fff; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+    .nav a { color: #a7f3d0; text-decoration: none; font-size: 13px; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
+    .success-icon {
+      width: 72px; height: 72px; background: #22c55e; color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 36px; margin-bottom: 20px;
+    }
+    h1 { font-size: 26px; margin-bottom: 8px; }
+    .sub { color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+    .flow-steps {
+      display: flex; gap: 0; margin-bottom: 32px; background: #fff;
+      border-radius: 12px; border: 1px solid #bbf7d0; overflow: hidden;
+    }
+    .step {
+      flex: 1; padding: 16px; text-align: center; font-size: 12px;
+      border-right: 1px solid #e2e8f0; position: relative;
+    }
+    .step:last-child { border-right: none; }
+    .step.done { background: #ecfdf5; color: #065f46; font-weight: 600; }
+    .step.current { background: #fef3c7; color: #92400e; font-weight: 600; }
+    .step.pending { color: #94a3b8; }
+    .step .num {
+      display: inline-block; width: 24px; height: 24px; line-height: 24px;
+      border-radius: 50%; background: #22c55e; color: #fff; font-size: 11px; margin-bottom: 6px;
+    }
+    .step.current .num { background: #f59e0b; }
+    .step.pending .num { background: #cbd5e1; color: #64748b; }
+    .cards { display: grid; gap: 16px; margin-bottom: 32px; }
+    .card {
+      background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0;
+    }
+    .card h3 { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .val { font-weight: 700; }
+    .auto { color: #059669; }
+    .pending { color: #d97706; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .note { margin-top: 24px; padding: 16px; background: #eff6ff; border-radius: 8px; font-size: 13px; color: #1e40af; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 原型导航</a>
+    <span style="font-weight:600">提交成功 · 后续流转</span>
+  </nav>
+  <div class="wrap">
+    <div class="success-icon">✓</div>
+    <h1 id="title">本周工时已提交</h1>
+    <p class="sub" id="subtitle">加载中…</p>
+
+    <div class="flow-steps">
+      <div class="step done"><div class="num">1</div>员工提交</div>
+      <div class="step done"><div class="num">2</div>Booking 内自动接收</div>
+      <div class="step current"><div class="num">3</div>超 Booking 待 PM 审</div>
+      <div class="step pending"><div class="num">4</div>计入 Actuals</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>📊 本次提交拆分</h3>
+        <div class="stat-row"><span>本周合计</span><span class="val" id="total">—</span></div>
+        <div class="stat-row"><span>Booking 内 · 自动接收</span><span class="val auto" id="auto">—</span></div>
+        <div class="stat-row"><span>超 Booking · 待 PM 审批</span><span class="val pending" id="pending">—</span></div>
+        <div class="stat-row"><span>提交时间</span><span id="time">—</span></div>
+      </div>
+      <div class="card">
+        <h3>🔔 接下来会发生什么</h3>
+        <div class="stat-row"><span>你的视角</span><span>可在「我的记录」查看状态；已提交周不可再编辑</span></div>
+        <div class="stat-row"><span>PM 视角</span><span>待接收队列出现 <strong id="pm-pending">—</strong>，需审批或驳回</span></div>
+        <div class="stat-row"><span>系统</span><span>Booking 内工时即时写入已接收 Actuals</span></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="flow-personal-records.html">查看我的工时记录 →</a>
+      <a class="btn btn-secondary" href="flow-pm-queue.html">模拟 PM 待接收队列 →</a>
+      <a class="btn btn-secondary" id="back-paradigm" href="index.html">返回填报原型</a>
+    </div>
+
+    <div class="note" id="paradigm-note"></div>
+  </div>
+  <script src="shared.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const from = params.get('from') || FlowStore.get().paradigm || 'A';
+    const data = FlowStore.get();
+    const names = { A: '范式 A · 草稿确认', B: '范式 B · Assist+Grid', C: '范式 C · 时间轴', D: '范式 D · 卡片', E: '范式 E · Bot' };
+    const links = {
+      A: 'paradigm-a-draft-review.html',
+      B: 'paradigm-b-assist-grid.html',
+      C: 'paradigm-c-timeline.html',
+      D: 'paradigm-d-card-mywork.html',
+      E: 'paradigm-e-bot-chat.html'
+    };
+
+    document.getElementById('title').textContent = (data.week || 'W21') + ' 工时已提交';
+    document.getElementById('subtitle').textContent =
+      '你通过「' + (names[from] || from) + '」完成提交。系统已按 Booking 规则拆分自动接收与待审批工时。';
+    document.getElementById('total').textContent = (data.totalHours || 44.5) + 'h';
+    document.getElementById('auto').textContent = (data.autoHours || 38.5) + 'h';
+    document.getElementById('pending').textContent = (data.pendingHours || 6) + 'h';
+    document.getElementById('pm-pending').textContent = (data.pendingHours || 6) + 'h';
+    document.getElementById('time').textContent = data.submittedAt
+      ? new Date(data.submittedAt).toLocaleString('zh-CN') : new Date().toLocaleString('zh-CN');
+    document.getElementById('back-paradigm').href = links[from] || 'index.html';
+    document.getElementById('paradigm-note').innerHTML =
+      '💡 <strong>交互演示：</strong>这是员工点击「提交」后进入的页面。真实系统中，Booking 内工时秒级自动接收；超 Booking 部分进入 PM「待接收」队列，与 <a href="flow-pm-queue.html">PM 审批页</a> 联动。';
+  </script>
+</body>
+</html>

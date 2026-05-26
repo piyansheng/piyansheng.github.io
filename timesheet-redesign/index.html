@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工时周报重构方案 · 预览导航</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: #0a1628; color: #fff; min-height: 100vh;
+      padding: 24px clamp(16px, 3vw, 48px);
+    }
+    h1 {
+      font-size: 22px; font-weight: 700; margin-bottom: 6px;
+      background: linear-gradient(90deg, #00d4ff, #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 20px; line-height: 1.55; }
+    .panel {
+      background: #162a47; border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 6px; padding: 14px 16px; margin-bottom: 12px;
+    }
+    .panel h2 {
+      font-size: 13px; color: #00d4ff; margin-bottom: 10px;
+      padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .links { display: grid; gap: 8px; }
+    a {
+      display: block; padding: 10px 12px; border-radius: 4px;
+      background: rgba(15,29,50,0.9); border: 1px solid rgba(0,212,255,0.12);
+      color: rgba(255,255,255,0.88); text-decoration: none; font-size: 13px;
+      transition: border-color .15s, background .15s;
+    }
+    a:hover { border-color: rgba(0,212,255,0.35); background: rgba(0,212,255,0.06); }
+    a .title { font-weight: 700; color: #fff; margin-bottom: 2px; }
+    a .desc { font-size: 11px; color: rgba(255,255,255,0.5); }
+    .tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 999px; margin-left: 6px;
+      color: #00e5a0; background: rgba(0,229,160,0.12);
+      border: 1px solid rgba(0,229,160,0.25);
+    }
+    footer { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.35); text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>工时周报系统重构 · 方案预览</h1>
+  <p class="sub">RIGOL 工时智能化重构 — 业务流程汇报与 UX 范式原型（2026-05-26）</p>
+
+  <div class="panel">
+    <h2>汇报材料</h2>
+    <div class="links">
+      <a href="汇报-工时数据流与业务流程.html">
+        <div class="title">数据预填与业务流程全景图 <span class="tag">汇报</span></div>
+        <div class="desc">五路预填 → Draft Engine → 员工确认 → PM/预算 → Actuals</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>UX 范式原型（可交互）</h2>
+    <div class="links">
+      <a href="prototypes/index.html">
+        <div class="title">原型导航入口 <span class="tag">从这里开始</span></div>
+        <div class="desc">五种填报 UX 范式 + 提交后流转页</div>
+      </a>
+      <a href="prototypes/paradigm-a-draft-review.html">
+        <div class="title">范式 A · 草稿确认页（主推荐）</div>
+      </a>
+      <a href="prototypes/paradigm-b-assist-grid.html">
+        <div class="title">范式 B · Assist 弹窗 + Grid</div>
+      </a>
+      <a href="prototypes/paradigm-c-timeline.html">
+        <div class="title">范式 C · 日历时间轴</div>
+      </a>
+      <a href="prototypes/paradigm-d-card-mywork.html">
+        <div class="title">范式 D · 卡片 My Work</div>
+      </a>
+      <a href="prototypes/paradigm-e-bot-chat.html">
+        <div class="title">范式 E · Bot 对话记工</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>提交流转演示</h2>
+    <div class="links">
+      <a href="prototypes/flow-submitted.html">
+        <div class="title">提交成功页</div>
+        <div class="desc">Booking 内/外拆分说明</div>
+      </a>
+      <a href="prototypes/flow-personal-records.html">
+        <div class="title">个人记录查询</div>
+      </a>
+      <a href="prototypes/flow-pm-queue.html">
+        <div class="title">PM 超 Booking 待审批队列</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>RIGOL · timesheet-redesign preview</footer>
+</body>
+</html>

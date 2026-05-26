@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>范式 B · Assist 弹窗 + Grid</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    :root { --bg: #eef1f5; --surface: #fff; --border: #d1d9e6; --text: #2c3e50; --primary: #0066cc; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: var(--bg); color: var(--text); font-size: 13px; }
+    .nav { background: #003d6b; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
+    .nav a { color: #93c5fd; text-decoration: none; font-size: 13px; }
+    .app { padding: 16px 24px; transition: filter .3s; }
+    .app.blur { filter: blur(2px) brightness(.9); pointer-events: none; }
+    .toolbar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+    .toolbar button { padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    .toolbar button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .toolbar button:disabled { opacity: .4; cursor: not-allowed; }
+    .status-pill { margin-left: auto; font-size: 12px; padding: 4px 12px; background: #fef3c7; border-radius: 20px; color: #92400e; }
+    .status-pill.ready { background: #dcfce7; color: #166534; }
+    .grid-wrap { background: var(--surface); border: 1px solid var(--border); overflow-x: auto; min-height: 200px; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: center; }
+    th { background: #f0f4f8; font-weight: 600; }
+    th:first-child, td:first-child { text-align: left; min-width: 200px; }
+    td input { width: 48px; text-align: center; border: 1px solid #ccc; padding: 4px; border-radius: 3px; }
+    .weekend { background: #f8f9fa; color: #999; }
+    .total-row { background: #fff8e6; font-weight: 600; }
+    .empty-msg { padding: 40px; text-align: center; color: #94a3b8; }
+    .modal-header { background: linear-gradient(135deg, #0066cc, #004999); color: #fff; padding: 20px 24px; }
+    .modal-header h2 { font-size: 18px; margin-bottom: 4px; }
+    .suggest-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; cursor: pointer; }
+    .suggest-item:hover { border-color: var(--primary); background: #f0f7ff; }
+    .hint-fixed { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 50; max-width: 90%; text-align: center; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 返回导航</a>
+    <span style="font-weight:600">范式 B · Assist + Grid</span>
+    <span style="margin-left:auto;font-size:12px;opacity:.8">可交互</span>
+  </nav>
+
+  <div class="app blur" id="app">
+    <div class="toolbar">
+      <button id="btn-submit" disabled>提交工时单</button>
+      <button>复制上周</button>
+      <button id="btn-assist">打开 Assist</button>
+      <span class="status-pill" id="status">等待 Assist 添加行…</span>
+    </div>
+    <div class="grid-wrap">
+      <div class="empty-msg" id="empty-msg">工时表为空 — 请先从 Assist 添加推荐项目</div>
+      <table id="grid-table" style="display:none">
+        <thead>
+          <tr><th>项目 / 阶段 / 任务</th><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th><th>合计</th></tr>
+        </thead>
+        <tbody id="grid-body"></tbody>
+        <tfoot>
+          <tr class="total-row" id="total-row"></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-overlay open" id="modal-assist">
+    <div class="modal-box" style="max-width:560px">
+      <div class="modal-header">
+        <h2>⏱ Timesheet Assist</h2>
+        <p style="font-size:13px;opacity:.9">W21 · 截止 5/23 · 还有 3 天</p>
+      </div>
+      <div class="modal-body" style="padding:20px 24px">
+        <p style="font-size:12px;color:#64748b;margin-bottom:12px">📅 5/19 非工作日 · 🏖 5/20 年假</p>
+        <label class="suggest-item"><input type="checkbox" checked data-name="战略运营 › 软件详细设计" data-hours="16"> <div><strong>战略运营 › 软件详细设计</strong><br><small>Booking 计划</small></div></label>
+        <label class="suggest-item"><input type="checkbox" checked data-name="IPD › 专利检索" data-hours="16.5"> <div><strong>IPD › 专利检索</strong><br><small>上一张工时单</small></div></label>
+        <label class="suggest-item"><input type="checkbox" data-name="业务方案 › 需求分析" data-hours="8"> <div><strong>业务方案 › 需求分析</strong><br><small>近 30 天费用行</small></div></label>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" id="btn-snooze">稍后 · 空白表格</button>
+        <button class="btn btn-primary" id="btn-add-selected">添加所选到工时单 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint-fixed" id="hint">🖱️ 勾选项目 →「添加所选」→ 在 Grid 微调 →「提交工时单」</div>
+
+  <script src="shared.js"></script>
+  <script>
+    const app = document.getElementById('app');
+    const gridBody = document.getElementById('grid-body');
+    let rows = [];
+
+    function renderGrid() {
+      if (!rows.length) return;
+      document.getElementById('empty-msg').style.display = 'none';
+      document.getElementById('grid-table').style.display = '';
+      gridBody.innerHTML = rows.map((r, i) => `
+        <tr><td>${r.name}</td>
+        ${[0,8,8,4,4,0,0].map((v,j) => `<td class="${j===0||j===6?'weekend':''}"><input value="${i===0&&j<3?v: i===1&&j>=3?v:0}" onchange="recalc()"></td>`).join('')}
+        <td>${r.hours}</td></tr>`).join('');
+      document.getElementById('total-row').innerHTML = '<td>日合计</td>' + Array(7).fill(0).map(()=>'<td>—</td>').join('') + `<td>${rows.reduce((s,r)=>s+r.hours,0)}</td>`;
+      document.getElementById('btn-submit').disabled = false;
+      document.getElementById('status').textContent = '已添加 ' + rows.length + ' 行 · 可提交';
+      document.getElementById('status').className = 'status-pill ready';
+    }
+
+    document.getElementById('btn-add-selected').addEventListener('click', () => {
+      rows = [];
+      document.querySelectorAll('.suggest-item input:checked').forEach(cb => {
+        rows.push({ name: cb.dataset.name, hours: +cb.dataset.hours });
+      });
+      closeModal('modal-assist');
+      app.classList.remove('blur');
+      renderGrid();
+      showToast('已添加 ' + rows.length + ' 行到工时表，可在表格中微调', 'success');
+      document.getElementById('hint').textContent = '✓ 行已加入 — 点击「提交工时单」查看后续流转';
+    });
+
+    document.getElementById('btn-snooze').addEventListener('click', () => {
+      closeModal('modal-assist');
+      app.classList.remove('blur');
+      showToast('已进入空白表格模式（演示未填充）', 'warn');
+    });
+
+    document.getElementById('btn-assist').addEventListener('click', () => openModal('modal-assist'));
+
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const total = rows.reduce((s,r) => s + r.hours, 0);
+      await submitTimesheet({ paradigm: 'B', totalHours: total, autoHours: total * 0.85, pendingHours: total * 0.15, week: 'W21', unassigned: 0 });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>范式 D · 卡片 My Work</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    :root { --jira-blue: #0052cc; --ai-purple: #6554c0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: #f4f5f7; color: #172b4d; font-size: 14px; }
+    .nav { background: var(--jira-blue); color: #fff; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
+    .nav a { color: #deebff; text-decoration: none; font-size: 13px; }
+    .shell { display: grid; grid-template-columns: 200px 1fr; min-height: calc(100vh - 48px); }
+    .sidebar { background: #0747a6; color: #fff; padding: 16px; }
+    .sidebar nav div { padding: 10px 12px; border-radius: 4px; margin-bottom: 4px; font-size: 13px; opacity: .85; }
+    .sidebar nav div.active { background: rgba(255,255,255,.15); opacity: 1; font-weight: 600; }
+    .main { padding: 24px 32px 100px; max-width: 720px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #5e6c84; text-transform: uppercase; margin: 20px 0 12px; }
+    .card {
+      background: #fff; border: 1px solid #dfe1e6; border-radius: 8px; padding: 16px;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 16px;
+    }
+    .card.ai { border-left: 4px solid var(--ai-purple); }
+    .card-body { flex: 1; }
+    .card-body .key { font-size: 12px; color: var(--jira-blue); font-weight: 600; }
+    .card-body .summary { font-weight: 500; margin: 4px 0; }
+    .card-body .meta { font-size: 12px; color: #5e6c84; }
+    .card-action { padding: 8px 16px; border-radius: 6px; border: none; background: var(--jira-blue); color: #fff; font-weight: 600; cursor: pointer; }
+    .card-action.done { background: #e3fcef; color: #006644; cursor: default; }
+    .batch-bar {
+      position: fixed; bottom: 0; left: 200px; right: 0; background: #fff;
+      border-top: 1px solid #dfe1e6; padding: 16px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #logged-section { min-height: 40px; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">← 返回导航</a>
+    <span style="font-weight:600">范式 D · My Work（可交互）</span>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div style="font-weight:700;margin-bottom:20px">Tempo</div>
+      <nav><div class="active">My Work</div><div>Timesheet</div></nav>
+    </aside>
+    <div>
+      <main class="main">
+        <h1 style="font-size:22px;margin-bottom:4px">My Work · 5/21</h1>
+        <p style="color:#5e6c84;margin-bottom:16px" id="summary-text">建议 3 条 · 已记录 1 条 · 合计 2h</p>
+        <div class="section-label">⚡ AI 建议 — 点击 Log 记工</div>
+        <div id="suggest-list">
+          <div class="card ai" data-hours="1.5" data-title="天人合一 › 方案实施">
+            <div class="card-body"><div class="key">日历 14:00–15:30</div><div class="summary">技术方案讨论会</div><div class="meta">建议 1.5h</div></div>
+            <button class="card-action btn-log">Log 1.5h</button>
+          </div>
+          <div class="card ai" data-hours="2" data-title="RIGOL-2847 修复登录">
+            <div class="card-body"><div class="key">Jira</div><div class="summary">修复登录模块超时</div><div class="meta">建议 2h</div></div>
+            <button class="card-action btn-log">Log 2h</button>
+          </div>
+          <div class="card ai" data-hours="3" data-title="战略运营 · 软件详设">
+            <div class="card-body"><div class="key">VS Code 上午</div><div class="summary">战略运营 · 软件详细设计</div><div class="meta">建议 3h</div></div>
+            <button class="card-action btn-log">Log 3h</button>
+          </div>
+        </div>
+        <div class="section-label">已记录</div>
+        <div id="logged-section">
+          <div class="card"><div class="card-body"><div class="key">代发 · 李四</div><div class="summary">业务方案 · 需求分析</div><div class="meta">1h · 16:00</div></div><button class="card-action done">已记录</button></div>
+        </div>
+      </main>
+      <div class="batch-bar">
+        <span id="batch-info">待 Log 6.5h · 已记录 1h</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" id="log-all">Log all</button>
+          <button class="btn btn-primary" id="submit-week">Submit week →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+  <script>
+    let logged = 1, pending = 6.5;
+    function refresh() {
+      document.getElementById('batch-info').textContent = '待 Log ' + pending.toFixed(1) + 'h · 已记录 ' + logged + 'h';
+      document.getElementById('summary-text').textContent = '建议 ' + document.querySelectorAll('#suggest-list .card').length + ' 条 · 已记录 ' + logged + 'h';
+    }
+    function logCard(card) {
+      const h = +card.dataset.hours;
+      pending -= h; logged += h;
+      const clone = card.cloneNode(true);
+      clone.classList.remove('ai');
+      clone.querySelector('.btn-log').textContent = '已记录';
+      clone.querySelector('.btn-log').className = 'card-action done';
+      clone.querySelector('.btn-log').disabled = true;
+      document.getElementById('logged-section').appendChild(clone);
+      card.remove();
+      refresh();
+      showToast('已记录 ' + h + 'h · ' + card.dataset.title, 'success');
+    }
+    document.querySelectorAll('.btn-log').forEach(btn => {
+      btn.addEventListener('click', () => logCard(btn.closest('.card')));
+    });
+    document.getElementById('log-all').addEventListener('click', () => {
+      [...document.querySelectorAll('#suggest-list .card')].forEach(logCard);
+      showToast('已全部 Log', 'success');
+    });
+    document.getElementById('submit-week').addEventListener('click', async () => {
+      if (pending > 0 && !await confirmDialog('还有未 Log 建议', '仍有 ' + pending.toFixed(1) + 'h 建议未记录，确定提交？')) return;
+      await submitTimesheet({ paradigm: 'D', totalHours: logged + pending, autoHours: logged * 0.7, pendingHours: logged * 0.3 + pending * 0.5, week: 'W21', unassigned: 0 });
+    });
+    refresh();
+  </script>
+</body>
+</html>
