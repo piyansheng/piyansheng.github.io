@@ -470,12 +470,58 @@
       height: 2px; margin: 0 8%;
       background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
     }
+
+    /* 周报联动 */
+    .dual-track {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 900px) { .dual-track { grid-template-columns: 1fr; } }
+    .track-box {
+      background: rgba(15, 29, 50, 0.6);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 6px; padding: 10px 12px;
+    }
+    .track-box.report { border-color: rgba(167,139,250,0.25); }
+    .track-head {
+      font-size: 11px; font-weight: 700; margin-bottom: 8px;
+      padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .track-box.timesheet .track-head { color: #00d4ff; }
+    .track-box.report .track-head { color: #a78bfa; }
+    .track-list { font-size: 11px; color: rgba(255,255,255,0.62); line-height: 1.55; padding-left: 14px; }
+    .track-list li { margin-bottom: 3px; }
+    .merge-submit {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      flex-wrap: wrap; margin-top: 10px; padding: 10px;
+      background: rgba(167,139,250,0.08);
+      border: 1px dashed rgba(167,139,250,0.35);
+      border-radius: 6px;
+    }
+    .merge-submit .ms-label { font-size: 12px; font-weight: 700; color: #a78bfa; }
+    .merge-submit .ms-arrow { color: rgba(255,255,255,0.35); }
+    .wr-sections {
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;
+    }
+    @media (max-width: 900px) { .wr-sections { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .wr-sections { grid-template-columns: 1fr; } }
+    .wr-sec {
+      background: #0f1d32; border-radius: 5px; padding: 8px;
+      border: 1px solid rgba(255,255,255,0.06); min-height: 72px;
+    }
+    .wr-sec.key { border-color: rgba(167,139,250,0.35); background: rgba(167,139,250,0.06); }
+    .wr-sec .wr-num { font-size: 10px; font-weight: 700; color: #a78bfa; margin-bottom: 4px; }
+    .wr-sec .wr-title { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 4px; }
+    .wr-sec .wr-rule { font-size: 10px; color: rgba(255,193,7,0.85); }
+    .wr-sec .wr-fields { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 4px; line-height: 1.4; }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="banner">
-      <strong>RIGOL · 工时周报系统重构</strong> · 目标方案 · 多源预填草稿汇聚后人工确认再提交
+      <strong>RIGOL · 工时周报系统重构</strong> · 目标方案 · 工时与 RIGOL 周报一并提交
     </div>
 
     <nav class="dash-nav">
@@ -490,7 +536,7 @@
     <header class="header">
       <h1>工时数据预填与业务流程全景图</h1>
       <p class="subtitle">
-        新重构方案下的完整链路：五路数据预填汇入 Draft Engine，员工确认提交后，
+        新重构方案下的完整链路：五路数据预填汇入 Draft Engine，员工确认工时并填写 RIGOL 周报后一并提交，
         经 Booking 分流、PM 审批与预算校验，最终写入 Actuals。
       </p>
     </header>
@@ -507,7 +553,7 @@
       </div>
       <div class="legend-card">
         <div class="label">人工环节</div>
-        <div class="desc">调整工时 · 确认预填 · 驳回 / 调低代发</div>
+        <div class="desc">调整工时 · 填写周报 · 确认后一并提交</div>
       </div>
       <div class="legend-card">
         <div class="label">规则与审批</div>
@@ -519,7 +565,7 @@
     <div class="macro-flow" aria-label="章节逻辑顺序">
       <a class="macro-node" href="#prefill">① 预填来源</a>
       <span class="macro-arrow">→</span>
-      <a class="macro-node" href="#employee">② 员工确认提交</a>
+      <a class="macro-node" href="#employee">② 工时+周报提交</a>
       <span class="macro-arrow">→</span>
       <a class="macro-node" href="#pm">③ PM / 预算</a>
       <span class="macro-arrow">→</span>
@@ -626,36 +672,94 @@
     <section class="panel" id="employee">
       <div class="panel-title">
         <span class="num">2</span>
-        员工侧：预填 → 人工调整 → 确认提交
-        <span class="hint">草稿不是空白表</span>
+        员工侧：工时确认 + RIGOL 周报 · 一并提交
+        <span class="hint">工时草稿 + 周报同流程</span>
       </div>
+
+      <div class="dual-track">
+        <div class="track-box timesheet">
+          <div class="track-head">A · 本周工时（Draft Engine 草稿）</div>
+          <ul class="track-list">
+            <li>打开预填行：Booking / 代发 / 考勤 / CRM / 行为建议</li>
+            <li>人工调整小时数、备注；代发行可查看明细、调低</li>
+            <li>校验：0.5h 步进、24h/日上限、重复检测</li>
+          </ul>
+        </div>
+        <div class="track-box report">
+          <div class="track-head">B · RIGOL 周报（与工时同次提交）</div>
+          <ul class="track-list">
+            <li>一、上周重要工作进展回顾 — <strong style="color:#ffc107">限 3 项</strong></li>
+            <li>二、本周工作计划 — <strong style="color:#ffc107">限 3 项</strong></li>
+            <li>三～五、支持需求 / 建议说明 / 附件（选填）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="wr-sections" style="margin-bottom:10px">
+        <div class="wr-sec key">
+          <div class="wr-num">一</div>
+          <div class="wr-title">上周重要工作进展回顾</div>
+          <div class="wr-rule">限三项</div>
+          <div class="wr-fields">工作描述 + 进展说明</div>
+        </div>
+        <div class="wr-sec key">
+          <div class="wr-num">二</div>
+          <div class="wr-title">本周工作计划</div>
+          <div class="wr-rule">限三项</div>
+          <div class="wr-fields">计划工作描述</div>
+        </div>
+        <div class="wr-sec">
+          <div class="wr-num">三</div>
+          <div class="wr-title">需要的支持/帮助/资源</div>
+          <div class="wr-fields">选填</div>
+        </div>
+        <div class="wr-sec">
+          <div class="wr-num">四</div>
+          <div class="wr-title">工作建议及其他说明</div>
+          <div class="wr-fields">选填</div>
+        </div>
+        <div class="wr-sec">
+          <div class="wr-num">五</div>
+          <div class="wr-title">周报附件</div>
+          <div class="wr-fields">选填</div>
+        </div>
+      </div>
+
       <div class="pipe-row">
         <div class="pipe-step">
           <div class="step-num">STEP 01</div>
-          <h4>打开本周工时</h4>
-          <p>加载 Booking、代发、考勤、CRM、行为建议等全部预填行</p>
+          <h4>打开本周填报</h4>
+          <p>同时进入工时草稿页与周报编辑区</p>
         </div>
         <div class="pipe-step">
           <div class="step-num">STEP 02</div>
-          <h4>人工调整</h4>
-          <p>自填 Booking 内小时；代发行可查看明细、调低；手动增行</p>
+          <h4>填写 & 调整</h4>
+          <p>确认预填工时；填写上周回顾（≤3）与本周计划（≤3）</p>
         </div>
         <div class="pipe-step">
           <div class="step-num">STEP 03</div>
-          <h4>校验 & 提交</h4>
-          <p>0.5h 步进、24h/日上限、重复检测；暂存/自动保存</p>
+          <h4>校验</h4>
+          <p>工时规则校验 + 周报必填项与条数上限校验</p>
         </div>
         <div class="pipe-step">
           <div class="step-num">STEP 04</div>
-          <h4>状态：已提交</h4>
-          <p>本周锁定编辑；进入接收分流（Booking 内 / 外）</p>
+          <h4>一并提交</h4>
+          <p>工时 Submitted + 周报发布；本周锁定编辑</p>
         </div>
+      </div>
+
+      <div class="merge-submit">
+        <span class="ms-label">A 工时草稿</span>
+        <span class="ms-arrow">+</span>
+        <span class="ms-label">B RIGOL 周报</span>
+        <span class="ms-arrow">→</span>
+        <span class="ms-label" style="color:#00e5a0">同一次提交</span>
       </div>
     </section>
 
     <div class="section-bridge" aria-label="② → ③">
       <div class="bridge-vline"></div>
-      <div class="bridge-label">STEP 04 已提交 Submitted → 进入接收分流（Booking 内 / 超 Booking）</div>
+      <div class="bridge-label">工时 + 周报一并提交后 → 工时进入接收分流（Booking 内 / 超 Booking）</div>
       <div class="bridge-arrow"></div>
     </div>
 
@@ -778,21 +882,26 @@
 
         <!-- Zone 2: Employee -->
         <div class="e2e-zone">
-          <div class="zone-label emp">② 员工侧</div>
+          <div class="zone-label emp">② 员工侧 · 工时 + 周报一并提交</div>
           <div class="process-row">
             <div class="proc-box">
-              <div class="pb-title">员工确认页</div>
-              <div class="pb-sub">调整 · 代发明细</div>
+              <div class="pb-title">工时草稿确认</div>
+              <div class="pb-sub">预填行 · 调整 · 校验</div>
+            </div>
+            <span class="proc-arrow">+</span>
+            <div class="proc-box" style="border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.08)">
+              <div class="pb-title">RIGOL 周报</div>
+              <div class="pb-sub">上周回顾≤3 · 本周计划≤3</div>
             </div>
             <span class="proc-arrow">→</span>
             <div class="proc-box">
               <div class="pb-title">校验引擎</div>
-              <div class="pb-sub">24h · 0.5h · 去重</div>
+              <div class="pb-sub">工时 + 周报规则</div>
             </div>
             <span class="proc-arrow">→</span>
             <div class="proc-box submitted">
-              <div class="pb-title">已提交 Submitted</div>
-              <div class="pb-sub">本周锁定编辑</div>
+              <div class="pb-title">一并提交</div>
+              <div class="pb-sub">工时 Submitted · 周报发布</div>
             </div>
           </div>
         </div>
@@ -896,6 +1005,13 @@
               <td>项目 · 活动</td>
               <td>无（空行）</td>
               <td>选项目活动 + 填工时 + 备注</td>
+            </tr>
+            <tr>
+              <td><strong>RIGOL 周报</strong></td>
+              <td>与工时同次提交</td>
+              <td>工作条目 · 文本</td>
+              <td>一回顾≤3项 + 二计划≤3项 + 三～五选填</td>
+              <td>填写上周进展与本周计划；与工时一并校验提交</td>
             </tr>
           </tbody>
         </table>
