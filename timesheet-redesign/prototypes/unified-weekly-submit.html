@@ -7,346 +7,332 @@
   <link rel="stylesheet" href="shared.css">
   <style>
     :root {
-      --bg: #f5f7fa; --surface: #fff; --border: #e5e7eb;
-      --text: #1f2937; --muted: #6b7280; --primary: #2563eb;
-      --primary-soft: #eff6ff; --success: #059669; --warn: #d97706; --danger: #dc2626;
+      --bg: #eef1f5; --surface: #fff; --border: #d8dee6;
+      --text: #2c3e50; --muted: #7f8c9b; --primary: #2f80ed;
+      --primary-soft: #eaf2fd; --success: #27ae60; --warn: #e67e22; --danger: #e74c3c;
+      --header-bg: linear-gradient(180deg, #3a7bd5 0%, #2f80ed 100%);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
-      background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5;
-      min-height: 100vh;
+      background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5;
+      padding-bottom: 24px;
     }
 
-    /* 顶栏 */
     .app-bar {
       background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 0 20px; height: 48px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; height: 44px; display: flex; align-items: center; gap: 12px;
     }
-    .app-bar a { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .app-bar a { color: var(--muted); text-decoration: none; font-size: 12px; }
     .app-bar a:hover { color: var(--primary); }
-    .app-bar .title { font-weight: 600; color: var(--text); }
 
-    .shell { max-width: 720px; margin: 0 auto; padding: 20px 16px 32px; }
+    /* 顶栏：类似截图 */
+    .page-banner {
+      background: var(--header-bg); color: #fff; padding: 14px 20px;
+    }
+    .page-banner h1 { font-size: 16px; font-weight: 700; }
+    .page-banner .meta { font-size: 12px; opacity: .88; margin-top: 4px; }
+    .page-banner .actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .page-title { margin-bottom: 16px; }
-    .page-title h1 { font-size: 18px; font-weight: 700; }
-    .page-title .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-    /* 三步导航 */
-    .steps {
-      display: flex; gap: 0; margin-bottom: 16px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-      overflow: hidden;
-    }
-    .step-tab {
-      flex: 1; padding: 12px 8px; text-align: center; cursor: default;
-      border-right: 1px solid var(--border); position: relative;
-      transition: background .15s;
-    }
-    .step-tab:last-child { border-right: none; }
-    .step-tab .num {
-      display: inline-flex; width: 22px; height: 22px; border-radius: 50%;
-      align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
-      background: #e5e7eb; color: var(--muted); margin-bottom: 4px;
-    }
-    .step-tab .label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
-    .step-tab .sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 2px; }
-    .step-tab.active { background: var(--primary-soft); }
-    .step-tab.active .num { background: var(--primary); color: #fff; }
-    .step-tab.active .label { color: var(--primary); }
-    .step-tab.done { cursor: pointer; }
-    .step-tab.done .num { background: var(--success); color: #fff; }
-    .step-tab.done .label { color: var(--success); }
-    .step-tab.locked { opacity: .55; }
-
-    /* 面板 */
-    .panel {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px 18px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    }
-    .panel-head {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 14px; gap: 8px;
-    }
-    .panel-head h2 { font-size: 15px; font-weight: 700; }
-    .panel-head p { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
-
-    .panel-foot {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
-      gap: 8px; flex-wrap: wrap;
-    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 12px 16px; }
 
     .btn {
-      padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px;
-      cursor: pointer; font-weight: 600; transition: .15s;
+      padding: 7px 14px; border-radius: 4px; border: 1px solid transparent;
+      font-size: 12px; cursor: pointer; font-weight: 600;
     }
+    .btn-white { background: #fff; color: var(--primary); border-color: #fff; }
+    .btn-white:hover { background: #f0f7ff; }
     .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:hover { background: #2569c7; }
     .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--text); }
-    .btn-secondary:hover { background: #f9fafb; }
-    .btn-text { background: none; border: none; color: var(--primary); padding: 8px 4px; }
-    .btn-ai { background: #f5f3ff; border: 1px solid #ddd6fe; color: #7c3aed; font-size: 12px; padding: 6px 12px; }
-    .btn-sm { font-size: 12px; padding: 5px 10px; }
+    .btn-outline { background: #fff; border-color: var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-ai { background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
 
-    /* Step1 工时 */
-    .draft-row {
-      display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center;
-      padding: 10px 0; border-bottom: 1px solid #f3f4f6;
+    /* 区块卡片 */
+    .block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; margin-bottom: 10px; overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
     }
-    .draft-row:last-child { border-bottom: none; }
-    .draft-row .name { font-weight: 600; font-size: 13px; }
-    .draft-row .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .draft-row .tag {
-      display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px;
-      background: #dbeafe; color: #1d4ed8; margin-top: 4px;
+    .block-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; background: #f7f9fb; border-bottom: 1px solid var(--border);
+      cursor: default; user-select: none;
     }
-    .draft-row .tag.delegate { background: #fce7f3; color: #be185d; }
-    .draft-row .hrs { font-size: 18px; font-weight: 700; color: var(--primary); text-align: right; }
-    .draft-row .days { font-size: 10px; color: var(--muted); text-align: right; }
-    .ts-total {
-      display: flex; gap: 16px; font-size: 12px; color: var(--muted);
-      background: #f9fafb; border-radius: 8px; padding: 8px 12px; margin-top: 8px;
+    .block-head.collapsible { cursor: pointer; }
+    .block-head.collapsible:hover { background: #eef2f6; }
+    .block-head h2 {
+      font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;
     }
-    .ts-total strong { color: var(--text); }
+    .block-head h2::before {
+      content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px;
+    }
+    .block-head .status {
+      font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+    }
+    .status-doing { background: #fff3cd; color: #856404; }
+    .status-done { background: #d4edda; color: #155724; }
+    .status-lock { background: #e9ecef; color: #6c757d; }
+    .block-head .chevron {
+      font-size: 12px; color: var(--muted); transition: transform .2s;
+    }
+    .block.collapsed .block-head { border-bottom: none; }
+    .block.collapsed .chevron { transform: rotate(-90deg); }
+    .block.collapsed .block-body { display: none; }
+    .block.locked .block-head { opacity: .65; cursor: not-allowed; }
+    .block.locked .block-head.collapsible { pointer-events: none; }
 
-    /* Step2 周报 */
-    .wr-item { margin-bottom: 12px; }
-    .wr-item-head {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+    .block-body { padding: 12px 14px 14px; }
+
+    /* 工时区 — 始终展开 */
+    .block-timesheet .block-head { cursor: default; }
+    .draft-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .draft-table th {
+      background: #f0f4f8; text-align: left; padding: 8px 10px;
+      border: 1px solid var(--border); font-weight: 600; color: var(--muted);
     }
-    .wr-item-head label { font-size: 12px; font-weight: 600; }
-    .wr-item-head .limit { font-size: 11px; color: var(--warn); }
-    .wr-toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .draft-table td {
+      padding: 8px 10px; border: 1px solid var(--border); vertical-align: middle;
+    }
+    .draft-table .proj { font-weight: 600; }
+    .draft-table .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .tag {
+      display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
+      background: #dbeafe; color: #1d4ed8;
+    }
+    .tag.delegate { background: #fce7f3; color: #be185d; }
+    .hrs-input {
+      width: 52px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 3px;
+      text-align: center; font-size: 12px;
+    }
+    .ts-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px; flex-wrap: wrap; gap: 8px;
+    }
+    .ts-summary { font-size: 12px; color: var(--muted); }
+    .ts-summary strong { color: var(--text); font-size: 14px; }
+
+    /* 确认后：工时区紧凑条（仍保留完整表格，顶部加提示） */
+    .confirmed-tip {
+      display: none; font-size: 11px; color: var(--success);
+      background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px;
+      padding: 6px 10px; margin-bottom: 10px;
+    }
+    .block-timesheet.confirmed .confirmed-tip { display: block; }
+
+    /* 周报 */
+    .wr-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .wr-part { margin-bottom: 12px; }
+    .wr-part:last-child { margin-bottom: 0; }
+    .wr-part-title {
+      font-size: 12px; font-weight: 700; margin-bottom: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .wr-part-title .lim { font-size: 11px; color: var(--warn); font-weight: 600; }
     input[type="text"], textarea {
-      width: 100%; border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px 10px; font-size: 13px; font-family: inherit; color: var(--text);
+      width: 100%; border: 1px solid var(--border); border-radius: 3px;
+      padding: 7px 9px; font-size: 12px; font-family: inherit;
     }
-    textarea { resize: vertical; min-height: 52px; }
-    input:focus, textarea:focus { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-    .wr-compact textarea { min-height: 44px; }
-    .optional-block { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
-    .optional-block summary {
-      font-size: 12px; color: var(--muted); cursor: pointer; user-select: none;
+    textarea { resize: vertical; min-height: 48px; }
+    input:focus, textarea:focus {
+      outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(47,128,237,.12);
     }
+    .wr-row { margin-bottom: 8px; }
+    .wr-row:last-child { margin-bottom: 0; }
+    .optional-inner { padding-top: 8px; }
 
-    /* Step3 价值观 */
-    .val-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
+    /* 价值观 — 紧凑 */
+    .val-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px;
     }
-    @media (max-width: 520px) { .val-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .val-row { grid-template-columns: repeat(2, 1fr); } }
     .val-cell {
-      text-align: center; padding: 8px; background: #f9fafb; border-radius: 8px;
-      border: 1px solid var(--border);
+      text-align: center; padding: 6px; background: #f8f9fa; border: 1px solid var(--border);
+      border-radius: 3px;
     }
     .val-cell .vn { font-size: 10px; color: var(--muted); }
-    .val-cell .vv { font-size: 18px; font-weight: 700; margin-top: 2px; }
-    .val-cell.ok .vv { color: var(--success); }
+    .val-cell .vv { font-size: 16px; font-weight: 700; }
     .val-cell.bad .vv { color: var(--danger); }
-    .check-list { font-size: 12px; }
-    .check-list li {
-      display: flex; justify-content: space-between; padding: 6px 0;
-      border-bottom: 1px solid #f3f4f6; list-style: none;
-    }
-    .check-list li:last-child { border-bottom: none; }
-    .st-ok { color: var(--success); font-weight: 600; }
-    .st-bad { color: var(--danger); font-weight: 600; }
-    .st-warn { color: var(--warn); font-weight: 600; }
-    .hint-box {
-      font-size: 11px; color: var(--muted); background: #fffbeb;
-      border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; margin-top: 10px;
-      line-height: 1.5;
-    }
-    .submit-summary {
-      background: var(--primary-soft); border-radius: 8px; padding: 10px 12px;
-      font-size: 12px; margin-bottom: 12px; line-height: 1.55;
+    .val-cell.ok .vv { color: var(--success); }
+    .check-compact { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .check-compact .bad { color: var(--danger); font-weight: 600; }
+    .warn-bar {
+      font-size: 11px; background: #fff8e6; border: 1px solid #ffe082;
+      border-radius: 3px; padding: 8px 10px; margin-top: 8px; line-height: 1.5;
     }
 
-    .hidden { display: none !important; }
+    .submit-bar {
+      position: sticky; bottom: 0; z-index: 50;
+      background: rgba(255,255,255,.96); border-top: 1px solid var(--border);
+      padding: 10px 16px; display: flex; justify-content: flex-end; gap: 8px;
+      box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+    }
+    .submit-bar .hint { flex: 1; font-size: 11px; color: var(--muted); align-self: center; }
+
     .ai-loading { opacity: .55; pointer-events: none; }
   </style>
 </head>
 <body>
   <header class="app-bar">
-    <a href="index.html">← 返回</a>
-    <span class="title">本周填报</span>
+    <a href="index.html">← 返回原型导航</a>
   </header>
 
-  <div class="shell">
-    <div class="page-title">
-      <h1>第 21 周 · 2026/05/17 – 05/23</h1>
-      <div class="meta">皮延升 · IT测试主管 · 考核周期 2026 Q2</div>
+  <div class="page-banner">
+    <h1>皮延升 · 第 21 周工时与周报</h1>
+    <div class="meta">2026/05/17 – 2026/05/23 · IT测试主管 · 考核周期 2026 Q2</div>
+    <div class="actions">
+      <button type="button" class="btn btn-white" id="btn-save">保存草稿</button>
     </div>
+  </div>
 
-    <!-- 三步指示 -->
-    <div class="steps" id="steps">
-      <div class="step-tab active" data-step="1">
-        <span class="num">1</span>
-        <span class="label">确认工时</span>
-        <span class="sub">预填草稿</span>
+  <div class="wrap">
+    <!-- ① 工时：始终展示，不收起 -->
+    <section class="block block-timesheet" id="block-ts">
+      <div class="block-head">
+        <h2>工作日志 · 本周工时</h2>
+        <span class="status status-doing" id="ts-status">待确认</span>
       </div>
-      <div class="step-tab locked" data-step="2">
-        <span class="num">2</span>
-        <span class="label">填写周报</span>
-        <span class="sub">回顾与计划</span>
-      </div>
-      <div class="step-tab locked" data-step="3">
-        <span class="num">3</span>
-        <span class="label">确认提交</span>
-        <span class="sub">价值观检查</span>
-      </div>
-    </div>
-
-    <!-- 区域 1：工时 -->
-    <div class="panel" id="panel-1">
-      <div class="panel-head">
-        <div>
-          <h2>确认本周工时</h2>
-          <p>系统已预填 Booking、代发等行，请勾选并调整小时数。确认后再写周报。</p>
-        </div>
-      </div>
-      <div class="draft-list">
-        <div class="draft-row">
-          <input type="checkbox" checked>
+      <div class="block-body">
+        <div class="confirmed-tip" id="ts-confirmed-tip">✓ 工时已确认。填写周报时可向上查看本表。</div>
+        <table class="draft-table">
+          <thead>
+            <tr>
+              <th style="width:28px"><input type="checkbox" checked id="chk-all"></th>
+              <th>项目 / 活动</th>
+              <th style="width:70px">来源</th>
+              <th style="width:56px">工时</th>
+              <th style="width:100px">分布</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" checked class="row-chk"></td>
+              <td>
+                <div class="proj">工时周报管理系统重构</div>
+                <div class="sub">需求分析 · 方案设计</div>
+              </td>
+              <td><span class="tag">Booking</span></td>
+              <td><input type="text" class="hrs-input" value="12"></td>
+              <td style="font-size:11px;color:var(--muted)">一4·三4·五4</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" checked class="row-chk"></td>
+              <td>
+                <div class="proj">任职资格系统</div>
+                <div class="sub">n8n 流程建设</div>
+              </td>
+              <td><span class="tag">Booking</span></td>
+              <td><input type="text" class="hrs-input" value="16"></td>
+              <td style="font-size:11px;color:var(--muted)">二8·四8</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" checked class="row-chk"></td>
+              <td>
+                <div class="proj">业务方案 · 会议</div>
+                <div class="sub">方案评审</div>
+              </td>
+              <td><span class="tag delegate">代发</span></td>
+              <td><input type="text" class="hrs-input" value="4"></td>
+              <td style="font-size:11px;color:var(--muted)">二2·四2</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="ts-foot">
+          <div class="ts-summary">合计 <strong id="ts-total">32</strong>h · Booking 内 28h · 代发 4h</div>
           <div>
-            <div class="name">工时周报管理系统重构</div>
-            <div class="sub">需求分析 · 方案设计</div>
-            <span class="tag">Booking</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add">+ 增行</button>
+            <button type="button" class="btn btn-primary" id="btn-confirm-ts">确认工时</button>
           </div>
-          <div><div class="hrs">12h</div><div class="days">一4·三4·五4</div></div>
-        </div>
-        <div class="draft-row">
-          <input type="checkbox" checked>
-          <div>
-            <div class="name">任职资格系统</div>
-            <div class="sub">n8n 流程建设</div>
-            <span class="tag">Booking</span>
-          </div>
-          <div><div class="hrs">16h</div><div class="days">二8·四8</div></div>
-        </div>
-        <div class="draft-row">
-          <input type="checkbox" checked>
-          <div>
-            <div class="name">业务方案 · 会议</div>
-            <div class="sub">方案评审</div>
-            <span class="tag delegate">代发</span>
-          </div>
-          <div><div class="hrs">4h</div><div class="days">二2·四2</div></div>
         </div>
       </div>
-      <div class="ts-total">
-        <span>合计 <strong>32h</strong></span>
-        <span>Booking 内 28h</span>
-        <span>代发 4h</span>
-      </div>
-      <div class="panel-foot">
-        <button type="button" class="btn btn-text" id="btn-add-row">+ 手动增行</button>
-        <button type="button" class="btn btn-primary" id="btn-next-1">确认工时，下一步 →</button>
-      </div>
-    </div>
+    </section>
 
-    <!-- 区域 2：周报 -->
-    <div class="panel hidden" id="panel-2">
-      <div class="panel-head">
-        <div>
-          <h2>填写 RIGOL 周报</h2>
-          <p>基于已确认工时撰写。一、二各不超过 3 项。</p>
+    <!-- ② 周报：默认收起，确认工时后展开 -->
+    <section class="block collapsed locked" id="block-wr">
+      <div class="block-head collapsible" id="head-wr">
+        <h2>工作描述 · RIGOL 周报</h2>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="status status-lock" id="wr-status">请先确认工时</span>
+          <span class="chevron">▼</span>
         </div>
       </div>
-
-      <div class="wr-item">
-        <div class="wr-item-head">
-          <label>一、上周重要工作进展回顾</label>
-          <span class="limit">限 3 项</span>
-        </div>
+      <div class="block-body" id="body-wr">
         <div class="wr-toolbar">
-          <button type="button" class="btn btn-secondary btn-sm" id="btn-bring">带出上周</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-bring">带出上周</button>
           <button type="button" class="btn btn-ai btn-sm" id="btn-ai">✨ AI 生成进展</button>
+          <span style="font-size:11px;color:var(--muted);align-self:center">可向上滚动对照工时表</span>
         </div>
-        <div id="review-list">
-          <div class="wr-compact wr-item">
+
+        <div class="wr-part">
+          <div class="wr-part-title">一、上周重要工作进展回顾 <span class="lim">限 3 项</span></div>
+          <div class="wr-row">
             <input type="text" class="review-desc" placeholder="工作描述 1">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 1" style="margin-top:6px"></textarea>
+            <textarea class="review-progress" rows="2" placeholder="进展说明 1" style="margin-top:4px"></textarea>
           </div>
-          <div class="wr-compact wr-item">
+          <div class="wr-row">
             <input type="text" class="review-desc" placeholder="工作描述 2">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 2" style="margin-top:6px"></textarea>
+            <textarea class="review-progress" rows="2" placeholder="进展说明 2" style="margin-top:4px"></textarea>
           </div>
-          <div class="wr-compact wr-item">
+          <div class="wr-row">
             <input type="text" class="review-desc" placeholder="工作描述 3">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 3" style="margin-top:6px"></textarea>
+            <textarea class="review-progress" rows="2" placeholder="进展说明 3" style="margin-top:4px"></textarea>
+          </div>
+        </div>
+
+        <div class="wr-part">
+          <div class="wr-part-title">二、本周工作计划 <span class="lim">限 3 项</span></div>
+          <textarea class="plan-text" rows="2" placeholder="计划 1"></textarea>
+          <textarea class="plan-text" rows="2" placeholder="计划 2" style="margin-top:4px"></textarea>
+          <textarea class="plan-text" rows="2" placeholder="计划 3" style="margin-top:4px"></textarea>
+        </div>
+
+        <div class="wr-part">
+          <div class="wr-part-title" style="cursor:pointer" id="toggle-optional">三～五、支持 / 建议 / 附件（选填） <span class="chevron" style="font-size:10px">▼</span></div>
+          <div class="optional-inner hidden" id="optional-inner">
+            <textarea rows="2" placeholder="需要的支持/帮助/资源" style="margin-bottom:4px"></textarea>
+            <textarea rows="2" placeholder="工作建议及其他说明"></textarea>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="wr-item">
-        <div class="wr-item-head">
-          <label>二、本周工作计划</label>
-          <span class="limit">限 3 项</span>
-        </div>
-        <textarea class="plan-text" rows="2" placeholder="计划 1"></textarea>
-        <textarea class="plan-text" rows="2" placeholder="计划 2" style="margin-top:6px"></textarea>
-        <textarea class="plan-text" rows="2" placeholder="计划 3" style="margin-top:6px"></textarea>
-      </div>
-
-      <details class="optional-block">
-        <summary>三～五、支持需求 / 建议说明 / 附件（选填）</summary>
-        <textarea rows="2" placeholder="需要的支持/帮助/资源" style="margin-top:8px"></textarea>
-        <textarea rows="2" placeholder="工作建议及其他说明" style="margin-top:6px"></textarea>
-      </details>
-
-      <div class="panel-foot">
-        <button type="button" class="btn btn-secondary" id="btn-back-2">← 返回修改工时</button>
-        <button type="button" class="btn btn-primary" id="btn-next-2">下一步：确认提交 →</button>
-      </div>
-    </div>
-
-    <!-- 区域 3：价值观 + 提交 -->
-    <div class="panel hidden" id="panel-3">
-      <div class="panel-head">
-        <div>
-          <h2>提交前检查</h2>
-          <p>确认本考核周期价值观是否达标，然后一并提交工时与周报。</p>
+    <!-- ③ 价值观：默认收起，确认工时后解锁（仍收起，提交前展开） -->
+    <section class="block collapsed locked" id="block-val">
+      <div class="block-head collapsible" id="head-val">
+        <h2>价值观行为记录</h2>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="status status-lock" id="val-status">请先确认工时</span>
+          <span class="chevron">▼</span>
         </div>
       </div>
-
-      <div class="submit-summary" id="submit-summary">
-        工时 <strong>32h</strong> 已确认 · 周报待校验
+      <div class="block-body">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">考核周期内（2026 Q2）· 提交前自行核对</p>
+        <div class="val-row">
+          <div class="val-cell bad"><div class="vn">成就客户</div><div class="vv">0</div></div>
+          <div class="val-cell ok"><div class="vn">不断创新</div><div class="vv">1</div></div>
+          <div class="val-cell bad"><div class="vn">阳光合作</div><div class="vv">0</div></div>
+          <div class="val-cell bad"><div class="vn">良知自律</div><div class="vv">0</div></div>
+        </div>
+        <div class="check-compact">
+          礼物总数 ≥4：<span class="bad">1 未达标</span> ·
+          各类型 ≥1：<span class="bad">未达标</span> ·
+          自知/点赞 ≥3：<span class="bad">1</span> ·
+          自律/责善 ≥1：<span class="bad">0</span>
+        </div>
+        <div class="warn-bar">
+          ⚠️ 本周期价值观暂未达标，请关注并及时补充。年度：点赞 2/4，责善 0/12。
+          年度点赞&lt;4 或责善&gt;12 需参加普源书院脱产学习（≥1周）；10/1 后入职首年免年度要求。
+        </div>
       </div>
+    </section>
+  </div>
 
-      <p style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--muted)">考核周期内价值观（2026 Q2）</p>
-      <div class="val-grid">
-        <div class="val-cell bad"><div class="vn">成就客户</div><div class="vv">0</div></div>
-        <div class="val-cell ok"><div class="vn">不断创新</div><div class="vv">1</div></div>
-        <div class="val-cell bad"><div class="vn">阳光合作</div><div class="vv">0</div></div>
-        <div class="val-cell bad"><div class="vn">良知自律</div><div class="vv">0</div></div>
-      </div>
-      <ul class="check-list">
-        <li>礼物总数 ≥ 4<span class="st-bad">1 · 未达标</span></li>
-        <li>每种类型 ≥ 1<span class="st-bad">未达标</span></li>
-        <li>自知或点赞 ≥ 3<span class="st-bad">1</span></li>
-        <li>自律或责善 ≥ 1<span class="st-bad">0</span></li>
-      </ul>
-      <div class="hint-box">
-        ⚠️ 本周期价值观暂未达标，请自行关注并及时补充礼物记录。年度：点赞 2/4，责善 0/12。
-      </div>
-
-      <details class="optional-block" style="margin-top:12px">
-        <summary>年度规则说明</summary>
-        <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.55">
-          年度点赞 &lt; 4 或责善 &gt; 12 为不合格，需参加普源书院脱产学习班（≥1 周）。
-          10 月 1 日后入职新员工首年免年度数量要求。
-        </p>
-      </details>
-
-      <div class="panel-foot">
-        <button type="button" class="btn btn-secondary" id="btn-back-3">← 返回修改周报</button>
-        <button type="button" class="btn btn-primary" id="btn-submit">一键提交（工时 + 周报）</button>
-      </div>
-    </div>
+  <div class="submit-bar">
+    <span class="hint" id="submit-hint">请先确认上方工时</span>
+    <button type="button" class="btn btn-outline" id="btn-expand-val" disabled>展开价值观检查</button>
+    <button type="button" class="btn btn-primary" id="btn-submit" disabled>一键提交（工时 + 周报）</button>
   </div>
 
   <script src="shared.js"></script>
@@ -356,73 +342,73 @@
         { desc: '任职资格 n8n 流程建设', progress: '' },
         { desc: 'HR 外包考勤 n8n 流程', progress: '主逻辑已搭建，与业务联调中' },
         { desc: '数据分析支持', progress: '已完成并移交' }
-      ],
-      plan: ['工时周报系统方案沟通', '任职资格小版本迭代', 'HR 考勤 n8n 流程']
+      ]
     };
 
-    let currentStep = 1;
-    let timesheetConfirmed = false;
+    let tsConfirmed = false;
 
-    function goStep(n) {
-      currentStep = n;
-      [1, 2, 3].forEach(i => {
-        document.getElementById('panel-' + i).classList.toggle('hidden', i !== n);
-      });
-      document.querySelectorAll('.step-tab').forEach(tab => {
-        const s = +tab.dataset.step;
-        tab.classList.remove('active', 'done', 'locked');
-        if (s === n) {
-          tab.classList.add('active');
-        } else if (timesheetConfirmed && s < n) {
-          tab.classList.add('done');
-        } else if (!timesheetConfirmed && s > 1) {
-          tab.classList.add('locked');
-        } else if (timesheetConfirmed && s > n) {
-          tab.classList.add('done');
-        }
-        if (s > 1 && !timesheetConfirmed) tab.classList.add('locked');
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function toggleBlock(blockEl, expand) {
+      if (expand) blockEl.classList.remove('collapsed');
+      else blockEl.classList.add('collapsed');
     }
 
-    document.getElementById('steps').addEventListener('click', e => {
-      const tab = e.target.closest('.step-tab');
-      if (!tab || tab.classList.contains('locked')) return;
-      const s = +tab.dataset.step;
-      if (s === 1) goStep(1);
-      if (s === 2 && timesheetConfirmed) goStep(2);
-      if (s === 3 && timesheetConfirmed && currentStep >= 2) goStep(3);
-    });
-
-    document.getElementById('btn-next-1').addEventListener('click', () => {
-      timesheetConfirmed = true;
-      showToast('工时已确认，请填写周报', 'success');
-      goStep(2);
-    });
-
-    document.getElementById('btn-back-2').addEventListener('click', () => goStep(1));
-
-    document.getElementById('btn-next-2').addEventListener('click', () => {
-      let rc = 0, pc = 0;
-      document.querySelectorAll('.review-desc').forEach((d, i) => {
-        const p = document.querySelectorAll('.review-progress')[i];
-        if (d.value.trim() && p.value.trim()) rc++;
+    function setupCollapsible(headId, blockId) {
+      const head = document.getElementById(headId);
+      const block = document.getElementById(blockId);
+      head.addEventListener('click', () => {
+        if (block.classList.contains('locked')) return;
+        block.classList.toggle('collapsed');
       });
-      document.querySelectorAll('.plan-text').forEach(t => { if (t.value.trim()) pc++; });
-      if (rc < 1) { showToast('请至少填写 1 项上周回顾', 'error'); return; }
-      if (pc < 1) { showToast('请至少填写 1 项本周计划', 'error'); return; }
-      document.getElementById('submit-summary').innerHTML =
-        '工时 <strong>32h</strong> 已确认 · 周报 回顾 ' + rc + ' 项 · 计划 ' + pc + ' 项';
-      goStep(3);
+    }
+
+    setupCollapsible('head-wr', 'block-wr');
+    setupCollapsible('head-val', 'block-val');
+
+    document.getElementById('toggle-optional').addEventListener('click', () => {
+      document.getElementById('optional-inner').classList.toggle('hidden');
     });
 
-    document.getElementById('btn-back-3').addEventListener('click', () => goStep(2));
+    document.getElementById('btn-confirm-ts').addEventListener('click', () => {
+      tsConfirmed = true;
+      const blockTs = document.getElementById('block-ts');
+      blockTs.classList.add('confirmed');
+      document.getElementById('ts-status').textContent = '已确认';
+      document.getElementById('ts-status').className = 'status status-done';
+      document.getElementById('btn-confirm-ts').textContent = '重新确认';
+      document.getElementById('btn-confirm-ts').classList.remove('btn-primary');
+      document.getElementById('btn-confirm-ts').classList.add('btn-outline');
 
-    document.getElementById('btn-submit').addEventListener('click', async () => {
-      const ok = await confirmDialog('确认提交？', '将同时提交本周工时（32h）与 RIGOL 周报。');
-      if (!ok) return;
-      FlowStore.set({ paradigm: 'Unified', totalHours: 32, autoHours: 28, pendingHours: 4, week: 'W21' });
-      window.location.href = 'flow-submitted.html?from=Unified';
+      // 解锁并展开周报；价值观解锁但保持收起
+      const blockWr = document.getElementById('block-wr');
+      const blockVal = document.getElementById('block-val');
+      blockWr.classList.remove('locked');
+      blockVal.classList.remove('locked');
+      document.getElementById('wr-status').textContent = '填写中';
+      document.getElementById('wr-status').className = 'status status-doing';
+      document.getElementById('val-status').textContent = '待查看';
+      document.getElementById('val-status').className = 'status status-lock';
+
+      toggleBlock(blockWr, true);
+      toggleBlock(blockVal, false);
+
+      document.getElementById('submit-hint').textContent = '填写周报时可向上查看工时表';
+      document.getElementById('btn-expand-val').disabled = false;
+      document.getElementById('btn-submit').disabled = false;
+
+      // 平滑滚到周报区
+      setTimeout(() => {
+        blockWr.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+
+      showToast('工时已确认，周报区域已展开', 'success');
+    });
+
+    document.getElementById('btn-expand-val').addEventListener('click', () => {
+      const blockVal = document.getElementById('block-val');
+      toggleBlock(blockVal, true);
+      document.getElementById('val-status').textContent = '已查看';
+      document.getElementById('val-status').className = 'status status-done';
+      blockVal.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     document.getElementById('btn-bring').addEventListener('click', () => {
@@ -434,23 +420,43 @@
     });
 
     document.getElementById('btn-ai').addEventListener('click', async () => {
-      const panel = document.getElementById('panel-2');
-      panel.classList.add('ai-loading');
+      const body = document.getElementById('body-wr');
+      body.classList.add('ai-loading');
       await new Promise(r => setTimeout(r, 900));
       const ai = [
-        { desc: LAST_WEEK.review[0].desc, progress: '本周投入 16h 于 n8n 流程，已完成 3 条提醒流程并安排业务试跑。' },
-        { desc: LAST_WEEK.review[1].desc, progress: '本周未排期；仍处联调阶段，计划下周启动。' },
-        { desc: LAST_WEEK.review[2].desc, progress: '上周已完结，本周无新增投入。' }
+        { desc: '任职资格 n8n 流程建设', progress: '本周投入 16h，已完成 3 条提醒流程，安排业务试跑。' },
+        { desc: 'HR 外包考勤 n8n 流程', progress: '本周未排期；仍处联调，计划下周启动。' },
+        { desc: '数据分析支持', progress: '上周已完结，本周无新增投入。' }
       ];
       ai.forEach((item, i) => {
         document.querySelectorAll('.review-desc')[i].value = item.desc;
         document.querySelectorAll('.review-progress')[i].value = item.progress;
       });
-      panel.classList.remove('ai-loading');
+      body.classList.remove('ai-loading');
       showToast('AI 已根据工时与上周周报生成进展', 'success');
     });
 
-    document.getElementById('btn-add-row').addEventListener('click', () => showToast('手动增行（原型示意）', 'info'));
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      if (!tsConfirmed) { showToast('请先确认工时', 'error'); return; }
+      let rc = 0, pc = 0;
+      document.querySelectorAll('.review-desc').forEach((d, i) => {
+        const p = document.querySelectorAll('.review-progress')[i];
+        if (d.value.trim() && p.value.trim()) rc++;
+      });
+      document.querySelectorAll('.plan-text').forEach(t => { if (t.value.trim()) pc++; });
+      if (rc < 1 || pc < 1) {
+        showToast('请至少各填 1 项上周回顾与本周计划', 'error');
+        toggleBlock(document.getElementById('block-wr'), true);
+        return;
+      }
+      const ok = await confirmDialog('确认提交？', '将同时提交本周工时与 RIGOL 周报。');
+      if (!ok) return;
+      FlowStore.set({ paradigm: 'Unified', totalHours: 32, week: 'W21' });
+      window.location.href = 'flow-submitted.html?from=Unified';
+    });
+
+    document.getElementById('btn-save').addEventListener('click', () => showToast('草稿已保存', 'success'));
+    document.getElementById('btn-add').addEventListener('click', () => showToast('增行（原型示意）', 'info'));
   </script>
 </body>
 </html>
