@@ -3,534 +3,454 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>本周填报 · 工时 + 周报 + 价值观</title>
+  <title>本周填报 · 工时 + 周报</title>
   <link rel="stylesheet" href="shared.css">
   <style>
     :root {
-      --bg: #0a1628; --surface: #162a47; --surface2: #0f1d32;
-      --border: rgba(0,212,255,0.12); --text: #fff; --muted: rgba(255,255,255,0.55);
-      --cyan: #00d4ff; --green: #00e5a0; --warn: #ffc107; --danger: #ff6b6b; --purple: #a78bfa;
+      --bg: #f5f7fa; --surface: #fff; --border: #e5e7eb;
+      --text: #1f2937; --muted: #6b7280; --primary: #2563eb;
+      --primary-soft: #eff6ff; --success: #059669; --warn: #d97706; --danger: #dc2626;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
       background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5;
-      padding-bottom: 72px;
+      min-height: 100vh;
     }
-    .top-nav {
-      background: var(--surface2); border-bottom: 1px solid var(--border);
-      padding: 8px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    }
-    .top-nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
-    .top-nav a:hover { color: var(--cyan); }
-    .top-nav .title { color: var(--cyan); font-weight: 700; }
 
     /* 顶栏 */
-    .page-header {
-      background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(167,139,250,0.08));
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
+    .app-bar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 20px; height: 48px; display: flex; align-items: center; gap: 12px;
     }
-    .page-header h1 {
-      font-size: 20px; font-weight: 700;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    .app-bar a { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .app-bar a:hover { color: var(--primary); }
+    .app-bar .title { font-weight: 600; color: var(--text); }
+
+    .shell { max-width: 720px; margin: 0 auto; padding: 20px 16px 32px; }
+
+    .page-title { margin-bottom: 16px; }
+    .page-title h1 { font-size: 18px; font-weight: 700; }
+    .page-title .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* 三步导航 */
+    .steps {
+      display: flex; gap: 0; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden;
     }
-    .meta-row {
-      display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;
-      font-size: 12px; color: var(--muted);
+    .step-tab {
+      flex: 1; padding: 12px 8px; text-align: center; cursor: default;
+      border-right: 1px solid var(--border); position: relative;
+      transition: background .15s;
     }
-    .meta-row strong { color: rgba(255,255,255,0.85); }
-    .header-actions {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+    .step-tab:last-child { border-right: none; }
+    .step-tab .num {
+      display: inline-flex; width: 22px; height: 22px; border-radius: 50%;
+      align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+      background: #e5e7eb; color: var(--muted); margin-bottom: 4px;
     }
+    .step-tab .label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+    .step-tab .sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 2px; }
+    .step-tab.active { background: var(--primary-soft); }
+    .step-tab.active .num { background: var(--primary); color: #fff; }
+    .step-tab.active .label { color: var(--primary); }
+    .step-tab.done { cursor: pointer; }
+    .step-tab.done .num { background: var(--success); color: #fff; }
+    .step-tab.done .label { color: var(--success); }
+    .step-tab.locked { opacity: .55; }
+
+    /* 面板 */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 14px; gap: 8px;
+    }
+    .panel-head h2 { font-size: 15px; font-weight: 700; }
+    .panel-head p { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+
+    .panel-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
+      gap: 8px; flex-wrap: wrap;
+    }
+
     .btn {
-      padding: 8px 16px; border-radius: 6px; border: none; font-size: 13px;
+      padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px;
       cursor: pointer; font-weight: 600; transition: .15s;
     }
-    .btn-ghost {
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text);
-    }
-    .btn-ghost:hover { border-color: rgba(0,212,255,0.35); color: var(--cyan); }
-    .btn-primary {
-      background: linear-gradient(90deg, #0099cc, #2563eb); color: #fff;
-      box-shadow: 0 4px 16px rgba(0,212,255,0.25);
-    }
-    .btn-primary:hover { filter: brightness(1.08); }
-    .btn-ai {
-      background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.4); color: var(--purple);
-    }
-    .btn-ai:hover { background: rgba(167,139,250,0.25); }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--text); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .btn-text { background: none; border: none; color: var(--primary); padding: 8px 4px; }
+    .btn-ai { background: #f5f3ff; border: 1px solid #ddd6fe; color: #7c3aed; font-size: 12px; padding: 6px 12px; }
+    .btn-sm { font-size: 12px; padding: 5px 10px; }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 16px 24px; }
-
-    /* 区块 */
-    .section {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; margin-bottom: 16px; overflow: hidden;
-    }
-    .section-head {
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-      padding: 10px 16px; background: rgba(15,29,50,0.6);
-      border-bottom: 1px solid var(--border);
-    }
-    .section-head h2 {
-      font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px;
-    }
-    .section-num {
-      width: 22px; height: 22px; border-radius: 4px; background: rgba(0,212,255,0.15);
-      color: var(--cyan); font-size: 11px; display: inline-flex; align-items: center; justify-content: center;
-    }
-    .section-body { padding: 14px 16px; }
-
-    /* 工时草稿列表 */
-    .draft-list { display: flex; flex-direction: column; gap: 8px; }
+    /* Step1 工时 */
     .draft-row {
-      display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center;
-      background: var(--surface2); border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 6px; padding: 10px 12px;
+      display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #f3f4f6;
     }
-    .draft-row .proj { font-weight: 700; font-size: 13px; }
-    .draft-row .act { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .draft-row .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-    .tag {
-      font-size: 10px; padding: 1px 6px; border-radius: 999px; font-weight: 600;
+    .draft-row:last-child { border-bottom: none; }
+    .draft-row .name { font-weight: 600; font-size: 13px; }
+    .draft-row .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .draft-row .tag {
+      display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px;
+      background: #dbeafe; color: #1d4ed8; margin-top: 4px;
     }
-    .tag-booking { background: rgba(0,212,255,0.12); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
-    .tag-delegate { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
-    .draft-row .hrs { text-align: right; font-size: 20px; font-weight: 800; color: var(--cyan); }
+    .draft-row .tag.delegate { background: #fce7f3; color: #be185d; }
+    .draft-row .hrs { font-size: 18px; font-weight: 700; color: var(--primary); text-align: right; }
     .draft-row .days { font-size: 10px; color: var(--muted); text-align: right; }
-    .ts-summary {
-      display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px;
-      border-top: 1px dashed rgba(255,255,255,0.08); font-size: 12px;
+    .ts-total {
+      display: flex; gap: 16px; font-size: 12px; color: var(--muted);
+      background: #f9fafb; border-radius: 8px; padding: 8px 12px; margin-top: 8px;
     }
-    .ts-summary span strong { color: var(--cyan); }
+    .ts-total strong { color: var(--text); }
 
-    /* 周报 */
-    .wr-block { margin-bottom: 14px; }
-    .wr-block:last-child { margin-bottom: 0; }
-    .wr-block-head {
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-      gap: 8px; margin-bottom: 8px;
+    /* Step2 周报 */
+    .wr-item { margin-bottom: 12px; }
+    .wr-item-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
     }
-    .wr-block-head h3 { font-size: 13px; font-weight: 700; }
-    .wr-block-head .limit { font-size: 11px; color: var(--warn); font-weight: 600; }
-    .wr-block-head .actions { display: flex; gap: 6px; }
-    .wr-item { margin-bottom: 8px; }
-    .wr-item label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    textarea, input[type="text"] {
-      width: 100%; background: var(--surface2); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px; padding: 8px 10px; color: var(--text); font-size: 13px;
-      font-family: inherit; resize: vertical;
+    .wr-item-head label { font-size: 12px; font-weight: 600; }
+    .wr-item-head .limit { font-size: 11px; color: var(--warn); }
+    .wr-toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    input[type="text"], textarea {
+      width: 100%; border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; font-size: 13px; font-family: inherit; color: var(--text);
     }
-    textarea:focus, input:focus { outline: none; border-color: rgba(0,212,255,0.4); }
-    textarea { min-height: 64px; }
-    .wr-item .progress-field { margin-top: 6px; }
-    .item-count { font-size: 10px; color: var(--muted); margin-top: 4px; }
+    textarea { resize: vertical; min-height: 52px; }
+    input:focus, textarea:focus { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .wr-compact textarea { min-height: 44px; }
+    .optional-block { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+    .optional-block summary {
+      font-size: 12px; color: var(--muted); cursor: pointer; user-select: none;
+    }
 
-    /* 价值观 */
-    .values-grid {
+    /* Step3 价值观 */
+    .val-grid {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
     }
-    @media (max-width: 720px) { .values-grid { grid-template-columns: repeat(2, 1fr); } }
-    .value-card {
-      background: var(--surface2); border-radius: 6px; padding: 10px; text-align: center;
-      border: 1px solid rgba(255,255,255,0.06);
+    @media (max-width: 520px) { .val-grid { grid-template-columns: repeat(2, 1fr); } }
+    .val-cell {
+      text-align: center; padding: 8px; background: #f9fafb; border-radius: 8px;
+      border: 1px solid var(--border);
     }
-    .value-card .v-name { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    .value-card .v-num { font-size: 22px; font-weight: 800; }
-    .value-card.ok .v-num { color: var(--green); }
-    .value-card.warn .v-num { color: var(--warn); }
-    .value-card.bad .v-num { color: var(--danger); }
-    .summary-cards {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+    .val-cell .vn { font-size: 10px; color: var(--muted); }
+    .val-cell .vv { font-size: 18px; font-weight: 700; margin-top: 2px; }
+    .val-cell.ok .vv { color: var(--success); }
+    .val-cell.bad .vv { color: var(--danger); }
+    .check-list { font-size: 12px; }
+    .check-list li {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6; list-style: none;
     }
-    @media (max-width: 640px) { .summary-cards { grid-template-columns: 1fr; } }
-    .sum-card {
-      background: var(--surface2); border-radius: 6px; padding: 12px;
-      border: 1px solid rgba(255,255,255,0.06);
+    .check-list li:last-child { border-bottom: none; }
+    .st-ok { color: var(--success); font-weight: 600; }
+    .st-bad { color: var(--danger); font-weight: 600; }
+    .st-warn { color: var(--warn); font-weight: 600; }
+    .hint-box {
+      font-size: 11px; color: var(--muted); background: #fffbeb;
+      border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; margin-top: 10px;
+      line-height: 1.5;
     }
-    .sum-card h4 { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-    .sum-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
-    .sum-row .status-ok { color: var(--green); font-weight: 700; }
-    .sum-row .status-bad { color: var(--danger); font-weight: 700; }
-    .sum-row .status-warn { color: var(--warn); font-weight: 700; }
-    .rule-box {
-      font-size: 11px; color: var(--muted); line-height: 1.55;
-      background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.1);
-      border-radius: 6px; padding: 10px 12px;
+    .submit-summary {
+      background: var(--primary-soft); border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; margin-bottom: 12px; line-height: 1.55;
     }
-    .rule-box + .rule-box { margin-top: 8px; }
-    .annual-block { margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.08); }
 
-    /* 固定底栏 */
-    .sticky-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(15,29,50,0.95); backdrop-filter: blur(8px);
-      border-top: 1px solid var(--border); padding: 10px 24px;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-    }
-    .sticky-bar .checks { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
-    .check-item.ok { color: var(--green); }
-    .check-item.bad { color: var(--danger); }
-    .attach-zone {
-      border: 1px dashed rgba(255,255,255,0.15); border-radius: 6px;
-      padding: 16px; text-align: center; color: var(--muted); font-size: 12px; cursor: pointer;
-    }
-    .attach-zone:hover { border-color: rgba(0,212,255,0.3); color: var(--cyan); }
-    .ai-loading { opacity: .6; pointer-events: none; }
+    .hidden { display: none !important; }
+    .ai-loading { opacity: .55; pointer-events: none; }
   </style>
 </head>
 <body>
-  <nav class="top-nav">
-    <a href="index.html">← 原型导航</a>
-    <span class="title">整合页 · 工时 + 周报 + 价值观 · 一键提交</span>
-  </nav>
-
-  <header class="page-header">
-    <h1>第 21 周 · 本周填报</h1>
-    <div class="meta-row">
-      <span><strong>皮延升</strong> · IT测试主管 · 业务解决方案部</span>
-      <span>周期 <strong>2026/05/17 – 2026/05/23</strong></span>
-      <span>考核周期 <strong>2026 Q2</strong></span>
-    </div>
-    <div class="header-actions">
-      <button type="button" class="btn btn-ghost" id="btn-save">保存草稿</button>
-      <button type="button" class="btn btn-primary" id="btn-submit-top">一键提交（工时 + 周报）</button>
-    </div>
+  <header class="app-bar">
+    <a href="index.html">← 返回</a>
+    <span class="title">本周填报</span>
   </header>
 
-  <div class="container">
-    <!-- ① 工时草稿 -->
-    <section class="section" id="sec-timesheet">
-      <div class="section-head">
-        <h2><span class="section-num">①</span> 本周工时（Draft Engine 草稿确认）</h2>
-        <span style="font-size:11px;color:var(--muted)">非旧版 Grid · 草稿列表确认</span>
-      </div>
-      <div class="section-body">
-        <div class="draft-list" id="draft-list">
-          <div class="draft-row">
-            <input type="checkbox" checked>
-            <div>
-              <div class="proj">工时周报管理系统重构</div>
-              <div class="act">需求分析 · 用户调研与方案设计</div>
-              <div class="tags"><span class="tag tag-booking">Booking</span></div>
-            </div>
-            <div><div class="hrs">12h</div><div class="days">一4 · 三4 · 五4</div></div>
-          </div>
-          <div class="draft-row">
-            <input type="checkbox" checked>
-            <div>
-              <div class="proj">任职资格系统</div>
-              <div class="act">n8n 流程建设 · 提醒与匹配逻辑</div>
-              <div class="tags"><span class="tag tag-booking">Booking</span></div>
-            </div>
-            <div><div class="hrs">16h</div><div class="days">二8 · 四8</div></div>
-          </div>
-          <div class="draft-row">
-            <input type="checkbox" checked>
-            <div>
-              <div class="proj">业务方案 · 日常工作</div>
-              <div class="act">会议 · 方案评审</div>
-              <div class="tags"><span class="tag tag-delegate">代发 · 李四</span></div>
-            </div>
-            <div><div class="hrs">4h</div><div class="days">二2 · 四2</div></div>
-          </div>
-        </div>
-        <div class="ts-summary">
-          <span>合计 <strong id="ts-total">32h</strong></span>
-          <span>Booking 内 <strong>28h</strong></span>
-          <span>代发 <strong>4h</strong></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ② 周报 -->
-    <section class="section" id="sec-report">
-      <div class="section-head">
-        <h2><span class="section-num">②</span> RIGOL 周报</h2>
-      </div>
-      <div class="section-body">
-        <div class="wr-block">
-          <div class="wr-block-head">
-            <div>
-              <h3>一、上周重要工作进展回顾</h3>
-              <span class="limit">限 3 项 · 每项含描述 + 进展</span>
-            </div>
-            <div class="actions">
-              <button type="button" class="btn btn-ghost btn-sm" id="btn-bring-review">带出上周</button>
-              <button type="button" class="btn btn-ai btn-sm" id="btn-ai-review">✨ AI 生成进展</button>
-            </div>
-          </div>
-          <div id="review-items">
-            <div class="wr-item" data-index="1">
-              <label>事项 1 · 工作描述</label>
-              <input type="text" class="review-desc" placeholder="例：任职资格 n8n 流程建设">
-              <div class="progress-field">
-                <label>进展说明</label>
-                <textarea class="review-progress" placeholder="例：已完成 3 条提醒流程，待业务试跑"></textarea>
-              </div>
-            </div>
-            <div class="wr-item" data-index="2">
-              <label>事项 2 · 工作描述</label>
-              <input type="text" class="review-desc" placeholder="工作描述">
-              <div class="progress-field">
-                <label>进展说明</label>
-                <textarea class="review-progress" placeholder="进展说明"></textarea>
-              </div>
-            </div>
-            <div class="wr-item" data-index="3">
-              <label>事项 3 · 工作描述</label>
-              <input type="text" class="review-desc" placeholder="工作描述">
-              <div class="progress-field">
-                <label>进展说明</label>
-                <textarea class="review-progress" placeholder="进展说明"></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="item-count" id="review-count">已填 0 / 3 项</div>
-        </div>
-
-        <div class="wr-block">
-          <div class="wr-block-head">
-            <div>
-              <h3>二、本周工作计划</h3>
-              <span class="limit">限 3 项</span>
-            </div>
-            <div class="actions">
-              <button type="button" class="btn btn-ghost btn-sm" id="btn-bring-plan">带出上周计划</button>
-            </div>
-          </div>
-          <div id="plan-items">
-            <div class="wr-item"><label>计划 1</label><textarea class="plan-text" rows="2" placeholder="例：工时周报管理系统方案沟通与原型"></textarea></div>
-            <div class="wr-item"><label>计划 2</label><textarea class="plan-text" rows="2" placeholder="计划工作描述"></textarea></div>
-            <div class="wr-item"><label>计划 3</label><textarea class="plan-text" rows="2" placeholder="计划工作描述"></textarea></div>
-          </div>
-          <div class="item-count" id="plan-count">已填 0 / 3 项</div>
-        </div>
-
-        <div class="wr-block">
-          <div class="wr-block-head"><h3>三、需要的支持/帮助/资源</h3></div>
-          <textarea id="wr-support" rows="2" placeholder="选填"></textarea>
-        </div>
-        <div class="wr-block">
-          <div class="wr-block-head"><h3>四、工作建议及其他说明</h3></div>
-          <textarea id="wr-suggest" rows="2" placeholder="选填"></textarea>
-        </div>
-        <div class="wr-block">
-          <div class="wr-block-head"><h3>五、周报附件</h3></div>
-          <div class="attach-zone" id="attach-zone">点击或拖拽上传附件（原型示意）</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ③ 价值观 -->
-    <section class="section" id="sec-values">
-      <div class="section-head">
-        <h2><span class="section-num">③</span> 价值观行为记录</h2>
-        <span style="font-size:11px;color:var(--muted)">只读展示 · 考核周期 + 年度</span>
-      </div>
-      <div class="section-body">
-        <h4 style="font-size:12px;color:var(--cyan);margin-bottom:8px">考核周期内（2026 Q2）</h4>
-        <div class="values-grid" id="cycle-values">
-          <div class="value-card warn" data-key="customer"><div class="v-name">成就客户</div><div class="v-num">0</div></div>
-          <div class="value-card ok" data-key="innovate"><div class="v-name">不断创新</div><div class="v-num">1</div></div>
-          <div class="value-card warn" data-key="coop"><div class="v-name">阳光合作</div><div class="v-num">0</div></div>
-          <div class="value-card warn" data-key="integrity"><div class="v-name">良知自律</div><div class="v-num">0</div></div>
-        </div>
-        <div class="summary-cards">
-          <div class="sum-card">
-            <h4>周期汇总校验</h4>
-            <div class="sum-row">礼物总数（≥4）<span id="v-cycle-total" class="status-bad">1</span></div>
-            <div class="sum-row">每种类型至少 1 个<span id="v-cycle-types" class="status-bad">未达标</span></div>
-            <div class="sum-row">自知或点赞 ≥3<span id="v-cycle-like" class="status-bad">1</span></div>
-            <div class="sum-row">自律或责善 ≥1<span id="v-cycle-disc" class="status-bad">0</span></div>
-          </div>
-          <div class="sum-card">
-            <h4>周期礼物明细</h4>
-            <div class="sum-row">点赞 & 自知礼物总数<span class="status-warn">1</span></div>
-            <div class="sum-row">责善 & 自律礼物总数<span class="status-bad">0</span></div>
-          </div>
-        </div>
-        <div class="rule-box">
-          考核周期内：每周期礼物总数至少为 <strong>4</strong> 个，每种价值观类型至少 <strong>1</strong> 个，
-          自知或点赞礼物至少 <strong>3</strong> 个，自律或责善至少 <strong>1</strong> 个。
-        </div>
-
-        <div class="annual-block">
-          <h4 style="font-size:12px;color:var(--purple);margin-bottom:8px">年度累计（2026）</h4>
-          <div class="summary-cards">
-            <div class="sum-card">
-              <div class="sum-row">点赞礼物年度总数（≥4）<span id="v-annual-like" class="status-bad">2</span></div>
-              <div class="sum-row">责善礼物年度总数（≤12）<span id="v-annual-disc" class="status-ok">0</span></div>
-            </div>
-            <div class="sum-card">
-              <div class="sum-row">年度价值观结论<span id="v-annual-verdict" class="status-bad">不合格</span></div>
-              <div style="font-size:11px;color:var(--muted);margin-top:6px">点赞 &lt; 4 → 需参加普源书院脱产学习班（≥1 周）</div>
-            </div>
-          </div>
-          <div class="rule-box">
-            年度点赞礼物 &lt; 4 个或责善 &gt; 12 个，价值观不合格，参与由普源书院组织的脱产学习班，学习时长至少一周。
-          </div>
-          <div class="rule-box">
-            年度指当年年初至年末；10 月 1 日前入职新员工首年从入职日起计；10 月 1 日后入职无需满足年度数量要求。
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div class="sticky-bar">
-    <div class="checks" id="submit-checks">
-      <span class="check-item" id="chk-ts">⏳ 工时 32h</span>
-      <span class="check-item bad" id="chk-wr">⏳ 周报待完善</span>
-      <span class="check-item bad" id="chk-val">⚠ 价值观周期未达标（仅提醒）</span>
+  <div class="shell">
+    <div class="page-title">
+      <h1>第 21 周 · 2026/05/17 – 05/23</h1>
+      <div class="meta">皮延升 · IT测试主管 · 考核周期 2026 Q2</div>
     </div>
-    <button type="button" class="btn btn-primary" id="btn-submit-bottom">一键提交（工时 + 周报）</button>
+
+    <!-- 三步指示 -->
+    <div class="steps" id="steps">
+      <div class="step-tab active" data-step="1">
+        <span class="num">1</span>
+        <span class="label">确认工时</span>
+        <span class="sub">预填草稿</span>
+      </div>
+      <div class="step-tab locked" data-step="2">
+        <span class="num">2</span>
+        <span class="label">填写周报</span>
+        <span class="sub">回顾与计划</span>
+      </div>
+      <div class="step-tab locked" data-step="3">
+        <span class="num">3</span>
+        <span class="label">确认提交</span>
+        <span class="sub">价值观检查</span>
+      </div>
+    </div>
+
+    <!-- 区域 1：工时 -->
+    <div class="panel" id="panel-1">
+      <div class="panel-head">
+        <div>
+          <h2>确认本周工时</h2>
+          <p>系统已预填 Booking、代发等行，请勾选并调整小时数。确认后再写周报。</p>
+        </div>
+      </div>
+      <div class="draft-list">
+        <div class="draft-row">
+          <input type="checkbox" checked>
+          <div>
+            <div class="name">工时周报管理系统重构</div>
+            <div class="sub">需求分析 · 方案设计</div>
+            <span class="tag">Booking</span>
+          </div>
+          <div><div class="hrs">12h</div><div class="days">一4·三4·五4</div></div>
+        </div>
+        <div class="draft-row">
+          <input type="checkbox" checked>
+          <div>
+            <div class="name">任职资格系统</div>
+            <div class="sub">n8n 流程建设</div>
+            <span class="tag">Booking</span>
+          </div>
+          <div><div class="hrs">16h</div><div class="days">二8·四8</div></div>
+        </div>
+        <div class="draft-row">
+          <input type="checkbox" checked>
+          <div>
+            <div class="name">业务方案 · 会议</div>
+            <div class="sub">方案评审</div>
+            <span class="tag delegate">代发</span>
+          </div>
+          <div><div class="hrs">4h</div><div class="days">二2·四2</div></div>
+        </div>
+      </div>
+      <div class="ts-total">
+        <span>合计 <strong>32h</strong></span>
+        <span>Booking 内 28h</span>
+        <span>代发 4h</span>
+      </div>
+      <div class="panel-foot">
+        <button type="button" class="btn btn-text" id="btn-add-row">+ 手动增行</button>
+        <button type="button" class="btn btn-primary" id="btn-next-1">确认工时，下一步 →</button>
+      </div>
+    </div>
+
+    <!-- 区域 2：周报 -->
+    <div class="panel hidden" id="panel-2">
+      <div class="panel-head">
+        <div>
+          <h2>填写 RIGOL 周报</h2>
+          <p>基于已确认工时撰写。一、二各不超过 3 项。</p>
+        </div>
+      </div>
+
+      <div class="wr-item">
+        <div class="wr-item-head">
+          <label>一、上周重要工作进展回顾</label>
+          <span class="limit">限 3 项</span>
+        </div>
+        <div class="wr-toolbar">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-bring">带出上周</button>
+          <button type="button" class="btn btn-ai btn-sm" id="btn-ai">✨ AI 生成进展</button>
+        </div>
+        <div id="review-list">
+          <div class="wr-compact wr-item">
+            <input type="text" class="review-desc" placeholder="工作描述 1">
+            <textarea class="review-progress" rows="2" placeholder="进展说明 1" style="margin-top:6px"></textarea>
+          </div>
+          <div class="wr-compact wr-item">
+            <input type="text" class="review-desc" placeholder="工作描述 2">
+            <textarea class="review-progress" rows="2" placeholder="进展说明 2" style="margin-top:6px"></textarea>
+          </div>
+          <div class="wr-compact wr-item">
+            <input type="text" class="review-desc" placeholder="工作描述 3">
+            <textarea class="review-progress" rows="2" placeholder="进展说明 3" style="margin-top:6px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="wr-item">
+        <div class="wr-item-head">
+          <label>二、本周工作计划</label>
+          <span class="limit">限 3 项</span>
+        </div>
+        <textarea class="plan-text" rows="2" placeholder="计划 1"></textarea>
+        <textarea class="plan-text" rows="2" placeholder="计划 2" style="margin-top:6px"></textarea>
+        <textarea class="plan-text" rows="2" placeholder="计划 3" style="margin-top:6px"></textarea>
+      </div>
+
+      <details class="optional-block">
+        <summary>三～五、支持需求 / 建议说明 / 附件（选填）</summary>
+        <textarea rows="2" placeholder="需要的支持/帮助/资源" style="margin-top:8px"></textarea>
+        <textarea rows="2" placeholder="工作建议及其他说明" style="margin-top:6px"></textarea>
+      </details>
+
+      <div class="panel-foot">
+        <button type="button" class="btn btn-secondary" id="btn-back-2">← 返回修改工时</button>
+        <button type="button" class="btn btn-primary" id="btn-next-2">下一步：确认提交 →</button>
+      </div>
+    </div>
+
+    <!-- 区域 3：价值观 + 提交 -->
+    <div class="panel hidden" id="panel-3">
+      <div class="panel-head">
+        <div>
+          <h2>提交前检查</h2>
+          <p>确认本考核周期价值观是否达标，然后一并提交工时与周报。</p>
+        </div>
+      </div>
+
+      <div class="submit-summary" id="submit-summary">
+        工时 <strong>32h</strong> 已确认 · 周报待校验
+      </div>
+
+      <p style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--muted)">考核周期内价值观（2026 Q2）</p>
+      <div class="val-grid">
+        <div class="val-cell bad"><div class="vn">成就客户</div><div class="vv">0</div></div>
+        <div class="val-cell ok"><div class="vn">不断创新</div><div class="vv">1</div></div>
+        <div class="val-cell bad"><div class="vn">阳光合作</div><div class="vv">0</div></div>
+        <div class="val-cell bad"><div class="vn">良知自律</div><div class="vv">0</div></div>
+      </div>
+      <ul class="check-list">
+        <li>礼物总数 ≥ 4<span class="st-bad">1 · 未达标</span></li>
+        <li>每种类型 ≥ 1<span class="st-bad">未达标</span></li>
+        <li>自知或点赞 ≥ 3<span class="st-bad">1</span></li>
+        <li>自律或责善 ≥ 1<span class="st-bad">0</span></li>
+      </ul>
+      <div class="hint-box">
+        ⚠️ 本周期价值观暂未达标，请自行关注并及时补充礼物记录。年度：点赞 2/4，责善 0/12。
+      </div>
+
+      <details class="optional-block" style="margin-top:12px">
+        <summary>年度规则说明</summary>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.55">
+          年度点赞 &lt; 4 或责善 &gt; 12 为不合格，需参加普源书院脱产学习班（≥1 周）。
+          10 月 1 日后入职新员工首年免年度数量要求。
+        </p>
+      </details>
+
+      <div class="panel-foot">
+        <button type="button" class="btn btn-secondary" id="btn-back-3">← 返回修改周报</button>
+        <button type="button" class="btn btn-primary" id="btn-submit">一键提交（工时 + 周报）</button>
+      </div>
+    </div>
   </div>
 
   <script src="shared.js"></script>
   <script>
-    // 模拟：上周周报数据
     const LAST_WEEK = {
       review: [
-        { desc: '任职资格 n8n 流程建设', progress: '（待填写进展）' },
-        { desc: 'HR 外包考勤 n8n 流程', progress: '用户已搭建主逻辑，与业务联调中' },
-        { desc: '数据分析支持', progress: '已完成，成果已移交需求方' }
+        { desc: '任职资格 n8n 流程建设', progress: '' },
+        { desc: 'HR 外包考勤 n8n 流程', progress: '主逻辑已搭建，与业务联调中' },
+        { desc: '数据分析支持', progress: '已完成并移交' }
       ],
-      plan: [
-        '工时周报管理系统：现状分析、痛点梳理、与 HR 沟通新方案',
-        '任职资格系统小版本迭代，对接 n8n 流程',
-        'HR 外包考勤 n8n 流程（延续）'
-      ]
+      plan: ['工时周报系统方案沟通', '任职资格小版本迭代', 'HR 考勤 n8n 流程']
     };
 
-    // 模拟：AI 可分析的工时摘要
-    const TIMESHEET_SUMMARY = [
-      { project: '工时周报管理系统重构', hours: 12, act: '需求分析·方案设计' },
-      { project: '任职资格系统', hours: 16, act: 'n8n 流程建设' },
-      { project: '业务方案·会议', hours: 4, act: '方案评审' }
-    ];
+    let currentStep = 1;
+    let timesheetConfirmed = false;
 
-    function countFilledReview() {
-      let n = 0;
-      document.querySelectorAll('#review-items .wr-item').forEach(item => {
-        const d = item.querySelector('.review-desc').value.trim();
-        const p = item.querySelector('.review-progress').value.trim();
-        if (d && p) n++;
+    function goStep(n) {
+      currentStep = n;
+      [1, 2, 3].forEach(i => {
+        document.getElementById('panel-' + i).classList.toggle('hidden', i !== n);
       });
-      document.getElementById('review-count').textContent = '已填 ' + n + ' / 3 项';
-      return n;
-    }
-
-    function countFilledPlan() {
-      let n = 0;
-      document.querySelectorAll('.plan-text').forEach(t => { if (t.value.trim()) n++; });
-      document.getElementById('plan-count').textContent = '已填 ' + n + ' / 3 项';
-      return n;
-    }
-
-    function updateSubmitChecks() {
-      const rc = countFilledReview();
-      const pc = countFilledPlan();
-      const wrOk = rc >= 1 && pc >= 1;
-      const chkWr = document.getElementById('chk-wr');
-      chkWr.textContent = wrOk ? '✓ 周报已填写' : '⏳ 周报：回顾≥1 项、计划≥1 项';
-      chkWr.className = 'check-item ' + (wrOk ? 'ok' : 'bad');
-    }
-
-    document.querySelectorAll('#review-items input, #review-items textarea, .plan-text').forEach(el => {
-      el.addEventListener('input', updateSubmitChecks);
-    });
-
-    document.getElementById('btn-bring-review').addEventListener('click', () => {
-      LAST_WEEK.review.forEach((item, i) => {
-        const row = document.querySelectorAll('#review-items .wr-item')[i];
-        if (!row) return;
-        row.querySelector('.review-desc').value = item.desc;
-        row.querySelector('.review-progress').value = item.progress;
-      });
-      showToast('已带出上周回顾事项（描述），请补充或修改进展', 'success');
-      updateSubmitChecks();
-    });
-
-    document.getElementById('btn-bring-plan').addEventListener('click', () => {
-      document.querySelectorAll('.plan-text').forEach((ta, i) => {
-        if (LAST_WEEK.plan[i]) ta.value = LAST_WEEK.plan[i];
-      });
-      showToast('已带出上周的「本周计划」作为参考', 'success');
-      updateSubmitChecks();
-    });
-
-    document.getElementById('btn-ai-review').addEventListener('click', async () => {
-      const btn = document.getElementById('btn-ai-review');
-      const sec = document.getElementById('sec-report');
-      btn.textContent = '分析中…';
-      sec.classList.add('ai-loading');
-      await new Promise(r => setTimeout(r, 1200));
-
-      // 基于工时 + 上周描述生成进展（原型 mock）
-      const aiResults = [
-        {
-          desc: LAST_WEEK.review[0].desc,
-          progress: '本周投入 16h（任职资格 n8n）。已完成提醒流程 3 条并排序落地，下一步安排业务部门试跑验证效果。'
-        },
-        {
-          desc: LAST_WEEK.review[1].desc,
-          progress: '本周未排期投入；主逻辑仍处联调阶段，进展：用户侧搭建完成，与业务调试中，计划下周启动。'
-        },
-        {
-          desc: LAST_WEEK.review[2].desc,
-          progress: '上周已完结。本周无新增工时；数据分析成果已移交，无遗留事项。'
+      document.querySelectorAll('.step-tab').forEach(tab => {
+        const s = +tab.dataset.step;
+        tab.classList.remove('active', 'done', 'locked');
+        if (s === n) {
+          tab.classList.add('active');
+        } else if (timesheetConfirmed && s < n) {
+          tab.classList.add('done');
+        } else if (!timesheetConfirmed && s > 1) {
+          tab.classList.add('locked');
+        } else if (timesheetConfirmed && s > n) {
+          tab.classList.add('done');
         }
-      ];
-
-      aiResults.forEach((item, i) => {
-        const row = document.querySelectorAll('#review-items .wr-item')[i];
-        if (!row) return;
-        row.querySelector('.review-desc').value = item.desc;
-        row.querySelector('.review-progress').value = item.progress;
+        if (s > 1 && !timesheetConfirmed) tab.classList.add('locked');
       });
-
-      btn.textContent = '✨ AI 生成进展';
-      sec.classList.remove('ai-loading');
-      showToast('AI 已根据本周工时（' + TIMESHEET_SUMMARY.map(t => t.project + ' ' + t.hours + 'h').join('、') + '）与上周周报生成进展，请确认后提交', 'success');
-      updateSubmitChecks();
-    });
-
-    async function unifiedSubmit() {
-      const rc = countFilledReview();
-      const pc = countFilledPlan();
-      if (rc < 1) { showToast('请至少填写 1 项上周工作回顾（描述+进展）', 'error'); return; }
-      if (pc < 1) { showToast('请至少填写 1 项本周工作计划', 'error'); return; }
-      if (rc > 3 || pc > 3) { showToast('回顾与计划均不能超过 3 项', 'error'); return; }
-
-      const ok = await confirmDialog(
-        '确认一键提交？',
-        '将同时提交：\n· 本周工时 32h（Booking 内 28h 自动接收，代发 4h）\n· RIGOL 周报（回顾 ' + rc + ' 项，计划 ' + pc + ' 项）\n\n价值观数据为只读展示，不影响本次提交。'
-      );
-      if (!ok) return;
-
-      FlowStore.set({
-        paradigm: 'Unified',
-        totalHours: 32,
-        autoHours: 28,
-        pendingHours: 4,
-        week: 'W21',
-        reportReview: rc,
-        reportPlan: pc,
-        submittedAt: new Date().toISOString()
-      });
-      window.location.href = 'flow-submitted.html?from=Unified';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    document.getElementById('btn-submit-top').addEventListener('click', unifiedSubmit);
-    document.getElementById('btn-submit-bottom').addEventListener('click', unifiedSubmit);
-    document.getElementById('btn-save').addEventListener('click', () => showToast('草稿已保存（原型示意）', 'success'));
-    document.getElementById('attach-zone').addEventListener('click', () => showToast('附件上传（原型示意）', 'info'));
+    document.getElementById('steps').addEventListener('click', e => {
+      const tab = e.target.closest('.step-tab');
+      if (!tab || tab.classList.contains('locked')) return;
+      const s = +tab.dataset.step;
+      if (s === 1) goStep(1);
+      if (s === 2 && timesheetConfirmed) goStep(2);
+      if (s === 3 && timesheetConfirmed && currentStep >= 2) goStep(3);
+    });
 
-    updateSubmitChecks();
+    document.getElementById('btn-next-1').addEventListener('click', () => {
+      timesheetConfirmed = true;
+      showToast('工时已确认，请填写周报', 'success');
+      goStep(2);
+    });
+
+    document.getElementById('btn-back-2').addEventListener('click', () => goStep(1));
+
+    document.getElementById('btn-next-2').addEventListener('click', () => {
+      let rc = 0, pc = 0;
+      document.querySelectorAll('.review-desc').forEach((d, i) => {
+        const p = document.querySelectorAll('.review-progress')[i];
+        if (d.value.trim() && p.value.trim()) rc++;
+      });
+      document.querySelectorAll('.plan-text').forEach(t => { if (t.value.trim()) pc++; });
+      if (rc < 1) { showToast('请至少填写 1 项上周回顾', 'error'); return; }
+      if (pc < 1) { showToast('请至少填写 1 项本周计划', 'error'); return; }
+      document.getElementById('submit-summary').innerHTML =
+        '工时 <strong>32h</strong> 已确认 · 周报 回顾 ' + rc + ' 项 · 计划 ' + pc + ' 项';
+      goStep(3);
+    });
+
+    document.getElementById('btn-back-3').addEventListener('click', () => goStep(2));
+
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const ok = await confirmDialog('确认提交？', '将同时提交本周工时（32h）与 RIGOL 周报。');
+      if (!ok) return;
+      FlowStore.set({ paradigm: 'Unified', totalHours: 32, autoHours: 28, pendingHours: 4, week: 'W21' });
+      window.location.href = 'flow-submitted.html?from=Unified';
+    });
+
+    document.getElementById('btn-bring').addEventListener('click', () => {
+      LAST_WEEK.review.forEach((item, i) => {
+        document.querySelectorAll('.review-desc')[i].value = item.desc;
+        document.querySelectorAll('.review-progress')[i].value = item.progress;
+      });
+      showToast('已带出上周内容', 'success');
+    });
+
+    document.getElementById('btn-ai').addEventListener('click', async () => {
+      const panel = document.getElementById('panel-2');
+      panel.classList.add('ai-loading');
+      await new Promise(r => setTimeout(r, 900));
+      const ai = [
+        { desc: LAST_WEEK.review[0].desc, progress: '本周投入 16h 于 n8n 流程，已完成 3 条提醒流程并安排业务试跑。' },
+        { desc: LAST_WEEK.review[1].desc, progress: '本周未排期；仍处联调阶段，计划下周启动。' },
+        { desc: LAST_WEEK.review[2].desc, progress: '上周已完结，本周无新增投入。' }
+      ];
+      ai.forEach((item, i) => {
+        document.querySelectorAll('.review-desc')[i].value = item.desc;
+        document.querySelectorAll('.review-progress')[i].value = item.progress;
+      });
+      panel.classList.remove('ai-loading');
+      showToast('AI 已根据工时与上周周报生成进展', 'success');
+    });
+
+    document.getElementById('btn-add-row').addEventListener('click', () => showToast('手动增行（原型示意）', 'info'));
   </script>
 </body>
 </html>
