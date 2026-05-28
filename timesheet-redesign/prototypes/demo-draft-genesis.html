@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>周日预填全景 · 草稿生成 Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* Linear.app 浅色 — references/awesome-design-md/design-md/linear.app/DESIGN.md */
+    :root {
+      --canvas: #ffffff;
+      --surface-1: #f5f6f6;
+      --surface-2: #f6f7f7;
+      --hairline: #e6e6e8;
+      --hairline-strong: #d0d0d5;
+      --ink: #0f0f10;
+      --ink-muted: #5c5f66;
+      --ink-subtle: #8a8f98;
+      --primary: #5e6ad2;
+      --primary-soft: rgba(94, 106, 210, 0.1);
+      --success: #27a644;
+      --success-soft: #ecfdf3;
+      --success-border: #b8e6c8;
+      --accent: #5e6ad2;
+      --accent-soft: rgba(94, 106, 210, 0.08);
+      --radius: 12px;
+      --radius-md: 8px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-sm: 0 1px 2px rgba(15, 15, 16, 0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--surface-1); color: var(--ink);
+      font-size: 14px; line-height: 1.5; letter-spacing: -0.01em;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .top-nav {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--hairline);
+      padding: 0 20px; height: 52px;
+      display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .top-nav .nav-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--ink-subtle); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      transition: color 160ms var(--ease);
+    }
+    .top-nav .nav-back:hover { color: var(--ink); }
+    .top-nav .nav-back svg { width: 16px; height: 16px; }
+    .top-nav .nav-sep { width: 1px; height: 18px; background: var(--hairline); }
+    .top-nav .nav-title { font-size: 13px; font-weight: 500; color: var(--ink-muted); }
+    .top-nav .play {
+      margin-left: auto;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary); color: #fff;
+      padding: 6px 12px; border-radius: var(--radius-md);
+      font-size: 12px; font-weight: 500;
+      border: none; cursor: pointer;
+      transition: all 160ms var(--ease);
+    }
+    .top-nav .play:hover { background: #828fff; }
+    .top-nav .play:disabled { opacity: 0.5; cursor: not-allowed; }
+    .top-nav .play svg { width: 13px; height: 13px; }
+
+    .page-header {
+      max-width: 1040px; margin: 0 auto;
+      padding: 28px 20px 0;
+    }
+    .page-header .time-now {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary-soft);
+      border: 1px solid rgba(94, 106, 210, 0.22);
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .page-header h1 {
+      font-size: 22px; font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+    .page-header .lead {
+      color: var(--ink-muted); font-size: 14px;
+      margin-top: 8px; max-width: 640px; line-height: 1.6;
+    }
+
+    main { max-width: 1040px; margin: 20px auto 0; padding: 0 20px; }
+
+    /* 总览状态条 */
+    .status-bar {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 760px) { .status-bar { grid-template-columns: repeat(2,1fr); } }
+    .step-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      font-size: 12px;
+      transition: all .3s var(--ease);
+    }
+    .step-chip .sn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1.5px solid var(--hairline-strong);
+      display: flex; align-items:center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      font-family: Inter, sans-serif;
+      color: var(--ink-muted);
+      flex-shrink: 0;
+      transition: all .3s var(--ease);
+    }
+    .step-chip .sl {
+      font-weight: 600; color: var(--ink-muted);
+      flex: 1; line-height: 1.3;
+    }
+    .step-chip.running { border-color: var(--primary); background: var(--primary-soft); }
+    .step-chip.running .sn {
+      background: var(--primary); border-color: var(--primary); color: #fff;
+      animation: pulse 1.2s var(--ease) infinite;
+    }
+    .step-chip.running .sl { color: var(--primary); }
+    .step-chip.done { border-color: var(--success); background: var(--success-soft); }
+    .step-chip.done .sn { background: var(--success); border-color: var(--success); color: #fff; }
+    .step-chip.done .sl { color: #065f46; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(94, 106, 210, 0.35); }
+      50% { box-shadow: 0 0 0 6px rgba(94, 106, 210, 0); }
+    }
+
+    /* 流程卡片 */
+    .flow-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 760px) { .flow-list { grid-template-columns: 1fr; } }
+
+    .flow-card {
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      opacity: .55;
+      transform: translateY(0);
+      transition: all .4s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-card.active {
+      opacity: 1;
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px rgba(94, 106, 210, 0.12);
+    }
+    .flow-card.done {
+      opacity: 1;
+      border-color: var(--success-border, #a7f3d0);
+    }
+    .flow-card.running::after {
+      content: '';
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), #828fff, var(--primary));
+      background-size: 200% 100%;
+      animation: slide 1.5s linear infinite;
+    }
+    @keyframes slide {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    .fc-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .fc-code {
+      font-family: Inter, sans-serif;
+      font-weight: 700; font-size: 12px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 3px 8px; border-radius: 6px;
+      border: 1px solid #ddd6fe;
+    }
+    .fc-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .fc-state {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .fc-state.pending { background: var(--surface-2); color: var(--ink-muted); }
+    .fc-state.running { background: var(--primary-soft); color: var(--primary); }
+    .fc-state.done { background: var(--success-soft); color: #065f46; }
+
+    .fc-source {
+      font-size: 12px; color: var(--ink-muted);
+      margin-bottom: 10px;
+    }
+    .fc-source b { color: var(--ink); font-weight: 600; }
+
+    .fc-items {
+      list-style: none;
+      border-top: 1px dashed var(--hairline);
+      padding-top: 10px;
+      max-height: 0; overflow: hidden;
+      transition: max-height .5s var(--ease);
+    }
+    .flow-card.done .fc-items, .flow-card.running .fc-items { max-height: 240px; }
+    .fc-items li {
+      font-size: 12px;
+      padding: 6px 0;
+      display: flex; align-items: center; gap: 8px;
+      opacity: 0;
+      animation: fadeIn .35s var(--ease) forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; transform: none; } from { opacity: 0; transform: translateY(4px); } }
+    .fc-items li svg { width: 13px; height: 13px; color: var(--success); flex-shrink: 0; }
+    .fc-items li .proj { font-weight: 600; }
+    .fc-items li .hrs { margin-left: auto; font-weight: 600; color: var(--ink); }
+    .fc-items li .hrs small { font-weight: 500; color: var(--ink-muted); margin-left: 2px; font-family: inherit; }
+
+    /* 最终汇总 */
+    .summary {
+      background: var(--canvas);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(37,99,235,.12);
+      opacity: 0; transform: translateY(12px);
+      transition: all .5s var(--ease);
+    }
+    .summary.show { opacity: 1; transform: none; }
+    .summary-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .summary-head .tag {
+      background: var(--primary); color: #fff;
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 11px; font-weight: 700;
+      font-family: Inter, sans-serif;
+    }
+    .summary-head h3 { font-size: 16px; font-weight: 600; flex: 1; }
+    .summary-head .total {
+      font-family: Inter, sans-serif;
+      font-size: 22px; font-weight: 700;
+      color: var(--primary);
+    }
+    .summary-head .total small {
+      font-size: 12px; font-weight: 500; color: var(--ink-muted);
+      margin-left: 2px;
+    }
+
+    .sum-table {
+      width: 100%; border-collapse: collapse;
+      border: 1px solid var(--hairline);
+      border-radius: 8px; overflow: hidden;
+    }
+    .sum-table th {
+      text-align: left;
+      background: var(--surface-2);
+      padding: 8px 12px;
+      font-size: 12px; font-weight: 600;
+      color: var(--ink-muted);
+      border-bottom: 1px solid var(--hairline);
+    }
+    .sum-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--hairline);
+      font-size: 13px;
+    }
+    .sum-table tr:last-child td { border-bottom: none; }
+    .sum-table .proj { font-weight: 600; }
+    .tag-src {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .tag-src.booking { background: #dbeafe; color: #1d4ed8; }
+    .tag-src.meeting { background: #fce7f3; color: #be185d; }
+    .tag-src.att { background: #fef3c7; color: #92400e; }
+    .tag-src.crm { background: #dcfce7; color: #166534; }
+    .tag-src.behav { background: #ede9fe; color: #6d28d9; }
+
+    .summary-foot {
+      margin-top: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .summary-foot .hint {
+      font-size: 12px; color: var(--ink-muted);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .summary-foot .hint svg { width: 14px; height: 14px; color: var(--success); }
+    .btn-next {
+      display:inline-flex; align-items:center; gap: 6px;
+      background: var(--primary); color: #fff;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      text-decoration: none;
+      transition: all .2s var(--ease);
+    }
+    .btn-next:hover { background: #1d4ed8; box-shadow: 0 4px 12px rgba(37,99,235,.3); }
+    .btn-next svg { width: 14px; height: 14px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-back">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      返回
+    </a>
+    <span class="nav-sep"></span>
+    <span class="nav-title">周日预填演示</span>
+    <button class="play" id="btn-replay">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+      重新演示
+    </button>
+  </header>
+
+  <header class="page-header">
+      <span class="time-now">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        周日 00:00 · n8n 自动化流程批量启动
+      </span>
+      <h1>本周工时草稿正在自动生成…</h1>
+      <p class="lead">无需员工动作，5 路 n8n 流程从各业务系统并行拉取数据；周日 00:00 周期开启、草稿就绪，员工从<strong>首个工作日</strong>起可核对填报。</p>
+  </header>
+
+  <main>
+    <!-- 状态条 -->
+    <div class="status-bar" id="status-bar">
+      <div class="step-chip" data-step="1"><span class="sn">1</span><span class="sl">n8n-01 飞书 WBS</span></div>
+      <div class="step-chip" data-step="2"><span class="sn">2</span><span class="sl">n8n-02 会议代发</span></div>
+      <div class="step-chip" data-step="3"><span class="sn">3</span><span class="sl">n8n-03 考勤核对</span></div>
+      <div class="step-chip" data-step="4"><span class="sn">4</span><span class="sl">n8n-04 ISM/CRM</span></div>
+      <div class="step-chip" data-step="5"><span class="sn">5</span><span class="sl">n8n-05 飞书行为</span></div>
+    </div>
+
+    <!-- 流程卡片 -->
+    <div class="flow-list">
+      <div class="flow-card" data-card="1">
+        <div class="fc-head">
+          <span class="fc-code">n8n-01</span>
+          <span class="fc-title">飞书 WBS 拉取</span>
+          <span class="fc-state pending">待运行</span>
+        </div>
+        <div class="fc-source">从 <b>飞书项目 WBS</b> 读取本周任务排期</div>
+        <ul class="fc-items">
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">工时周报管理系统重构</span><span class="hrs">12<small>h</small></span></li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">任职资格系统</span><span class="hrs">16<small>h</small></span></li>
+        </ul>
+      </div>
+
+      <div class="flow-card" data-card="2">
+        <div class="fc-head">
+          <span class="fc-code">n8n-02</span>
+          <span class="fc-title">会议代发提取</span>
+          <span class="fc-state pending">待运行</span>
+        </div>
+        <div class="fc-source">解析 <b>飞书日历 + 代发邮件</b> 中的代发活动</div>
+        <ul class="fc-items">
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">业务方案 · 方案评审会议</span><span class="hrs">4<small>h</small></span></li>
+        </ul>
+      </div>
+
+      <div class="flow-card" data-card="3">
+        <div class="fc-head">
+          <span class="fc-code">n8n-03</span>
+          <span class="fc-title">考勤工时核对</span>
+          <span class="fc-state pending">待运行</span>
+        </div>
+        <div class="fc-source">读取 <b>考勤打卡时长</b>，校验工时总量是否匹配</div>
+        <ul class="fc-items">
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">考勤累计 40h · 预填合计 32h</span><span class="hrs" style="color:var(--warn)">差 8h</span></li>
+        </ul>
+      </div>
+
+      <div class="flow-card" data-card="4">
+        <div class="fc-head">
+          <span class="fc-code">n8n-04</span>
+          <span class="fc-title">ISM/CRM 订单阶段同步</span>
+          <span class="fc-state pending">待运行</span>
+        </div>
+        <div class="fc-source">同步 <b>ISM/CRM</b> 订单阶段变更，更新可选订单清单</div>
+        <ul class="fc-items">
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">新增 3 个订单阶段，停用 1 个</span><span class="hrs">—</span></li>
+        </ul>
+      </div>
+
+      <div class="flow-card" data-card="5">
+        <div class="fc-head">
+          <span class="fc-code">n8n-05</span>
+          <span class="fc-title">飞书行为监测</span>
+          <span class="fc-state pending">待运行</span>
+        </div>
+        <div class="fc-source">分析 <b>飞书文档 / 日历 / IM</b> 活跃轨迹，推测项目投入</div>
+        <ul class="fc-items">
+          <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span class="proj">行为活跃度建议：n8n 流程 +2h</span><span class="hrs">建议</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 汇总 -->
+    <div class="summary" id="summary">
+      <div class="summary-head">
+        <span class="tag">DRAFT</span>
+        <h3>本周工时草稿已生成</h3>
+        <span class="total">32<small>h</small></span>
+      </div>
+      <table class="sum-table">
+        <thead>
+          <tr><th>项目 / 活动</th><th style="width:120px">来源</th><th style="width:80px">工时</th><th style="width:120px">分布</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="proj">工时周报管理系统重构</td><td><span class="tag-src booking">飞书 WBS</span></td><td>12h</td><td>一4·三4·五4</td></tr>
+          <tr><td class="proj">任职资格系统</td><td><span class="tag-src booking">飞书 WBS</span></td><td>16h</td><td>二8·四8</td></tr>
+          <tr><td class="proj">业务方案 · 方案评审</td><td><span class="tag-src meeting">代发</span></td><td>4h</td><td>二2·四2</td></tr>
+        </tbody>
+      </table>
+      <div class="summary-foot">
+        <span class="hint">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+          周日 00:00 草稿就绪 · 首个工作日起可核对 · 之后随时可补交
+        </span>
+        <a class="btn-next" href="unified-weekly-submit.html">
+          进入填报页
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const chips = document.querySelectorAll('.step-chip');
+    const cards = document.querySelectorAll('.flow-card');
+    const summary = document.getElementById('summary');
+    const btnReplay = document.getElementById('btn-replay');
+
+    function reset() {
+      chips.forEach(c => c.classList.remove('running', 'done'));
+      cards.forEach(c => {
+        c.classList.remove('active', 'running', 'done');
+        const st = c.querySelector('.fc-state');
+        st.textContent = '待运行';
+        st.className = 'fc-state pending';
+      });
+      summary.classList.remove('show');
+    }
+
+    async function play() {
+      btnReplay.disabled = true;
+      reset();
+      await new Promise(r => setTimeout(r, 400));
+
+      for (let i = 0; i < cards.length; i++) {
+        const chip = chips[i];
+        const card = cards[i];
+        const st = card.querySelector('.fc-state');
+
+        // 启动
+        chip.classList.add('running');
+        card.classList.add('active', 'running');
+        st.textContent = '运行中…';
+        st.className = 'fc-state running';
+
+        // 触发 items 入场动画
+        const items = card.querySelectorAll('.fc-items li');
+        items.forEach((li, idx) => {
+          li.style.animationDelay = (idx * 0.15) + 's';
+          li.style.animationName = 'none';
+          requestAnimationFrame(() => { li.style.animationName = ''; });
+        });
+
+        await new Promise(r => setTimeout(r, 1100));
+
+        // 完成
+        chip.classList.remove('running');
+        chip.classList.add('done');
+        card.classList.remove('running');
+        card.classList.add('done');
+        st.textContent = '完成';
+        st.className = 'fc-state done';
+
+        await new Promise(r => setTimeout(r, 320));
+      }
+
+      await new Promise(r => setTimeout(r, 300));
+      summary.classList.add('show');
+      summary.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      btnReplay.disabled = false;
+    }
+
+    btnReplay.addEventListener('click', play);
+    window.addEventListener('load', () => setTimeout(play, 400));
+  </script>
+</body>
+</html>

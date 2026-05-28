@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工时周报系统重构 · 汇报总览</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* 主体 */
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e5e7eb;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-2: #334155;
+      --muted: #64748b;
+
+      /* 4 色体系 */
+      --c-source: #0ea5e9;      /* 数据源 - 天青 */
+      --c-source-soft: #f0f9ff;
+      --c-source-bd: #bae6fd;
+
+      --c-n8n: #7c3aed;         /* n8n - 紫 */
+      --c-n8n-soft: #f5f3ff;
+      --c-n8n-bd: #ddd6fe;
+
+      --c-ai: #f59e0b;          /* AI - 琥珀 */
+      --c-ai-soft: #fffbeb;
+      --c-ai-bd: #fcd34d;
+      --warn: #d97706;
+
+      --c-draft: #2563eb;       /* 草稿/填报 - 主蓝 */
+      --c-draft-soft: #eff6ff;
+      --c-draft-bd: #bfdbfe;
+
+      --c-post: #475569;        /* 提交后流程 - 中性深 */
+      --c-post-soft: #f1f5f9;
+
+      --shadow-sm: 0 1px 2px rgba(15,23,42,.05);
+      --shadow-md: 0 4px 16px rgba(15,23,42,.06);
+      --shadow-lg: 0 12px 32px rgba(15,23,42,.10);
+      --radius: 14px;
+      --ease: cubic-bezier(.4,0,.2,1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14.5px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1,h2,h3,h4 { font-weight: 600; letter-spacing: -.01em; }
+
+    /* 顶部导航 */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      height: 52px;
+      display: flex; align-items: center;
+      padding: 0 32px;
+    }
+    .topbar-inner {
+      max-width: 1440px; width: 100%; margin: 0 auto;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .topbar .brand { font-weight: 700; font-size: 15px; color: var(--text); }
+    .topbar nav { display: flex; gap: 4px; margin-left: auto; }
+    .topbar nav a {
+      padding: 6px 14px; border-radius: 8px;
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      font-weight: 500;
+      transition: all .2s var(--ease);
+    }
+    .topbar nav a:hover { background: var(--c-draft-soft); color: var(--c-draft); }
+
+    main { width: 100%; }
+
+    section {
+      padding: 56px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    section > .inner { max-width: 1280px; margin: 0 auto; }
+    section.wide > .inner { max-width: 1440px; margin: 0 auto; }
+    section:last-child { border-bottom: none; }
+
+    .sec-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700;
+      color: var(--c-draft);
+      background: var(--c-draft-soft);
+      padding: 4px 12px; border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .sec-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .sec-desc { color: var(--muted); font-size: 14.5px; max-width: 760px; margin-bottom: 28px; }
+
+    /* ====== Hero ====== */
+    .hero {
+      padding: 72px 32px 60px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #4f46e5 100%);
+      color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 90% 10%, rgba(255,255,255,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 10% 90%, rgba(124,58,237,.30) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 1280px; margin: 0 auto; position: relative; }
+    .hero h1 { font-size: 38px; line-height: 1.25; margin-bottom: 14px; font-weight: 700; }
+    .hero .lead { font-size: 16px; opacity: .92; max-width: 680px; margin-bottom: 26px; line-height: 1.7; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .hero-pill {
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      padding: 7px 14px; border-radius: 999px;
+      font-size: 13px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-pill svg { width: 14px; height: 14px; opacity: .9; }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 14px;
+      margin-top: 36px; max-width: 820px;
+    }
+    @media (max-width:720px) { .hero-stats { grid-template-columns: repeat(2,1fr); } }
+    .hero-stat {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 12px;
+      padding: 16px 18px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-stat .num { font-size: 30px; font-weight: 700; line-height: 1; }
+    .hero-stat .lbl { font-size: 12.5px; opacity: .85; margin-top: 6px; }
+
+    /* ====== 全景图 ====== */
+    #whole { background: var(--bg); }
+    .wp-canvas {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 时间轴 */
+    .timeline {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      background: var(--surface-2);
+      border-radius: 12px;
+      margin-bottom: 28px;
+      font-size: 13px;
+    }
+    .timeline .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--c-draft);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+      flex-shrink: 0;
+    }
+    .timeline .dot.deadline { background: var(--c-ai); box-shadow: 0 0 0 4px rgba(245,158,11,.18); }
+    .timeline .line { flex: 1; height: 2px; background: linear-gradient(90deg, var(--c-draft), var(--c-ai)); border-radius: 1px; }
+    .timeline .step { font-weight: 600; color: var(--text); white-space: nowrap; }
+    .timeline .step small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+    .timeline .step.deadline { color: var(--c-ai); }
+
+    /* 管道行 = 数据源 → n8n → 草稿 */
+    .pipe-group { margin-bottom: 22px; }
+    .pipe-group:last-child { margin-bottom: 0; }
+    .group-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+    .group-title .bar {
+      width: 4px; height: 16px; border-radius: 2px;
+      background: var(--c-source);
+    }
+    .group-title.wr .bar { background: #06b6d4; }
+    .group-title.val .bar { background: #ec4899; }
+    .group-title .hint { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+
+    .pipe {
+      display: grid;
+      grid-template-columns: minmax(180px, 220px) 24px minmax(280px, 1fr) 24px minmax(180px, 220px);
+      align-items: stretch;
+      gap: 0;
+      margin-bottom: 10px;
+    }
+    .pipe:last-child { margin-bottom: 0; }
+
+    /* 源 */
+    .src {
+      background: var(--surface);
+      border: 1px solid var(--c-source-bd);
+      border-left: 4px solid var(--c-source);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+      transition: all .2s var(--ease);
+    }
+    .src:hover { box-shadow: var(--shadow-sm); transform: translateX(-2px); }
+    .src .icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: var(--c-source-soft);
+      color: var(--c-source);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .src .icon svg { width: 20px; height: 20px; }
+    .src .label { font-weight: 600; font-size: 14px; line-height: 1.3; }
+    .src .label small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+    .pipe.wr .src { border-color: #a5f3fc; border-left-color: #06b6d4; }
+    .pipe.wr .src .icon { background: #ecfeff; color: #0e7490; }
+    .pipe.val .src { border-color: #fbcfe8; border-left-color: #ec4899; }
+    .pipe.val .src .icon { background: #fdf2f8; color: #be185d; }
+
+    /* 箭头列 */
+    .arrow-col {
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .arrow-col svg {
+      width: 24px; height: 24px;
+      color: var(--c-n8n);
+    }
+    .pipe.val .arrow-col svg { color: var(--muted); }
+
+    /* n8n 流程卡 */
+    .flow {
+      background: var(--c-n8n-soft);
+      border: 1px solid var(--c-n8n-bd);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+      transition: all .2s var(--ease);
+      position: relative;
+    }
+    .flow:hover {
+      border-color: var(--c-n8n);
+      box-shadow: 0 4px 14px rgba(124,58,237,.18);
+      transform: translateY(-1px);
+    }
+    .flow .code {
+      flex-shrink: 0;
+      background: var(--c-n8n);
+      color: #fff;
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: .02em;
+    }
+    .flow .action { flex: 1; font-size: 13.5px; color: var(--text); font-weight: 500; }
+    .flow .action b { color: var(--c-n8n); font-weight: 700; }
+    .flow .ai {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--c-ai-soft);
+      color: var(--c-ai);
+      border: 1px solid var(--c-ai-bd);
+      font-size: 11.5px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .flow .ai svg { width: 12px; height: 12px; }
+
+    .flow.direct {
+      background: var(--surface-2);
+      border: 1px dashed var(--border-strong);
+    }
+    .flow.direct .code {
+      background: var(--muted);
+    }
+    .flow.direct .action { color: var(--muted); }
+
+    /* 草稿 */
+    .draft {
+      background: var(--c-draft-soft);
+      border: 1px solid var(--c-draft-bd);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .draft .icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: var(--c-draft);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .draft .icon svg { width: 18px; height: 18px; }
+    .draft .label { font-weight: 700; font-size: 14px; color: var(--c-draft); }
+    .draft .label small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+    .pipe.wr .draft { background: #ecfeff; border-color: #a5f3fc; }
+    .pipe.wr .draft .icon { background: #0891b2; }
+    .pipe.wr .draft .label { color: #0e7490; }
+
+    .pipe.val .draft { background: #fdf2f8; border-color: #fbcfe8; }
+    .pipe.val .draft .icon { background: #db2777; }
+    .pipe.val .draft .label { color: #be185d; }
+
+    /* 大箭头：草稿 → 填报页 → 提交后流程 */
+    .big-arrow {
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px 0;
+    }
+    .big-arrow svg { width: 28px; height: 28px; color: var(--c-draft); }
+    .big-arrow.dispatch svg { color: var(--c-n8n); }
+
+    /* 填报页层 */
+    .submit-block {
+      background: linear-gradient(180deg, var(--c-draft-soft) 0%, #fff 100%);
+      border: 2px solid var(--c-draft);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .submit-block .sb-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .submit-block .sb-head h3 { font-size: 16px; font-weight: 700; color: var(--c-draft); }
+    .submit-block .sb-head .when {
+      margin-left: auto;
+      font-size: 12.5px; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .submit-block .sb-head .when svg { width: 13px; height: 13px; }
+
+    .submit-modules {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+    }
+    @media (max-width:860px) { .submit-modules { grid-template-columns: 1fr; } }
+    .sm-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      transition: all .2s var(--ease);
+    }
+    .sm-card:hover { border-color: var(--c-draft); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .sm-card .num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--c-draft); color: #fff;
+      font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sm-card.m2 .num { background: #0891b2; }
+    .sm-card.m3 .num { background: #db2777; }
+    .sm-card .text h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 2px; }
+    .sm-card .text p { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+    .incentive-bar {
+      margin-top: 14px;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 12px 14px;
+      background: var(--c-ai-soft);
+      border: 1px solid var(--c-ai-bd);
+      border-radius: 10px;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    .incentive-bar .ib-item {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 600; color: #92400e;
+    }
+    .incentive-bar .ib-item svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--c-ai); }
+    .incentive-bar .ib-sep { color: var(--border-strong); }
+    .incentive-bar .ib-muted { font-weight: 500; color: var(--muted); }
+
+    /* 提交后流程（本系统内） */
+    .post-block {
+      background: var(--c-post-soft);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .post-block .pb-head {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .post-block h3 { font-size: 16px; font-weight: 700; color: var(--c-post); }
+    .post-block .pb-head .info { font-size: 12.5px; color: var(--muted); margin-left: auto; max-width: 420px; text-align: right; line-height: 1.5; }
+    .post-bridge {
+      text-align: center;
+      font-size: 13px; font-weight: 600; color: var(--c-draft);
+      padding: 10px 14px;
+      background: var(--c-draft-soft);
+      border: 1px dashed var(--c-draft-bd);
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .flow-lane {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--border);
+      align-items: start;
+    }
+    .flow-lane:last-of-type { border-bottom: none; }
+    @media (max-width:640px) { .flow-lane { grid-template-columns: 1fr; gap: 8px; } }
+    .lane-role {
+      font-size: 12.5px; font-weight: 700;
+      color: var(--muted);
+      padding-top: 6px;
+    }
+    .lane-nodes {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    }
+    .node-pill {
+      display: inline-flex; align-items: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12.5px; font-weight: 600;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .node-pill.submit { background: var(--c-draft-soft); border-color: var(--c-draft-bd); color: #1d4ed8; }
+    .node-pill.auto { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .node-pill.pm { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+    .node-pill.reject { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .node-pill.budget { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+    .node-pill.wr { background: #ecfeff; border-color: #a5f3fc; color: #0e7490; }
+    .node-pill.leader { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .node-pill.optional { background: #fff; border-color: var(--border); color: var(--muted); font-weight: 500; font-size: 11.5px; }
+    .node-pill.neutral { background: #fff; border-color: var(--border-strong); color: var(--text-2); }
+    .node-arrow { color: var(--muted); font-size: 13px; font-weight: 700; padding: 0 2px; }
+    .reject-loop {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: #fef2f2;
+      border: 1px dashed #fecaca;
+      border-radius: 10px;
+      font-size: 12.5px;
+      color: #991b1b;
+      font-weight: 500;
+      line-height: 1.55;
+    }
+    .post-end {
+      margin-top: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 10px;
+      font-size: 13.5px; font-weight: 700; color: #065f46;
+    }
+    .post-end svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .post-ref {
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .post-ref a { color: var(--c-draft); font-weight: 600; text-decoration: none; }
+    .post-ref a:hover { text-decoration: underline; }
+
+    /* 图例 */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: var(--surface-2);
+      border-radius: 10px;
+      font-size: 12.5px;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
+    .legend-item .sw { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .legend-item .sw.s1 { background: var(--c-source); }
+    .legend-item .sw.s2 { background: var(--c-n8n); }
+    .legend-item .sw.s3 { background: var(--c-ai); }
+    .legend-item .sw.s4 { background: var(--c-draft); }
+    .legend-item .sw.s5 { background: var(--c-post); }
+
+    /* 响应式：窄屏将 pipe 改单列 */
+    @media (max-width: 980px) {
+      .pipe { grid-template-columns: 1fr; gap: 8px; }
+      .arrow-col { transform: rotate(90deg); padding: 4px 0; }
+    }
+
+    /* 三大模块 */
+    .mod-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+    @media (max-width:860px) { .mod-grid { grid-template-columns: 1fr; } }
+    .mod {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      transition: all .2s var(--ease);
+    }
+    .mod:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .mod-num {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-weight: 700;
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .mod-num .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 8px;
+      color: #fff; font-size: 14px;
+    }
+    .mod:nth-child(1) .mod-num .badge { background: var(--c-draft); }
+    .mod:nth-child(2) .mod-num .badge { background: #0891b2; }
+    .mod:nth-child(3) .mod-num .badge { background: #db2777; }
+    .mod h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .mod .mod-lead { font-size: 13.5px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+    .mod ul { list-style: none; }
+    .mod li {
+      padding: 8px 0;
+      border-top: 1px dashed var(--border);
+      font-size: 13px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .mod li:first-of-type { border-top: none; padding-top: 0; }
+    .mod li svg { width: 14px; height: 14px; color: #059669; margin-top: 3px; flex-shrink: 0; }
+    .mod li b { font-weight: 600; }
+
+    /* Demo */
+    .demo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    @media (max-width:860px) { .demo-grid { grid-template-columns: 1fr; } }
+    .demo-card {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all .2s var(--ease);
+      text-decoration: none;
+      color: inherit;
+    }
+    .demo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--c-draft); }
+    .demo-preview {
+      height: 140px;
+      background: linear-gradient(135deg, var(--c-n8n-soft) 0%, #ede9fe 100%);
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .demo-preview.p1 { background: linear-gradient(135deg, var(--c-draft-soft) 0%, #dbeafe 100%); }
+    .demo-preview.p3 { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+    .demo-preview svg { width: 56px; height: 56px; color: var(--c-n8n); opacity: .75; }
+    .demo-preview.p1 svg { color: var(--c-draft); }
+    .demo-preview.p3 svg { color: #059669; }
+    .demo-preview .label {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(4px);
+      font-size: 12px; font-weight: 700;
+      padding: 4px 10px; border-radius: 6px;
+      color: var(--text);
+    }
+    .demo-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+    .demo-body h4 { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
+    .demo-body p { font-size: 13px; color: var(--muted); line-height: 1.55; flex: 1; }
+    .demo-body .open {
+      margin-top: 12px;
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 600;
+      color: var(--c-draft);
+    }
+    .demo-body .open svg { width: 14px; height: 14px; }
+
+    /* n8n 清单 */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    table.n8n-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .n8n-table th {
+      background: var(--surface-2);
+      text-align: left; padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600; color: var(--muted);
+      font-size: 12.5px;
+    }
+    .n8n-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .n8n-table tr:last-child td { border-bottom: none; }
+    .n8n-table tr:hover td { background: var(--surface-2); }
+    .n8n-table .code {
+      font-weight: 700;
+      color: #fff;
+      background: var(--c-n8n);
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 12px;
+      display: inline-block;
+    }
+    .n8n-table .freq { font-size: 12.5px; color: var(--muted); }
+    .n8n-table .ai-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11.5px; font-weight: 700;
+      background: var(--c-ai-soft); color: var(--c-ai);
+      border: 1px solid var(--c-ai-bd);
+      padding: 2px 8px; border-radius: 999px;
+      margin-left: 6px;
+    }
+    .n8n-table .ai-tag svg { width: 11px; height: 11px; }
+
+    footer {
+      text-align: center;
+      padding: 32px 24px 48px;
+      font-size: 12.5px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">工时周报系统重构 · 方案汇报</span>
+      <nav>
+        <a href="#whole">全景架构</a>
+        <a href="#modules">三大模块</a>
+        <a href="#demo">原型演示</a>
+        <a href="#n8n">流程清单</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>一次提交，三件事完成<br>多路自动预填，AI 辅助生成</h1>
+      <p class="lead">把工时填报、RIGOL 周报、价值观自查整合为统一的周节奏；通过 n8n 流程从各业务系统抓取数据预填，AI 辅助生成周报进展，员工核对而非手填，提交一次即完成全链路。</p>
+      <div class="hero-meta">
+        <span class="hero-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+          周日开启 · 首个工作日提交获积分
+        </span>
+        <span class="hero-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+          首个工作日结束前提醒 · 之后随时可补交
+        </span>
+        <span class="hero-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+          AI 辅助生成周报进展
+        </span>
+        <span class="hero-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5 10.5 6 21 16.5"/></svg>
+          提交后规则引擎自动流转
+        </span>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">7</div><div class="lbl">条 n8n 自动化流程</div></div>
+        <div class="hero-stat"><div class="num">2</div><div class="lbl">处 AI 智能参与</div></div>
+        <div class="hero-stat"><div class="num">3</div><div class="lbl">合一填报模块</div></div>
+        <div class="hero-stat"><div class="num">5</div><div class="lbl">步提交后内置流程</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 全景图 -->
+  <section id="whole" class="wide">
+    <div class="inner">
+      <span class="sec-tag">全景架构</span>
+      <h2 class="sec-title">从预填到入账 · 一张图看懂</h2>
+      <p class="sec-desc">上半段是「源 → n8n → 草稿 → 填报」；下半段是<b>本系统内</b>提交后的接收、审批与入账流程（同属重构范围，非外部系统对接）。</p>
+
+      <div class="wp-canvas">
+        <!-- 图例 -->
+        <div class="legend">
+          <span class="legend-item"><span class="sw s1"></span>数据源系统</span>
+          <span class="legend-item"><span class="sw s2"></span>n8n 自动化流程</span>
+          <span class="legend-item"><span class="sw s3"></span>AI 智能参与</span>
+          <span class="legend-item"><span class="sw s4"></span>草稿 / 填报</span>
+          <span class="legend-item"><span class="sw s5"></span>提交后流程</span>
+        </div>
+
+        <!-- 时间轴 -->
+        <div class="timeline">
+          <div class="dot"></div>
+          <div class="step">周日 00:00<small>n8n 预填 · 周期开启</small></div>
+          <div class="line"></div>
+          <div class="step">周日<small>草稿就绪 · 可预览</small></div>
+          <div class="line"></div>
+          <div class="step" style="color:var(--c-ai)">首个工作日<small>确认工时 · 填周报 · 提交获积分</small></div>
+          <div class="line"></div>
+          <div class="step" style="color:var(--warn)">首个工作日结束前<small>提醒未提交</small></div>
+          <div class="line"></div>
+          <div class="step">之后随时<small>可补交 · 无积分 · 无截止</small></div>
+        </div>
+
+        <!-- ① 工时草稿管道 -->
+        <div class="pipe-group">
+          <div class="group-title">
+            <span class="bar"></span>
+            工时草稿
+            <span class="hint">· 5 路 n8n 自动汇总</span>
+          </div>
+
+          <!-- Pipe 1: 飞书项目 WBS -->
+          <div class="pipe">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg>
+              </div>
+              <div class="label">飞书项目 WBS<small>本周任务排期</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-01</span>
+              <span class="action"><b>拉取</b> WBS 排期，按项目 / 活动写入工时草稿</span>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="draft">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/></svg>
+              </div>
+              <div class="label">工时草稿<small>多源合并去重</small></div>
+            </div>
+          </div>
+
+          <!-- Pipe 2: 飞书会议代发 -->
+          <div class="pipe">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+              </div>
+              <div class="label">飞书会议代发<small>代发邮件 / 日历</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-02</span>
+              <span class="action"><b>解析</b> 代发会议主题与时长，归类到对应活动</span>
+            </div>
+            <div class="arrow-col"></div>
+            <div></div>
+          </div>
+
+          <!-- Pipe 3: 考勤 -->
+          <div class="pipe">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+              </div>
+              <div class="label">考勤系统<small>打卡时长</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-03</span>
+              <span class="action"><b>核对</b> 打卡总工时与草稿合计的差异并提示</span>
+            </div>
+            <div class="arrow-col"></div>
+            <div></div>
+          </div>
+
+          <!-- Pipe 4: ISM/CRM -->
+          <div class="pipe">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z"/></svg>
+              </div>
+              <div class="label">ISM / CRM<small>订单 · 订单阶段</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-04</span>
+              <span class="action"><b>同步</b> 订单阶段变更，动态更新可选项</span>
+            </div>
+            <div class="arrow-col"></div>
+            <div></div>
+          </div>
+
+          <!-- Pipe 5: 飞书行为 + AI -->
+          <div class="pipe">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg>
+              </div>
+              <div class="label">飞书行为监测<small>文档 / 日历 / 群组</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-05</span>
+              <span class="action"><b>推测</b> 项目投入并建议补全工时</span>
+              <span class="ai">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+                AI
+              </span>
+            </div>
+            <div class="arrow-col"></div>
+            <div></div>
+          </div>
+        </div>
+
+        <!-- ② 周报草稿管道 -->
+        <div class="pipe-group">
+          <div class="group-title wr">
+            <span class="bar"></span>
+            周报草稿
+            <span class="hint">· 综合上周周报 + 本周工时，AI 生成进展</span>
+          </div>
+          <div class="pipe wr">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+              </div>
+              <div class="label">上周周报历史<br>+ 本周工时草稿</div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow">
+              <span class="code">n8n-06</span>
+              <span class="action"><b>生成</b> 周报回顾与进展初稿，员工修改即可</span>
+              <span class="ai">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+                AI
+              </span>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="draft">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25M10 4H5.625A1.125 1.125 0 0 0 4.5 5.125v13.75A1.125 1.125 0 0 0 5.625 20h12.75a1.125 1.125 0 0 0 1.125-1.125V11.25"/></svg>
+              </div>
+              <div class="label">周报草稿<small>回顾 · 计划</small></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ 价值观直读 -->
+        <div class="pipe-group">
+          <div class="group-title val">
+            <span class="bar"></span>
+            价值观自查
+            <span class="hint">· 直读价值观系统，无需 n8n</span>
+          </div>
+          <div class="pipe val">
+            <div class="src">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
+              </div>
+              <div class="label">价值观系统<small>礼物 · 行为记录</small></div>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="flow direct">
+              <span class="code">直读</span>
+              <span class="action">实时调用接口，读取本周期累计与规则达标情况</span>
+            </div>
+            <div class="arrow-col">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+            </div>
+            <div class="draft">
+              <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+              </div>
+              <div class="label">价值观快照<small>本周期累计</small></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 大箭头 -->
+        <div class="big-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg>
+        </div>
+
+        <!-- 填报页 -->
+        <div class="submit-block">
+          <div class="sb-head">
+            <h3>本周填报页 · 员工核对与提交</h3>
+            <span class="when">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75"/></svg>
+              周日开启 · 首个工作日起可填报
+            </span>
+          </div>
+          <div class="submit-modules">
+            <div class="sm-card">
+              <span class="num">1</span>
+              <div class="text">
+                <h4>工时确认</h4>
+                <p>首个工作日起核对预填草稿</p>
+              </div>
+            </div>
+            <div class="sm-card m2">
+              <span class="num">2</span>
+              <div class="text">
+                <h4>周报修改</h4>
+                <p>AI 生成初稿后，修改完善</p>
+              </div>
+            </div>
+            <div class="sm-card m3">
+              <span class="num">3</span>
+              <div class="text">
+                <h4>价值观自查</h4>
+                <p>核对累计与达标，主动提醒</p>
+              </div>
+            </div>
+          </div>
+          <div class="incentive-bar">
+            <span class="ib-item">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a3 3 0 1 1-5.458-2.35"/></svg>
+              首个工作日结束前提交 → 积分奖励
+            </span>
+            <span class="ib-sep">·</span>
+            <span class="ib-item">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+              首个工作日结束前 → 提醒未提交
+            </span>
+            <span class="ib-sep">·</span>
+            <span class="ib-muted">首个工作日之后随时可补交，但无积分奖励 · 无提交截止</span>
+          </div>
+        </div>
+
+        <!-- 大箭头 + n8n-07 -->
+        <div class="big-arrow dispatch" style="flex-direction:column; gap:8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/></svg>
+          <span style="display:inline-flex; align-items:center; gap:6px; background: var(--c-n8n); color:#fff; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight:700;">
+            n8n-07 · 提交触发
+          </span>
+        </div>
+
+        <!-- 提交后流程（本系统内） -->
+        <div class="post-block">
+          <div class="pb-head">
+            <h3>提交后 · 本系统内流转</h3>
+            <span class="info">以下节点均在工时周报系统重构范围内，非推送到外部系统</span>
+          </div>
+
+          <div class="post-bridge">工时 + 周报一并提交 → 进入规则引擎分流（WBS 排期内 / 超排期）</div>
+
+          <div class="flow-lane">
+            <div class="lane-role">规则引擎</div>
+            <div class="lane-nodes">
+              <span class="node-pill submit">员工已提交</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill auto">WBS 排期内 · 自动接收</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill auto">写入 Actuals</span>
+            </div>
+          </div>
+
+          <div class="flow-lane">
+            <div class="lane-role">项目经理</div>
+            <div class="lane-nodes">
+              <span class="node-pill pm">超 WBS 排期 · 待接收</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill pm">评论 / 批量接收</span>
+              <span class="node-arrow">或</span>
+              <span class="node-pill reject">驳回（填原因）</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill neutral">员工修改 / 转日常</span>
+            </div>
+          </div>
+
+          <div class="flow-lane">
+            <div class="lane-role">预算校验</div>
+            <div class="lane-nodes">
+              <span class="node-pill budget">接收前 RCMS 校验</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill budget">超预算 · 拒绝接收</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill neutral">提示变更预算 · 升级 PFC</span>
+            </div>
+          </div>
+
+          <div class="flow-lane">
+            <div class="lane-role">周报</div>
+            <div class="lane-nodes">
+              <span class="node-pill wr">随提交发布</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill wr">归档可查</span>
+            </div>
+          </div>
+
+          <div class="flow-lane">
+            <div class="lane-role">上级</div>
+            <div class="lane-nodes">
+              <span class="node-pill leader">查看已归档周报</span>
+              <span class="node-arrow">→</span>
+              <span class="node-pill leader">点评反馈</span>
+              <span class="node-pill optional">选填 · 非强制</span>
+            </div>
+          </div>
+
+          <div class="flow-lane">
+            <div class="lane-role">治理</div>
+            <div class="lane-nodes">
+              <span class="node-pill neutral">超时未接收 → 自动接收 · 通知 PQA</span>
+              <span class="node-arrow">·</span>
+              <span class="node-pill neutral">驳回 3 日未处理 → 强制转日常</span>
+            </div>
+          </div>
+
+          <div class="reject-loop">↩ 例外回路：PM 驳回或预算不通过 → 退回填报页修改 → 重新提交</div>
+
+          <div class="post-end">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            接收 / 校验完成 → Actuals 入账 → 成本 · 利用率 · 报表
+          </div>
+
+          <p class="post-ref">更完整的节点说明与来源对照，见 <a href="汇报-工时数据流与业务流程.html" target="_blank">数据流与业务流程详图</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 三大模块 -->
+  <section id="modules">
+    <div class="inner">
+      <span class="sec-tag">三大模块</span>
+      <h2 class="sec-title">工时 · 周报 · 价值观</h2>
+      <p class="sec-desc">三个核心模块并列展示，由统一的提交动作收敛为一次行为。</p>
+
+      <div class="mod-grid">
+        <div class="mod">
+          <div class="mod-num"><span class="badge">1</span>工时填报</div>
+          <h3>多源预填 · 核对即可</h3>
+          <p class="mod-lead">5 路 n8n 自动化流程在周日凌晨把上周工时拼好，员工只需核对、微调、确认。</p>
+          <ul>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>覆盖 <b>5 类来源</b>：飞书 WBS / 会议 / 考勤 / CRM / 行为</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>每条工时标注 <b>来源徽章</b>，可追溯</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>考勤工时 <b>自动校验</b>，差异即时提示</span></li>
+          </ul>
+        </div>
+
+        <div class="mod">
+          <div class="mod-num"><span class="badge">2</span>RIGOL 周报</div>
+          <h3>AI 生成初稿 · 修改即可</h3>
+          <p class="mod-lead">基于本周工时与上周周报，AI 自动生成进展草稿；保留 RIGOL 周报既定的 5 段式结构。</p>
+          <ul>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>一、二段各限 <b>3 项</b>，避免泛泛而谈</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>三至五段为选填，按需展开</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>提交后 <b>自动归档</b>，上级可查看与点评（选填）</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>首个工作日结束前提交可获 <b>积分奖励</b></span></li>
+          </ul>
+        </div>
+
+        <div class="mod">
+          <div class="mod-num"><span class="badge">3</span>价值观行为</div>
+          <h3>周期累计 · 提交前自查</h3>
+          <p class="mod-lead">直接读取价值观系统的累计数据，员工提交前自查；达标提示与年度风险一目了然。</p>
+          <ul>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>四大类（成就 / 创新 / 合作 / 自律）实时数据</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>四项规则 <b>自动校验</b> 与达标提示</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg><span>年度点赞 / 责善 <b>风险预警</b></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section id="demo">
+    <div class="inner">
+      <span class="sec-tag">原型演示</span>
+      <h2 class="sec-title">三页串联的完整闭环</h2>
+      <p class="sec-desc">点击卡片打开对应原型，体验「周日自动预填 → 员工核对填报 → 提交后接收流转」的完整闭环。</p>
+
+      <div class="demo-grid">
+        <a class="demo-card" href="prototypes/demo-draft-genesis.html" target="_blank">
+          <div class="demo-preview">
+            <span class="label">周日 00:00</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+          </div>
+          <div class="demo-body">
+            <h4>① 草稿自动生成</h4>
+            <p>周日凌晨：5 路 n8n 流程依次亮起，最终汇总成可核对的工时草稿。</p>
+            <span class="open">打开演示
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </span>
+          </div>
+        </a>
+
+        <a class="demo-card" href="prototypes/unified-weekly-submit.html" target="_blank">
+          <div class="demo-preview p1">
+            <span class="label">首个工作日</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+          </div>
+          <div class="demo-body">
+            <h4>② 整合填报页</h4>
+            <p>首个工作日起确认填报；首个工作日结束前提交可获积分，之后随时可补交（无积分、无截止）。</p>
+            <span class="open">打开演示
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </span>
+          </div>
+        </a>
+
+        <a class="demo-card" href="prototypes/flow-submitted.html" target="_blank">
+          <div class="demo-preview p3">
+            <span class="label">提交之后</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+          </div>
+          <div class="demo-body">
+            <h4>③ 提交后流转</h4>
+            <p>提交后本系统内的 WBS 分流、PM 审批、预算校验与 Actuals 入账。</p>
+            <span class="open">打开演示
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- n8n 清单 -->
+  <section id="n8n">
+    <div class="inner">
+      <span class="sec-tag">流程清单</span>
+      <h2 class="sec-title">7 条 n8n 自动化流程</h2>
+      <p class="sec-desc">每条流程独立部署、独立监控，可单独调整频率与逻辑。</p>
+
+      <div class="table-wrap">
+        <table class="n8n-table">
+          <thead>
+            <tr>
+              <th style="width:90px">编号</th>
+              <th>名称 / 动作</th>
+              <th style="width:200px">数据流向</th>
+              <th style="width:130px">触发</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code">n8n-01</span></td>
+              <td>飞书项目 WBS 拉取排期</td>
+              <td>飞书 WBS → 工时草稿</td>
+              <td class="freq">周日 00:00</td>
+            </tr>
+            <tr>
+              <td><span class="code">n8n-02</span></td>
+              <td>解析飞书代发会议</td>
+              <td>飞书日历/邮件 → 工时草稿</td>
+              <td class="freq">周日 00:00</td>
+            </tr>
+            <tr>
+              <td><span class="code">n8n-03</span></td>
+              <td>核对考勤打卡时长</td>
+              <td>考勤系统 → 工时草稿（差异提示）</td>
+              <td class="freq">周日 00:00</td>
+            </tr>
+            <tr>
+              <td><span class="code">n8n-04</span></td>
+              <td>同步 ISM/CRM 订单阶段</td>
+              <td>ISM/CRM → 工时草稿可选项</td>
+              <td class="freq">实时 / 每日</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="code">n8n-05</span>
+              </td>
+              <td>
+                飞书行为推测项目投入
+                <span class="ai-tag">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+                  AI
+                </span>
+              </td>
+              <td>飞书 OpenAPI → 工时草稿建议</td>
+              <td class="freq">周日 00:00</td>
+            </tr>
+            <tr>
+              <td><span class="code">n8n-06</span></td>
+              <td>
+                AI 生成周报进展初稿
+                <span class="ai-tag">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/></svg>
+                  AI
+                </span>
+              </td>
+              <td>上周周报 + 工时草稿 → 周报草稿</td>
+              <td class="freq">员工点击时</td>
+            </tr>
+            <tr>
+              <td><span class="code">n8n-07</span></td>
+              <td>提交触发本系统流转</td>
+              <td>填报数据 → 规则引擎 / PM 审批 / 预算校验 / Actuals</td>
+              <td class="freq">员工提交时</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    工时周报系统重构 · 内部汇报材料 · 仅供管理评审使用
+  </footer>
+
+  <script>
+    document.querySelectorAll('.topbar nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) { e.preventDefault(); el.scrollIntoView({ behavior:'smooth', block:'start' }); }
+      });
+    });
+  </script>
+</body>
+</html>

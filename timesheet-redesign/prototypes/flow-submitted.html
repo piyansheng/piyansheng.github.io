@@ -4,90 +4,173 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>提交成功 · 工时流转</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css">
   <style>
-    :root { --bg: #f0fdf4; --text: #1e293b; --muted: #64748b; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", "PingFang SC", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    .nav { background: #065f46; color: #fff; padding: 12px 24px; display: flex; gap: 16px; align-items: center; }
-    .nav a { color: #a7f3d0; text-decoration: none; font-size: 13px; }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
-    .success-icon {
-      width: 72px; height: 72px; background: #22c55e; color: #fff;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 36px; margin-bottom: 20px;
+    :root {
+      --canvas: #ffffff;
+      --surface-1: #f5f6f6;
+      --hairline: #e6e6e8;
+      --ink: #0f0f10;
+      --ink-muted: #5c5f66;
+      --ink-subtle: #8a8f98;
+      --primary: #5e6ad2;
+      --primary-soft: rgba(94, 106, 210, 0.1);
+      --success: #27a644;
+      --success-soft: #ecfdf3;
+      --success-border: #b8e6c8;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --warn-border: #fde68a;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
-    h1 { font-size: 26px; margin-bottom: 8px; }
-    .sub { color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--surface-1);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .top-nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 52px; display: flex; align-items: center; gap: 12px;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--hairline);
+    }
+    .top-nav a {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--ink-subtle); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+    }
+    .top-nav a:hover { color: var(--ink); }
+    .top-nav .nav-sep { width: 1px; height: 18px; background: var(--hairline); }
+    .top-nav .nav-title { font-size: 13px; font-weight: 500; color: var(--ink-muted); }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 48px; }
+    .success-icon {
+      width: 56px; height: 56px;
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .eyebrow {
+      font-size: 12px; font-weight: 500; color: var(--ink-subtle);
+      margin-bottom: 6px;
+    }
+    h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .sub { color: var(--ink-muted); margin-bottom: 28px; line-height: 1.6; font-size: 14px; }
     .flow-steps {
-      display: flex; gap: 0; margin-bottom: 32px; background: #fff;
-      border-radius: 12px; border: 1px solid #bbf7d0; overflow: hidden;
+      display: flex; gap: 4px; margin-bottom: 24px;
+      padding: 4px;
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
     }
     .step {
-      flex: 1; padding: 16px; text-align: center; font-size: 12px;
-      border-right: 1px solid #e2e8f0; position: relative;
+      flex: 1; padding: 10px 8px; text-align: center; font-size: 11px;
+      font-weight: 500; border-radius: var(--radius-md);
+      color: var(--ink-subtle);
     }
-    .step:last-child { border-right: none; }
-    .step.done { background: #ecfdf5; color: #065f46; font-weight: 600; }
-    .step.current { background: #fef3c7; color: #92400e; font-weight: 600; }
-    .step.pending { color: #94a3b8; }
+    .step.done { background: var(--success-soft); color: var(--success); }
+    .step.current { background: var(--warn-soft); color: var(--warn); }
+    .step.pending { color: var(--ink-subtle); }
     .step .num {
-      display: inline-block; width: 24px; height: 24px; line-height: 24px;
-      border-radius: 50%; background: #22c55e; color: #fff; font-size: 11px; margin-bottom: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--surface-1); border: 1px solid var(--hairline);
+      font-size: 10px; font-weight: 600; margin-bottom: 6px;
     }
-    .step.current .num { background: #f59e0b; }
-    .step.pending .num { background: #cbd5e1; color: #64748b; }
-    .cards { display: grid; gap: 16px; margin-bottom: 32px; }
+    .step.done .num { background: var(--success); border-color: var(--success); color: #fff; }
+    .step.current .num { background: var(--warn); border-color: var(--warn); color: #fff; }
+    .cards { display: grid; gap: 12px; margin-bottom: 28px; }
     .card {
-      background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0;
+      background: var(--canvas); border-radius: var(--radius-lg);
+      padding: 16px 18px; border: 1px solid var(--hairline);
     }
-    .card h3 { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .card h3 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .stat-row {
+      display: flex; justify-content: space-between; gap: 16px;
+      padding: 8px 0; border-bottom: 1px solid var(--hairline); font-size: 13px;
+    }
     .stat-row:last-child { border-bottom: none; }
-    .stat-row .val { font-weight: 700; }
-    .auto { color: #059669; }
-    .pending { color: #d97706; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-    .note { margin-top: 24px; padding: 16px; background: #eff6ff; border-radius: 8px; font-size: 13px; color: #1e40af; line-height: 1.6; }
+    .stat-row .val { font-weight: 600; flex-shrink: 0; }
+    .auto { color: var(--success); }
+    .pending { color: var(--warn); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 14px; border-radius: var(--radius-md);
+      font-size: 13px; font-weight: 500; text-decoration: none;
+      border: 1px solid var(--hairline); background: var(--canvas);
+      color: var(--ink); transition: all 160ms var(--ease);
+    }
+    .btn:hover { border-color: #d0d0d5; background: var(--surface-1); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #828fff; border-color: #828fff; }
+    .note {
+      margin-top: 24px; padding: 14px 16px;
+      background: var(--primary-soft); border: 1px solid rgba(94, 106, 210, 0.2);
+      border-radius: var(--radius-md); font-size: 13px;
+      color: var(--ink-muted); line-height: 1.6;
+    }
+    .note a { color: var(--primary); }
+    @media (max-width: 560px) {
+      .flow-steps { flex-direction: column; }
+      .step span:last-child { display: block; }
+    }
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <a href="index.html">← 原型导航</a>
-    <span style="font-weight:600">提交成功 · 后续流转</span>
-  </nav>
+  <header class="top-nav">
+    <a href="index.html">← 返回</a>
+    <span class="nav-sep"></span>
+    <span class="nav-title">提交成功 · 后续流转</span>
+  </header>
   <div class="wrap">
     <div class="success-icon">✓</div>
+    <p class="eyebrow">工时 + 周报 + 价值观</p>
     <h1 id="title">本周工时已提交</h1>
     <p class="sub" id="subtitle">加载中…</p>
 
     <div class="flow-steps">
       <div class="step done"><div class="num">1</div>员工提交</div>
-      <div class="step done"><div class="num">2</div>Booking 内自动接收</div>
-      <div class="step current"><div class="num">3</div>超 Booking 待 PM 审</div>
+      <div class="step done"><div class="num">2</div>规则引擎自动接收</div>
+      <div class="step current"><div class="num">3</div>超预算 · 待 PM 审</div>
       <div class="step pending"><div class="num">4</div>计入 Actuals</div>
     </div>
 
     <div class="cards">
       <div class="card">
-        <h3>📊 本次提交拆分</h3>
+        <h3>本次提交拆分</h3>
         <div class="stat-row"><span>本周合计</span><span class="val" id="total">—</span></div>
-        <div class="stat-row"><span>Booking 内 · 自动接收</span><span class="val auto" id="auto">—</span></div>
-        <div class="stat-row"><span>超 Booking · 待 PM 审批</span><span class="val pending" id="pending">—</span></div>
+        <div class="stat-row"><span>预算内 · 自动接收</span><span class="val auto" id="auto">—</span></div>
+        <div class="stat-row"><span>超预算 · 待 PM 审批</span><span class="val pending" id="pending">—</span></div>
         <div class="stat-row"><span>提交时间</span><span id="time">—</span></div>
       </div>
       <div class="card">
-        <h3>🔔 接下来会发生什么</h3>
+        <h3>接下来会发生什么</h3>
         <div class="stat-row"><span>你的视角</span><span>可在「我的记录」查看状态；已提交周不可再编辑</span></div>
         <div class="stat-row"><span>PM 视角</span><span>待接收队列出现 <strong id="pm-pending">—</strong>，需审批或驳回</span></div>
-        <div class="stat-row"><span>系统</span><span>Booking 内工时即时写入已接收 Actuals</span></div>
+        <div class="stat-row"><span>系统</span><span>预算内工时即时写入已接收 Actuals</span></div>
       </div>
     </div>
 
     <div class="actions">
-      <a class="btn btn-primary" href="flow-personal-records.html">查看我的工时记录 →</a>
-      <a class="btn btn-secondary" href="flow-pm-queue.html">模拟 PM 待接收队列 →</a>
-      <a class="btn btn-secondary" id="back-paradigm" href="index.html">返回填报原型</a>
+      <a class="btn btn-primary" href="flow-personal-records.html">查看我的工时记录</a>
+      <a class="btn" href="flow-pm-queue.html">模拟 PM 待接收队列</a>
+      <a class="btn" id="back-paradigm" href="unified-weekly-submit.html">返回填报原型</a>
     </div>
 
     <div class="note" id="paradigm-note"></div>
@@ -95,10 +178,20 @@
   <script src="shared.js"></script>
   <script>
     const params = new URLSearchParams(location.search);
-    const from = params.get('from') || FlowStore.get().paradigm || 'A';
+    const from = params.get('from') || FlowStore.get().paradigm || 'unified';
     const data = FlowStore.get();
-    const names = { A: '范式 A · 草稿确认', B: '范式 B · Assist+Grid', C: '范式 C · 时间轴', D: '范式 D · 卡片', E: '范式 E · Bot' };
+    const names = {
+      unified: '整合填报页',
+      Unified: '整合填报页',
+      A: '范式 A · 草稿确认',
+      B: '范式 B · Assist+Grid',
+      C: '范式 C · 时间轴',
+      D: '范式 D · 卡片',
+      E: '范式 E · Bot'
+    };
     const links = {
+      unified: 'unified-weekly-submit.html',
+      Unified: 'unified-weekly-submit.html',
       A: 'paradigm-a-draft-review.html',
       B: 'paradigm-b-assist-grid.html',
       C: 'paradigm-c-timeline.html',
@@ -108,16 +201,16 @@
 
     document.getElementById('title').textContent = (data.week || 'W21') + ' 工时已提交';
     document.getElementById('subtitle').textContent =
-      '你通过「' + (names[from] || from) + '」完成提交。系统已按 Booking 规则拆分自动接收与待审批工时。';
+      '你通过「' + (names[from] || from) + '」完成提交。系统已按预算规则拆分自动接收与待审批工时。';
     document.getElementById('total').textContent = (data.totalHours || 44.5) + 'h';
     document.getElementById('auto').textContent = (data.autoHours || 38.5) + 'h';
     document.getElementById('pending').textContent = (data.pendingHours || 6) + 'h';
     document.getElementById('pm-pending').textContent = (data.pendingHours || 6) + 'h';
     document.getElementById('time').textContent = data.submittedAt
       ? new Date(data.submittedAt).toLocaleString('zh-CN') : new Date().toLocaleString('zh-CN');
-    document.getElementById('back-paradigm').href = links[from] || 'index.html';
+    document.getElementById('back-paradigm').href = links[from] || 'unified-weekly-submit.html';
     document.getElementById('paradigm-note').innerHTML =
-      '💡 <strong>交互演示：</strong>这是员工点击「提交」后进入的页面。真实系统中，Booking 内工时秒级自动接收；超 Booking 部分进入 PM「待接收」队列，与 <a href="flow-pm-queue.html">PM 审批页</a> 联动。';
+      '<strong>交互演示：</strong>这是员工点击「提交」后进入的页面。真实系统中，预算内工时秒级自动接收；超预算部分进入 PM「待接收」队列，与 <a href="flow-pm-queue.html">PM 审批页</a> 联动。';
   </script>
 </body>
 </html>

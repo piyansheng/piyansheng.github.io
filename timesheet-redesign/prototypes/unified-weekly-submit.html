@@ -4,335 +4,980 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>本周填报 · 工时 + 周报</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css">
   <style>
+    /* Linear.app 浅色表单风 — references/awesome-design-md/design-md/linear.app/DESIGN.md */
     :root {
-      --bg: #eef1f5; --surface: #fff; --border: #d8dee6;
-      --text: #2c3e50; --muted: #7f8c9b; --primary: #2f80ed;
-      --primary-soft: #eaf2fd; --success: #27ae60; --warn: #e67e22; --danger: #e74c3c;
-      --header-bg: linear-gradient(180deg, #3a7bd5 0%, #2f80ed 100%);
+      --canvas: #ffffff;
+      --surface-1: #f5f6f6;
+      --surface-2: #f6f7f7;
+      --hairline: #e6e6e8;
+      --hairline-strong: #d0d0d5;
+      --ink: #0f0f10;
+      --ink-muted: #5c5f66;
+      --ink-subtle: #8a8f98;
+      --primary: #5e6ad2;
+      --primary-hover: #828fff;
+      --primary-focus: #5e69d1;
+      --primary-soft: rgba(94, 106, 210, 0.1);
+      --primary-ring: rgba(94, 106, 210, 0.22);
+      --success: #27a644;
+      --success-soft: #ecfdf3;
+      --success-border: #b8e6c8;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --warn-border: #fde68a;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --ai-soft: rgba(94, 106, 210, 0.08);
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --duration: 160ms;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
-      background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5;
-      padding-bottom: 24px;
+      font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--surface-1);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .app-bar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 0 16px; height: 44px; display: flex; align-items: center; gap: 12px;
+    /* 顶栏 */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--hairline);
     }
-    .app-bar a { color: var(--muted); text-decoration: none; font-size: 12px; }
-    .app-bar a:hover { color: var(--primary); }
-
-    /* 顶栏：类似截图 */
-    .page-banner {
-      background: var(--header-bg); color: #fff; padding: 14px 20px;
+    .top-nav .nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink-subtle);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color var(--duration) var(--ease);
+      cursor: pointer;
     }
-    .page-banner h1 { font-size: 16px; font-weight: 700; }
-    .page-banner .meta { font-size: 12px; opacity: .88; margin-top: 4px; }
-    .page-banner .actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .top-nav .nav-back:hover { color: var(--ink); }
+    .top-nav .nav-back svg { width: 16px; height: 16px; }
+    .top-nav .nav-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--hairline);
+    }
+    .top-nav .nav-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-muted);
+    }
+    .top-nav .nav-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-    .wrap { max-width: 960px; margin: 0 auto; padding: 12px 16px; }
+    /* 页面容器 */
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 20px 0;
+    }
 
+    .page-header {
+      margin-bottom: 20px;
+    }
+    .page-header .eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-subtle);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+    .meta-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .meta-chip svg { width: 13px; height: 13px; color: var(--ink-subtle); }
+
+    /* 进度 — Linear pill tabs */
+    .progress-steps {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+    }
+    .progress-step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-subtle);
+      transition: all var(--duration) var(--ease);
+    }
+    .progress-step .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      transition: all var(--duration) var(--ease);
+    }
+    .progress-step.active {
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+    .progress-step.active .step-num {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .progress-step.done { color: var(--success); }
+    .progress-step.done .step-num {
+      background: var(--success-soft);
+      border-color: var(--success);
+      color: var(--success);
+    }
+    @media (max-width: 560px) {
+      .progress-step span:last-child { display: none; }
+    }
+
+    /* 按钮 */
     .btn {
-      padding: 7px 14px; border-radius: 4px; border: 1px solid transparent;
-      font-size: 12px; cursor: pointer; font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--duration) var(--ease);
+      font-family: inherit;
+      white-space: nowrap;
     }
-    .btn-white { background: #fff; color: var(--primary); border-color: #fff; }
-    .btn-white:hover { background: #f0f7ff; }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: #2569c7; }
-    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-outline { background: #fff; border-color: var(--border); color: var(--text); }
-    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-    .btn-ai { background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--hairline);
+      color: var(--ink-muted);
+    }
+    .btn-ghost:hover {
+      background: var(--surface-1);
+      color: var(--ink);
+      border-color: var(--hairline-strong);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-outline {
+      background: var(--canvas);
+      border-color: var(--hairline);
+      color: var(--ink);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: var(--surface-1);
+      border-color: var(--hairline-strong);
+    }
+    .btn-outline:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-ai {
+      background: var(--ai-soft);
+      border: 1px solid rgba(94, 106, 210, 0.25);
+      color: var(--primary);
+    }
+    .btn-ai:hover {
+      background: rgba(94, 106, 210, 0.14);
+      border-color: var(--primary);
+    }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
 
-    /* 区块卡片 */
+    /* 卡片区块 */
     .block {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 4px; margin-bottom: 10px; overflow: hidden;
-      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color var(--duration) var(--ease);
     }
+    .block:not(.locked):hover { border-color: var(--hairline-strong); }
     .block-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px; background: #f7f9fb; border-bottom: 1px solid var(--border);
-      cursor: default; user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--hairline);
+      cursor: default;
+      user-select: none;
+      transition: background var(--duration) var(--ease);
     }
     .block-head.collapsible { cursor: pointer; }
-    .block-head.collapsible:hover { background: #eef2f6; }
+    .block-head.collapsible:hover:not(.no-hover) { background: var(--surface-1); }
     .block-head h2 {
-      font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
     }
-    .block-head h2::before {
-      content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px;
+    .block-head h2 .idx {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+    .block-timesheet .block-head h2 .idx { color: var(--primary); border-color: rgba(94,106,210,.3); background: var(--primary-soft); }
+    .block-head .head-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .block-head .status {
-      font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 500;
     }
-    .status-doing { background: #fff3cd; color: #856404; }
-    .status-done { background: #d4edda; color: #155724; }
-    .status-lock { background: #e9ecef; color: #6c757d; }
+    .status-doing { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-border); }
+    .status-done { background: var(--success-soft); color: var(--success); border: 1px solid var(--success-border); }
+    .status-lock { background: var(--surface-1); color: var(--ink-subtle); border: 1px solid var(--hairline); }
     .block-head .chevron {
-      font-size: 12px; color: var(--muted); transition: transform .2s;
+      width: 16px;
+      height: 16px;
+      color: var(--ink-subtle);
+      transition: transform var(--duration) var(--ease);
     }
-    .block.collapsed .block-head { border-bottom: none; }
+    .block.collapsed .block-head { border-bottom-color: transparent; }
     .block.collapsed .chevron { transform: rotate(-90deg); }
-    .block.collapsed .block-body { display: none; }
-    .block.locked .block-head { opacity: .65; cursor: not-allowed; }
-    .block.locked .block-head.collapsible { pointer-events: none; }
+    .block.locked { opacity: 0.65; }
+    .block.locked .block-head.collapsible { cursor: not-allowed; pointer-events: none; }
 
-    .block-body { padding: 12px 14px 14px; }
+    .block-body-wrap {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 260ms var(--ease);
+    }
+    .block.collapsed .block-body-wrap { grid-template-rows: 0fr; }
+    .block-body-inner { overflow: hidden; }
+    .block-body { padding: 16px; }
 
-    /* 工时区 — 始终展开 */
-    .block-timesheet .block-head { cursor: default; }
-    .draft-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .confirmed-tip {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #166534;
+      background: var(--success-soft);
+      border: 1px solid var(--success-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .confirmed-tip svg { width: 15px; height: 15px; color: var(--success); flex-shrink: 0; }
+    .block-timesheet.confirmed .confirmed-tip { display: flex; }
+
+    .table-wrap {
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .draft-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .draft-table th {
-      background: #f0f4f8; text-align: left; padding: 8px 10px;
-      border: 1px solid var(--border); font-weight: 600; color: var(--muted);
+      background: var(--surface-1);
+      text-align: left;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--hairline);
+      font-weight: 500;
+      color: var(--ink-subtle);
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
     .draft-table td {
-      padding: 8px 10px; border: 1px solid var(--border); vertical-align: middle;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--hairline);
+      vertical-align: middle;
     }
-    .draft-table .proj { font-weight: 600; }
-    .draft-table .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .draft-table tbody tr:last-child td { border-bottom: none; }
+    .draft-table tbody tr:hover td { background: var(--surface-1); }
+    .draft-table .proj { font-weight: 600; font-size: 13px; }
+    .draft-table .sub { font-size: 12px; color: var(--ink-subtle); margin-top: 2px; }
     .tag {
-      display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
-      background: #dbeafe; color: #1d4ed8;
+      display: inline-flex;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 500;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid rgba(94, 106, 210, 0.2);
     }
-    .tag.delegate { background: #fce7f3; color: #be185d; }
+    .tag.delegate {
+      background: #fdf2f8;
+      color: #be185d;
+      border-color: #fbcfe8;
+    }
     .hrs-input {
-      width: 52px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 3px;
-      text-align: center; font-size: 12px;
+      width: 52px;
+      padding: 6px 8px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--canvas);
+      transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
     }
+    .hrs-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-ring);
+    }
+    .dist-text { font-size: 12px; color: var(--ink-subtle); }
+
+    /* 工时展示格式切换 */
+    .ts-view-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .ts-view-hint {
+      font-size: 12px;
+      color: var(--ink-subtle);
+    }
+    .view-toggle {
+      display: inline-flex;
+      padding: 3px;
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+    .view-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--ink-subtle);
+      transition: all var(--duration) var(--ease);
+    }
+    .view-toggle-btn svg { width: 14px; height: 14px; }
+    .view-toggle-btn:hover { color: var(--ink-muted); }
+    .view-toggle-btn.active {
+      background: var(--canvas);
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(15, 15, 16, 0.06);
+    }
+    .table-wrap.hidden { display: none; }
+    .table-wrap.scroll-x { overflow-x: auto; }
+
+    /* 矩阵 Grid 视图 */
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 760px;
+    }
+    .grid-table th,
+    .grid-table td {
+      border-bottom: 1px solid var(--hairline);
+      padding: 8px 6px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .grid-table thead th {
+      background: var(--surface-1);
+      font-weight: 500;
+      color: var(--ink-subtle);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+    }
+    .grid-table thead th .day-date {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--ink-subtle);
+      margin-top: 1px;
+    }
+    .grid-table th:first-child,
+    .grid-table td:first-child {
+      text-align: left;
+      padding-left: 12px;
+      min-width: 180px;
+    }
+    .grid-table th.col-source,
+    .grid-table td.col-source {
+      width: 84px;
+      min-width: 84px;
+      text-align: center;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .grid-table td.col-source .tag { white-space: nowrap; }
+    .grid-table tbody tr:hover td { background: var(--surface-1); }
+    .grid-table td.weekend { background: rgba(245, 246, 246, 0.85); }
+    .grid-table .day-input {
+      width: 42px;
+      padding: 5px 4px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--canvas);
+      transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+    }
+    .grid-table .day-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-ring);
+    }
+    .grid-table .day-input:disabled {
+      background: var(--surface-1);
+      color: var(--ink-muted);
+      cursor: not-allowed;
+    }
+    .grid-table .row-total {
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--surface-2);
+    }
+    .grid-table tfoot td {
+      background: var(--surface-1);
+      font-weight: 600;
+      font-size: 12px;
+      border-top: 1px solid var(--hairline-strong);
+    }
+    .grid-table tfoot .col-total.has-hours { color: var(--primary); }
+
     .ts-foot {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 10px; flex-wrap: wrap; gap: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .ts-summary { font-size: 12px; color: var(--muted); }
-    .ts-summary strong { color: var(--text); font-size: 14px; }
-
-    /* 确认后：工时区紧凑条（仍保留完整表格，顶部加提示） */
-    .confirmed-tip {
-      display: none; font-size: 11px; color: var(--success);
-      background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px;
-      padding: 6px 10px; margin-bottom: 10px;
+    .ts-summary { font-size: 13px; color: var(--ink-muted); }
+    .ts-summary strong {
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
     }
-    .block-timesheet.confirmed .confirmed-tip { display: block; }
+    .ts-foot-actions { display: flex; gap: 8px; }
 
-    /* 周报 */
-    .wr-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-    .wr-part { margin-bottom: 12px; }
+    .wr-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .wr-toolbar .hint-text {
+      font-size: 12px;
+      color: var(--ink-subtle);
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .wr-toolbar .hint-text svg { width: 13px; height: 13px; }
+    .wr-part { margin-bottom: 18px; }
     .wr-part:last-child { margin-bottom: 0; }
     .wr-part-title {
-      font-size: 12px; font-weight: 700; margin-bottom: 6px;
-      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .wr-part-title .lim { font-size: 11px; color: var(--warn); font-weight: 600; }
+    .wr-part-title .lim {
+      font-size: 11px;
+      color: var(--warn);
+      font-weight: 500;
+      background: var(--warn-soft);
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--warn-border);
+    }
+    .wr-part-title.optional-toggle {
+      cursor: pointer;
+      padding: 6px 8px;
+      margin: 0 -8px 8px;
+      border-radius: var(--radius-md);
+      transition: background var(--duration) var(--ease);
+    }
+    .wr-part-title.optional-toggle:hover { background: var(--surface-1); }
     input[type="text"], textarea {
-      width: 100%; border: 1px solid var(--border); border-radius: 3px;
-      padding: 7px 9px; font-size: 12px; font-family: inherit;
+      width: 100%;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 9px 11px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--ink);
+      background: var(--canvas);
+      transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
     }
-    textarea { resize: vertical; min-height: 48px; }
+    input::placeholder, textarea::placeholder { color: var(--ink-subtle); }
     input:focus, textarea:focus {
-      outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(47,128,237,.12);
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-ring);
     }
-    .wr-row { margin-bottom: 8px; }
-    .wr-row:last-child { margin-bottom: 0; }
-    .optional-inner { padding-top: 8px; }
+    textarea { resize: vertical; min-height: 48px; line-height: 1.5; }
+    .wr-row { margin-bottom: 10px; }
+    .optional-inner {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 240ms var(--ease);
+    }
+    .optional-inner.hidden { grid-template-rows: 0fr; }
+    .optional-inner > div { overflow: hidden; }
 
-    /* 价值观 — 紧凑 */
+    .val-intro { font-size: 12px; color: var(--ink-subtle); margin-bottom: 10px; }
     .val-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
     }
     @media (max-width: 560px) { .val-row { grid-template-columns: repeat(2, 1fr); } }
     .val-cell {
-      text-align: center; padding: 6px; background: #f8f9fa; border: 1px solid var(--border);
-      border-radius: 3px;
+      text-align: center;
+      padding: 10px 6px;
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
     }
-    .val-cell .vn { font-size: 10px; color: var(--muted); }
-    .val-cell .vv { font-size: 16px; font-weight: 700; }
+    .val-cell .vn { font-size: 11px; color: var(--ink-subtle); margin-bottom: 3px; }
+    .val-cell .vv { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+    .val-cell.bad { border-color: #fecaca; background: var(--danger-soft); }
     .val-cell.bad .vv { color: var(--danger); }
+    .val-cell.ok { border-color: var(--success-border); background: var(--success-soft); }
     .val-cell.ok .vv { color: var(--success); }
-    .check-compact { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .check-compact {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.65;
+      padding: 10px 12px;
+      background: var(--surface-1);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--hairline);
+    }
     .check-compact .bad { color: var(--danger); font-weight: 600; }
     .warn-bar {
-      font-size: 11px; background: #fff8e6; border: 1px solid #ffe082;
-      border-radius: 3px; padding: 8px 10px; margin-top: 8px; line-height: 1.5;
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      background: var(--warn-soft);
+      border: 1px solid var(--warn-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-top: 10px;
+      line-height: 1.55;
+      color: #92400e;
     }
+    .warn-bar svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--warn); margin-top: 1px; }
 
     .submit-bar {
-      position: sticky; bottom: 0; z-index: 50;
-      background: rgba(255,255,255,.96); border-top: 1px solid var(--border);
-      padding: 10px 16px; display: flex; justify-content: flex-end; gap: 8px;
-      box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--hairline);
+      padding: 10px 20px;
     }
-    .submit-bar .hint { flex: 1; font-size: 11px; color: var(--muted); align-self: center; }
+    .submit-bar-inner {
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+    }
+    .submit-bar .hint {
+      flex: 1;
+      font-size: 12px;
+      color: var(--ink-subtle);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .submit-bar .hint svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-    .ai-loading { opacity: .55; pointer-events: none; }
+    .ai-loading { opacity: 0.55; pointer-events: none; }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <header class="app-bar">
-    <a href="index.html">← 返回原型导航</a>
+  <header class="top-nav">
+    <a href="index.html" class="nav-back">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      返回
+    </a>
+    <span class="nav-sep"></span>
+    <span class="nav-title">本周填报</span>
+    <div class="nav-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="btn-save">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/></svg>
+        保存草稿
+      </button>
+    </div>
   </header>
 
-  <div class="page-banner">
-    <h1>皮延升 · 第 21 周工时与周报</h1>
-    <div class="meta">2026/05/17 – 2026/05/23 · IT测试主管 · 考核周期 2026 Q2</div>
-    <div class="actions">
-      <button type="button" class="btn btn-white" id="btn-save">保存草稿</button>
+  <div class="page">
+    <header class="page-header">
+      <p class="eyebrow">2026 年第 21 周 · Q2 考核周期</p>
+      <h1>皮延升 · 工时与周报</h1>
+      <div class="meta-chips">
+        <span class="meta-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+          05/17 – 05/23
+        </span>
+        <span class="meta-chip">IT测试主管</span>
+        <span class="meta-chip">首个工作日提交可获积分</span>
+      </div>
+    </header>
+
+    <div class="progress-steps" id="progress-steps">
+      <div class="progress-step active" data-step="1">
+        <span class="step-num">1</span>
+        <span>确认工时</span>
+      </div>
+      <div class="progress-step" data-step="2">
+        <span class="step-num">2</span>
+        <span>填写周报</span>
+      </div>
+      <div class="progress-step" data-step="3">
+        <span class="step-num">3</span>
+        <span>提交</span>
+      </div>
+    </div>
+
+    <div class="content">
+    <!-- ① 工时：始终展示 -->
+    <section class="block block-timesheet" id="block-ts">
+      <div class="block-head">
+        <h2><span class="idx">1</span>工作日志 · 本周工时</h2>
+        <span class="status status-doing" id="ts-status">待确认</span>
+      </div>
+      <div class="block-body-wrap">
+        <div class="block-body-inner">
+          <div class="block-body">
+            <div class="confirmed-tip" id="ts-confirmed-tip">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+              工时已确认。填写周报时可向上滚动查看本表。
+            </div>
+            <div class="ts-view-bar">
+              <span class="ts-view-hint">支持列表与矩阵两种展示，矩阵便于对照按日填报习惯</span>
+              <div class="view-toggle" role="tablist" aria-label="工时展示格式">
+                <button type="button" class="view-toggle-btn active" data-view="list" role="tab" aria-selected="true" id="btn-view-list">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm0 5.25h.007v.008H3.75V12Zm0 5.25h.007v.008H3.75v-.008Z"/></svg>
+                  列表
+                </button>
+                <button type="button" class="view-toggle-btn" data-view="grid" role="tab" aria-selected="false" id="btn-view-grid">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>
+                  矩阵
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap" id="ts-list-view">
+              <table class="draft-table">
+                <thead>
+                  <tr>
+                    <th style="width:36px"><input type="checkbox" checked id="chk-all" aria-label="全选"></th>
+                    <th>项目 / 活动</th>
+                    <th style="width:80px">来源</th>
+                    <th style="width:64px">工时</th>
+                    <th style="width:110px">分布</th>
+                  </tr>
+                </thead>
+                <tbody id="ts-list-body">
+                  <tr data-hours="0,4,0,4,0,4,0" data-source="wbs">
+                    <td><input type="checkbox" checked class="row-chk" aria-label="选择行"></td>
+                    <td>
+                      <div class="proj">工时周报管理系统重构</div>
+                      <div class="sub">需求分析 · 方案设计</div>
+                    </td>
+                    <td><span class="tag">飞书 WBS</span></td>
+                    <td><input type="text" class="hrs-input" value="12" aria-label="工时"></td>
+                    <td class="dist-text">一4 · 三4 · 五4</td>
+                  </tr>
+                  <tr data-hours="0,0,8,0,8,0,0" data-source="wbs">
+                    <td><input type="checkbox" checked class="row-chk" aria-label="选择行"></td>
+                    <td>
+                      <div class="proj">任职资格系统</div>
+                      <div class="sub">n8n 流程建设</div>
+                    </td>
+                    <td><span class="tag">飞书 WBS</span></td>
+                    <td><input type="text" class="hrs-input" value="16" aria-label="工时"></td>
+                    <td class="dist-text">二8 · 四8</td>
+                  </tr>
+                  <tr data-hours="0,0,2,0,2,0,0" data-source="delegate">
+                    <td><input type="checkbox" checked class="row-chk" aria-label="选择行"></td>
+                    <td>
+                      <div class="proj">业务方案 · 会议</div>
+                      <div class="sub">方案评审</div>
+                    </td>
+                    <td><span class="tag delegate">代发</span></td>
+                    <td><input type="text" class="hrs-input" value="4" aria-label="工时"></td>
+                    <td class="dist-text">二2 · 四2</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-wrap scroll-x hidden" id="ts-grid-view">
+              <table class="grid-table">
+                <thead>
+                  <tr id="grid-head-row">
+                    <th>项目 / 活动</th>
+                    <th class="col-source">来源</th>
+                    <th>日<span class="day-date">5/17</span></th>
+                    <th>一<span class="day-date">5/18</span></th>
+                    <th>二<span class="day-date">5/19</span></th>
+                    <th>三<span class="day-date">5/20</span></th>
+                    <th>四<span class="day-date">5/21</span></th>
+                    <th>五<span class="day-date">5/22</span></th>
+                    <th>六<span class="day-date">5/23</span></th>
+                    <th style="width:52px">合计</th>
+                  </tr>
+                </thead>
+                <tbody id="grid-body"></tbody>
+                <tfoot>
+                  <tr id="grid-foot-row">
+                    <td>日合计</td>
+                    <td class="col-source"></td>
+                    <td class="col-total" data-day="0">0</td>
+                    <td class="col-total" data-day="1">0</td>
+                    <td class="col-total" data-day="2">0</td>
+                    <td class="col-total" data-day="3">0</td>
+                    <td class="col-total" data-day="4">0</td>
+                    <td class="col-total" data-day="5">0</td>
+                    <td class="col-total" data-day="6">0</td>
+                    <td id="grid-grand-total">0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="ts-foot">
+              <div class="ts-summary">合计 <strong id="ts-total">32</strong>h · 飞书 WBS <span id="ts-wbs">28</span>h · 代发 <span id="ts-delegate">4</span>h</div>
+              <div class="ts-foot-actions">
+                <button type="button" class="btn btn-outline btn-sm" id="btn-add">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  增行
+                </button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-ts">确认工时</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② 周报：默认收起 -->
+    <section class="block collapsed locked" id="block-wr">
+      <div class="block-head collapsible" id="head-wr">
+        <h2><span class="idx">2</span>工作描述 · 周报</h2>
+        <div class="head-right">
+          <span class="status status-lock" id="wr-status">请先确认工时</span>
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+        </div>
+      </div>
+      <div class="block-body-wrap">
+        <div class="block-body-inner">
+          <div class="block-body" id="body-wr">
+            <div class="wr-toolbar">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-bring">带出上周</button>
+              <button type="button" class="btn btn-ai btn-sm" id="btn-ai">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>
+                AI 生成进展
+              </button>
+              <span class="hint-text">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                可向上滚动对照工时表
+              </span>
+            </div>
+
+            <div class="wr-part">
+              <div class="wr-part-title">一、上周重要工作进展回顾 <span class="lim">限 3 项</span></div>
+              <div class="wr-row">
+                <input type="text" class="review-desc" placeholder="工作描述 1" aria-label="工作描述 1">
+                <textarea class="review-progress" rows="2" placeholder="进展说明 1" style="margin-top:6px" aria-label="进展说明 1"></textarea>
+              </div>
+              <div class="wr-row">
+                <input type="text" class="review-desc" placeholder="工作描述 2" aria-label="工作描述 2">
+                <textarea class="review-progress" rows="2" placeholder="进展说明 2" style="margin-top:6px" aria-label="进展说明 2"></textarea>
+              </div>
+              <div class="wr-row">
+                <input type="text" class="review-desc" placeholder="工作描述 3" aria-label="工作描述 3">
+                <textarea class="review-progress" rows="2" placeholder="进展说明 3" style="margin-top:6px" aria-label="进展说明 3"></textarea>
+              </div>
+            </div>
+
+            <div class="wr-part">
+              <div class="wr-part-title">二、本周工作计划 <span class="lim">限 3 项</span></div>
+              <textarea class="plan-text" rows="2" placeholder="计划 1" aria-label="计划 1"></textarea>
+              <textarea class="plan-text" rows="2" placeholder="计划 2" style="margin-top:8px" aria-label="计划 2"></textarea>
+              <textarea class="plan-text" rows="2" placeholder="计划 3" style="margin-top:8px" aria-label="计划 3"></textarea>
+            </div>
+
+            <div class="wr-part">
+              <div class="wr-part-title optional-toggle" id="toggle-optional">
+                三～五、支持 / 建议 / 附件（选填）
+                <svg class="chevron" style="width:14px;height:14px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+              </div>
+              <div class="optional-inner hidden" id="optional-inner">
+                <div>
+                  <textarea rows="2" placeholder="需要的支持/帮助/资源" style="margin-bottom:8px" aria-label="需要的支持"></textarea>
+                  <textarea rows="2" placeholder="工作建议及其他说明" aria-label="工作建议"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ 价值观 -->
+    <section class="block collapsed locked" id="block-val">
+      <div class="block-head collapsible" id="head-val">
+        <h2><span class="idx">3</span>价值观行为记录</h2>
+        <div class="head-right">
+          <span class="status status-lock" id="val-status">请先确认工时</span>
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+        </div>
+      </div>
+      <div class="block-body-wrap">
+        <div class="block-body-inner">
+          <div class="block-body">
+            <p class="val-intro">考核周期内（2026 Q2）· 提交前自行核对</p>
+            <div class="val-row">
+              <div class="val-cell bad"><div class="vn">成就客户</div><div class="vv">0</div></div>
+              <div class="val-cell ok"><div class="vn">不断创新</div><div class="vv">1</div></div>
+              <div class="val-cell bad"><div class="vn">阳光合作</div><div class="vv">0</div></div>
+              <div class="val-cell bad"><div class="vn">良知自律</div><div class="vv">0</div></div>
+            </div>
+            <div class="check-compact">
+              礼物总数 ≥4：<span class="bad">1 未达标</span> ·
+              各类型 ≥1：<span class="bad">未达标</span> ·
+              自知/点赞 ≥3：<span class="bad">1</span> ·
+              自律/责善 ≥1：<span class="bad">0</span>
+            </div>
+            <div class="warn-bar">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+              <span>本周期价值观暂未达标，请关注并及时补充。年度：点赞 2/4，责善 0/12。年度点赞&lt;4 或责善&gt;12 需参加普源书院脱产学习（≥1周）；10/1 后入职首年免年度要求。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     </div>
   </div>
 
-  <div class="wrap">
-    <!-- ① 工时：始终展示，不收起 -->
-    <section class="block block-timesheet" id="block-ts">
-      <div class="block-head">
-        <h2>工作日志 · 本周工时</h2>
-        <span class="status status-doing" id="ts-status">待确认</span>
-      </div>
-      <div class="block-body">
-        <div class="confirmed-tip" id="ts-confirmed-tip">✓ 工时已确认。填写周报时可向上查看本表。</div>
-        <table class="draft-table">
-          <thead>
-            <tr>
-              <th style="width:28px"><input type="checkbox" checked id="chk-all"></th>
-              <th>项目 / 活动</th>
-              <th style="width:70px">来源</th>
-              <th style="width:56px">工时</th>
-              <th style="width:100px">分布</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="checkbox" checked class="row-chk"></td>
-              <td>
-                <div class="proj">工时周报管理系统重构</div>
-                <div class="sub">需求分析 · 方案设计</div>
-              </td>
-              <td><span class="tag">Booking</span></td>
-              <td><input type="text" class="hrs-input" value="12"></td>
-              <td style="font-size:11px;color:var(--muted)">一4·三4·五4</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox" checked class="row-chk"></td>
-              <td>
-                <div class="proj">任职资格系统</div>
-                <div class="sub">n8n 流程建设</div>
-              </td>
-              <td><span class="tag">Booking</span></td>
-              <td><input type="text" class="hrs-input" value="16"></td>
-              <td style="font-size:11px;color:var(--muted)">二8·四8</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox" checked class="row-chk"></td>
-              <td>
-                <div class="proj">业务方案 · 会议</div>
-                <div class="sub">方案评审</div>
-              </td>
-              <td><span class="tag delegate">代发</span></td>
-              <td><input type="text" class="hrs-input" value="4"></td>
-              <td style="font-size:11px;color:var(--muted)">二2·四2</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="ts-foot">
-          <div class="ts-summary">合计 <strong id="ts-total">32</strong>h · Booking 内 28h · 代发 4h</div>
-          <div>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-add">+ 增行</button>
-            <button type="button" class="btn btn-primary" id="btn-confirm-ts">确认工时</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ② 周报：默认收起，确认工时后展开 -->
-    <section class="block collapsed locked" id="block-wr">
-      <div class="block-head collapsible" id="head-wr">
-        <h2>工作描述 · RIGOL 周报</h2>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="status status-lock" id="wr-status">请先确认工时</span>
-          <span class="chevron">▼</span>
-        </div>
-      </div>
-      <div class="block-body" id="body-wr">
-        <div class="wr-toolbar">
-          <button type="button" class="btn btn-outline btn-sm" id="btn-bring">带出上周</button>
-          <button type="button" class="btn btn-ai btn-sm" id="btn-ai">✨ AI 生成进展</button>
-          <span style="font-size:11px;color:var(--muted);align-self:center">可向上滚动对照工时表</span>
-        </div>
-
-        <div class="wr-part">
-          <div class="wr-part-title">一、上周重要工作进展回顾 <span class="lim">限 3 项</span></div>
-          <div class="wr-row">
-            <input type="text" class="review-desc" placeholder="工作描述 1">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 1" style="margin-top:4px"></textarea>
-          </div>
-          <div class="wr-row">
-            <input type="text" class="review-desc" placeholder="工作描述 2">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 2" style="margin-top:4px"></textarea>
-          </div>
-          <div class="wr-row">
-            <input type="text" class="review-desc" placeholder="工作描述 3">
-            <textarea class="review-progress" rows="2" placeholder="进展说明 3" style="margin-top:4px"></textarea>
-          </div>
-        </div>
-
-        <div class="wr-part">
-          <div class="wr-part-title">二、本周工作计划 <span class="lim">限 3 项</span></div>
-          <textarea class="plan-text" rows="2" placeholder="计划 1"></textarea>
-          <textarea class="plan-text" rows="2" placeholder="计划 2" style="margin-top:4px"></textarea>
-          <textarea class="plan-text" rows="2" placeholder="计划 3" style="margin-top:4px"></textarea>
-        </div>
-
-        <div class="wr-part">
-          <div class="wr-part-title" style="cursor:pointer" id="toggle-optional">三～五、支持 / 建议 / 附件（选填） <span class="chevron" style="font-size:10px">▼</span></div>
-          <div class="optional-inner hidden" id="optional-inner">
-            <textarea rows="2" placeholder="需要的支持/帮助/资源" style="margin-bottom:4px"></textarea>
-            <textarea rows="2" placeholder="工作建议及其他说明"></textarea>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ③ 价值观：默认收起，确认工时后解锁（仍收起，提交前展开） -->
-    <section class="block collapsed locked" id="block-val">
-      <div class="block-head collapsible" id="head-val">
-        <h2>价值观行为记录</h2>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="status status-lock" id="val-status">请先确认工时</span>
-          <span class="chevron">▼</span>
-        </div>
-      </div>
-      <div class="block-body">
-        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">考核周期内（2026 Q2）· 提交前自行核对</p>
-        <div class="val-row">
-          <div class="val-cell bad"><div class="vn">成就客户</div><div class="vv">0</div></div>
-          <div class="val-cell ok"><div class="vn">不断创新</div><div class="vv">1</div></div>
-          <div class="val-cell bad"><div class="vn">阳光合作</div><div class="vv">0</div></div>
-          <div class="val-cell bad"><div class="vn">良知自律</div><div class="vv">0</div></div>
-        </div>
-        <div class="check-compact">
-          礼物总数 ≥4：<span class="bad">1 未达标</span> ·
-          各类型 ≥1：<span class="bad">未达标</span> ·
-          自知/点赞 ≥3：<span class="bad">1</span> ·
-          自律/责善 ≥1：<span class="bad">0</span>
-        </div>
-        <div class="warn-bar">
-          ⚠️ 本周期价值观暂未达标，请关注并及时补充。年度：点赞 2/4，责善 0/12。
-          年度点赞&lt;4 或责善&gt;12 需参加普源书院脱产学习（≥1周）；10/1 后入职首年免年度要求。
-        </div>
-      </div>
-    </section>
-  </div>
-
   <div class="submit-bar">
-    <span class="hint" id="submit-hint">请先确认上方工时</span>
-    <button type="button" class="btn btn-outline" id="btn-expand-val" disabled>展开价值观检查</button>
-    <button type="button" class="btn btn-primary" id="btn-submit" disabled>一键提交（工时 + 周报）</button>
+    <div class="submit-bar-inner">
+      <span class="hint" id="submit-hint">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+        请先确认上方工时
+      </span>
+      <button type="button" class="btn btn-outline" id="btn-expand-val" disabled>展开价值观检查</button>
+      <button type="button" class="btn btn-primary" id="btn-submit" disabled>一键提交（工时 + 周报）</button>
+    </div>
   </div>
 
   <script src="shared.js"></script>
@@ -346,6 +991,155 @@
     };
 
     let tsConfirmed = false;
+    const TS_VIEW_KEY = 'timesheet-view-mode';
+    const WEEK_DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
+    const WEEKEND_DAYS = new Set([0, 6]);
+
+    function getListRows() {
+      return [...document.querySelectorAll('#ts-list-body tr')];
+    }
+
+    function parseRowHours(tr) {
+      return (tr.dataset.hours || '0,0,0,0,0,0,0').split(',').map(v => Number(v) || 0);
+    }
+
+    function formatDistText(hours) {
+      return hours
+        .map((h, i) => (h > 0 ? WEEK_DAY_LABELS[i] + h : null))
+        .filter(Boolean)
+        .join(' · ') || '—';
+    }
+
+    function setRowHours(tr, hours) {
+      tr.dataset.hours = hours.join(',');
+      tr.querySelector('.dist-text').textContent = formatDistText(hours);
+      tr.querySelector('.hrs-input').value = hours.reduce((sum, h) => sum + h, 0);
+    }
+
+    function updateTsSummary() {
+      let total = 0;
+      let wbs = 0;
+      let delegate = 0;
+      getListRows().forEach(tr => {
+        if (!tr.querySelector('.row-chk').checked) return;
+        const rowTotal = parseRowHours(tr).reduce((sum, h) => sum + h, 0);
+        total += rowTotal;
+        if (tr.dataset.source === 'delegate') delegate += rowTotal;
+        else wbs += rowTotal;
+      });
+      document.getElementById('ts-total').textContent = total;
+      document.getElementById('ts-wbs').textContent = wbs;
+      document.getElementById('ts-delegate').textContent = delegate;
+    }
+
+    function updateGridColTotals() {
+      const colTotals = [0, 0, 0, 0, 0, 0, 0];
+      getListRows().forEach(tr => {
+        if (!tr.querySelector('.row-chk').checked) return;
+        parseRowHours(tr).forEach((h, i) => { colTotals[i] += h; });
+      });
+      colTotals.forEach((total, i) => {
+        const cell = document.querySelector('.col-total[data-day="' + i + '"]');
+        if (!cell) return;
+        cell.textContent = total || '0';
+        cell.classList.toggle('has-hours', total > 0);
+      });
+      document.getElementById('grid-grand-total').textContent = colTotals.reduce((sum, h) => sum + h, 0);
+    }
+
+    function getRowSourceTag(tr) {
+      const tagEl = tr.querySelector('.tag');
+      return tagEl ? tagEl.outerHTML : '<span class="tag">—</span>';
+    }
+
+    function renderGridView() {
+      const tbody = document.getElementById('grid-body');
+      tbody.innerHTML = getListRows().map((tr, rowIndex) => {
+        if (!tr.querySelector('.row-chk').checked) return '';
+        const hours = parseRowHours(tr);
+        const proj = tr.querySelector('.proj').textContent;
+        const sub = tr.querySelector('.sub').textContent;
+        const sourceTag = getRowSourceTag(tr);
+        const rowTotal = hours.reduce((sum, h) => sum + h, 0);
+        const cells = hours.map((h, dayIndex) => {
+          const weekend = WEEKEND_DAYS.has(dayIndex) ? ' weekend' : '';
+          const val = h > 0 ? h : '';
+          return '<td class="' + weekend.trim() + '">' +
+            '<input type="text" class="day-input" data-row="' + rowIndex + '" data-day="' + dayIndex + '" value="' + val + '" inputmode="decimal" aria-label="' + WEEK_DAY_LABELS[dayIndex] + '">' +
+            '</td>';
+        }).join('');
+        return '<tr><td><div class="proj">' + proj + '</div><div class="sub">' + sub + '</div></td>' +
+          '<td class="col-source">' + sourceTag + '</td>' + cells +
+          '<td class="row-total" data-row-total="' + rowIndex + '">' + rowTotal + '</td></tr>';
+      }).join('');
+      updateGridColTotals();
+    }
+
+    function syncGridCell(input) {
+      const rowIndex = Number(input.dataset.row);
+      const dayIndex = Number(input.dataset.day);
+      const tr = getListRows()[rowIndex];
+      if (!tr) return;
+      const hours = parseRowHours(tr);
+      hours[dayIndex] = Math.max(0, Number(input.value) || 0);
+      if (!input.value.trim()) input.value = '';
+      else input.value = hours[dayIndex] || '';
+      setRowHours(tr, hours);
+      const totalCell = document.querySelector('[data-row-total="' + rowIndex + '"]');
+      if (totalCell) totalCell.textContent = hours.reduce((sum, h) => sum + h, 0);
+      updateGridColTotals();
+      updateTsSummary();
+    }
+
+    function setTimesheetView(mode) {
+      document.getElementById('ts-list-view').classList.toggle('hidden', mode !== 'list');
+      document.getElementById('ts-grid-view').classList.toggle('hidden', mode !== 'grid');
+      document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        const active = btn.dataset.view === mode;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      if (mode === 'grid') renderGridView();
+      try { localStorage.setItem(TS_VIEW_KEY, mode); } catch (_) {}
+    }
+
+    function bindTimesheetView() {
+      document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => setTimesheetView(btn.dataset.view));
+      });
+      document.getElementById('grid-body').addEventListener('input', e => {
+        if (e.target.classList.contains('day-input')) syncGridCell(e.target);
+      });
+      document.getElementById('ts-list-body').addEventListener('input', e => {
+        if (e.target.classList.contains('hrs-input')) updateTsSummary();
+      });
+      document.getElementById('ts-list-body').addEventListener('change', e => {
+        if (e.target.classList.contains('row-chk')) {
+          updateTsSummary();
+          if (!document.getElementById('ts-grid-view').classList.contains('hidden')) renderGridView();
+        }
+      });
+      document.getElementById('chk-all').addEventListener('change', e => {
+        document.querySelectorAll('.row-chk').forEach(chk => { chk.checked = e.target.checked; });
+        updateTsSummary();
+        if (!document.getElementById('ts-grid-view').classList.contains('hidden')) renderGridView();
+      });
+      let savedView = 'list';
+      try { savedView = localStorage.getItem(TS_VIEW_KEY) || 'list'; } catch (_) {}
+      setTimesheetView(savedView === 'grid' ? 'grid' : 'list');
+      updateTsSummary();
+    }
+
+    bindTimesheetView();
+
+    function updateProgress(step) {
+      document.querySelectorAll('.progress-step').forEach(el => {
+        const n = +el.dataset.step;
+        el.classList.remove('active', 'done');
+        if (n < step) el.classList.add('done');
+        else if (n === step) el.classList.add('active');
+      });
+    }
 
     function toggleBlock(blockEl, expand) {
       if (expand) blockEl.classList.remove('collapsed');
@@ -365,7 +1159,10 @@
     setupCollapsible('head-val', 'block-val');
 
     document.getElementById('toggle-optional').addEventListener('click', () => {
-      document.getElementById('optional-inner').classList.toggle('hidden');
+      const inner = document.getElementById('optional-inner');
+      inner.classList.toggle('hidden');
+      const chev = document.querySelector('#toggle-optional .chevron');
+      if (chev) chev.style.transform = inner.classList.contains('hidden') ? 'rotate(-90deg)' : '';
     });
 
     document.getElementById('btn-confirm-ts').addEventListener('click', () => {
@@ -378,7 +1175,6 @@
       document.getElementById('btn-confirm-ts').classList.remove('btn-primary');
       document.getElementById('btn-confirm-ts').classList.add('btn-outline');
 
-      // 解锁并展开周报；价值观解锁但保持收起
       const blockWr = document.getElementById('block-wr');
       const blockVal = document.getElementById('block-val');
       blockWr.classList.remove('locked');
@@ -391,14 +1187,16 @@
       toggleBlock(blockWr, true);
       toggleBlock(blockVal, false);
 
-      document.getElementById('submit-hint').textContent = '填写周报时可向上查看工时表';
+      updateProgress(2);
+
+      document.getElementById('submit-hint').innerHTML =
+        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>填写周报时可向上查看工时表';
       document.getElementById('btn-expand-val').disabled = false;
       document.getElementById('btn-submit').disabled = false;
 
-      // 平滑滚到周报区
       setTimeout(() => {
         blockWr.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 200);
+      }, 280);
 
       showToast('工时已确认，周报区域已展开', 'success');
     });
@@ -408,6 +1206,7 @@
       toggleBlock(blockVal, true);
       document.getElementById('val-status').textContent = '已查看';
       document.getElementById('val-status').className = 'status status-done';
+      updateProgress(3);
       blockVal.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
@@ -451,7 +1250,7 @@
       }
       const ok = await confirmDialog('确认提交？', '将同时提交本周工时与 RIGOL 周报。');
       if (!ok) return;
-      FlowStore.set({ paradigm: 'Unified', totalHours: 32, week: 'W21' });
+      FlowStore.set({ paradigm: 'Unified', totalHours: Number(document.getElementById('ts-total').textContent) || 32, week: 'W21' });
       window.location.href = 'flow-submitted.html?from=Unified';
     });
 
